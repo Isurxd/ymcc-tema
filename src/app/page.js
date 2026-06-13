@@ -106,18 +106,18 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-center lg:items-start text-center lg:text-left w-full mt-24 md:mt-16">
-          <h1 className="reveal text-4xl sm:text-5xl md:text-7xl lg:text-[6rem] font-anton tracking-wide uppercase leading-[1.1] md:leading-[1.05] mb-4 text-white drop-shadow-lg max-w-3xl">
+          <h1 className="reveal text-3xl sm:text-4xl md:text-6xl lg:text-[6rem] font-anton tracking-wide uppercase leading-[1.1] md:leading-[1.05] mb-4 text-white drop-shadow-lg max-w-3xl">
             NAVIGATE THE FUTURE
           </h1>
           <h2
-            className="reveal text-lg sm:text-xl md:text-2xl font-poppins font-bold text-white mb-6 tracking-wide drop-shadow-md uppercase"
+            className="reveal text-base sm:text-lg md:text-2xl font-poppins font-bold text-white mb-6 tracking-wide drop-shadow-md uppercase"
             style={{ transitionDelay: "100ms" }}
           >
             THE GREEN COMPASS INITIATIVE
           </h2>
 
           <p
-            className="reveal text-sm md:text-base font-medium text-gray-200 max-w-2xl leading-relaxed mb-8 md:mb-10 drop-shadow-md px-2 lg:px-0"
+            className="reveal text-xs sm:text-sm md:text-base font-medium text-gray-200 max-w-2xl leading-relaxed mb-8 md:mb-10 drop-shadow-md px-2 lg:px-0"
             style={{ transitionDelay: "200ms" }}
           >
             Guided by "The Green Compass," YMCC VII unites ASEAN, China, and Australia's brightest engineering talents. We exist to drive sustainable innovation, technical precision, and future-ready energy solutions in the global mineral resources sector.
@@ -162,7 +162,7 @@ export default function Home() {
             <div className="flex items-center mb-6 animate-float">
               <Image src="/LOGO YMCC RASIO 1X1.png" alt="YMCC Logo" width={220} height={80} className="object-contain transition-all duration-500 hover:rotate-6 hover:scale-110 cursor-pointer drop-shadow-md" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-anton uppercase text-[#111] leading-[1.1] tracking-wide mt-2">
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-anton uppercase text-[#111] leading-[1.2] md:leading-[1.1] tracking-wide mt-2">
               THE COALITION OF EARTH SCIENCE EXCELLENCE
             </h2>
             <Link
@@ -189,7 +189,7 @@ export default function Home() {
 
       {/* CORE VALUES */}
       <section className="max-w-6xl mx-auto px-6 pb-32">
-        <h2 className="reveal text-4xl md:text-5xl font-anton tracking-wide uppercase text-[#111] mb-12">
+        <h2 className="reveal text-2xl md:text-4xl lg:text-5xl font-anton tracking-wide uppercase text-[#111] mb-8 md:mb-12">
           THE CORE VALUE ARCHITECTURE
         </h2>
 
@@ -198,7 +198,7 @@ export default function Home() {
             <div className="w-10 h-10 bg-[var(--color-grass)] rounded-full border border-black flex items-center justify-center font-anton text-xl text-[#111] mb-6 shadow-sm">
               1
             </div>
-            <h3 className="text-3xl font-anton uppercase text-[#111] mb-4 tracking-wide group-hover:text-gray-700 transition-colors">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-anton uppercase text-[#111] mb-4 tracking-wide group-hover:text-gray-700 transition-colors">
               INTELLECTUAL VALIDITY
             </h3>
             <p className="text-[#111] font-poppins font-medium text-[13px] leading-relaxed mb-8 flex-grow">
@@ -220,7 +220,7 @@ export default function Home() {
                 2
               </div>
               <div>
-                <h3 className="text-3xl font-anton uppercase text-[#111] mb-3 tracking-wide group-hover:text-gray-700 transition-colors">
+                <h3 className="text-xl md:text-2xl lg:text-3xl font-anton uppercase text-[#111] mb-3 tracking-wide group-hover:text-gray-700 transition-colors">
                   ESG INTEGRATION
                 </h3>
                 <p className="text-gray-600 font-poppins font-medium text-[13px] leading-relaxed">
@@ -237,7 +237,7 @@ export default function Home() {
                 3
               </div>
               <div>
-                <h3 className="text-3xl font-anton uppercase text-[#111] mb-3 tracking-wide group-hover:text-gray-700 transition-colors">
+                <h3 className="text-xl md:text-2xl lg:text-3xl font-anton uppercase text-[#111] mb-3 tracking-wide group-hover:text-gray-700 transition-colors">
                   CROSS-BORDER NETWORKS
                 </h3>
                 <p className="text-gray-600 font-poppins font-medium text-[13px] leading-relaxed">
@@ -252,7 +252,7 @@ export default function Home() {
       {/* COMPETITIONS ARCHITECTURE */}
       <section className="max-w-6xl mx-auto px-6 pb-32">
         <div className="text-center mb-16 reveal">
-          <h2 className="text-4xl md:text-5xl font-anton tracking-wide uppercase text-[#111] mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-anton tracking-wide uppercase text-[#111] mb-4">
             THE COMPETITIONS ARCHITECTURE
           </h2>
           <p className="font-poppins font-bold text-sm text-[#111] underline decoration-2 underline-offset-4 decoration-[var(--color-grass)]">
@@ -269,7 +269,7 @@ export default function Home() {
               <span className="bg-[#f4ffcc] border border-black px-4 py-1.5 rounded-full text-[10px] font-bold font-poppins text-[#111] uppercase mb-4 w-full truncate">
                 {comp.pills && comp.pills.length > 0 ? comp.pills[0] : "COMPETITION"}
               </span>
-              <h3 className="text-2xl font-anton uppercase text-[#111] leading-tight mb-8 flex-grow">{comp.title}</h3>
+              <h3 className="text-lg md:text-xl lg:text-2xl font-anton uppercase text-[#111] leading-tight mb-8 flex-grow">{comp.title}</h3>
               
               <Link href="/events" className="w-full mt-auto">
                 <button className="w-full border-2 border-black bg-black text-[#c1ff00] rounded-full py-3.5 font-poppins font-bold text-xs uppercase tracking-widest hover:bg-[#c1ff00] hover:text-black transition-colors duration-300 flex items-center justify-center gap-2">
@@ -288,7 +288,7 @@ export default function Home() {
       {/* LATEST NEWS */}
       <section className="max-w-6xl mx-auto px-6 pb-32">
         <div className="flex justify-between items-end mb-12 reveal">
-          <h2 className="text-4xl md:text-5xl font-anton tracking-wide uppercase text-[#111]">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-anton tracking-wide uppercase text-[#111]">
             Browse Our Latest News
           </h2>
           <Link href="/news">
@@ -344,7 +344,7 @@ export default function Home() {
 
       {/* FAQ SECTION */}
       <section className="max-w-4xl mx-auto px-6 pb-24 reveal">
-        <h2 className="text-4xl md:text-5xl font-anton tracking-wide text-[#111] text-center mb-12">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-anton tracking-wide text-[#111] text-center mb-8 md:mb-12">
           FREQUENTLY ASKED QUESTIONS
         </h2>
 
@@ -383,7 +383,7 @@ export default function Home() {
 
       {/* TRUSTED BY SPONSORS (Marquee) */}
       <section className="pb-24 overflow-hidden border-t border-gray-200 pt-12 reveal">
-        <h3 className="text-center font-anton text-2xl uppercase tracking-widest text-[#111] mb-12">Trusted By Top Industry Networks</h3>
+        <h3 className="text-center font-anton text-lg md:text-2xl uppercase tracking-widest text-[#111] mb-8 md:mb-12">Trusted By Top Industry Networks</h3>
         <div className="relative w-full flex overflow-x-hidden group">
           {[0, 1].map((i) => (
             <div key={i} className="animate-marquee shrink-0 whitespace-nowrap flex items-center group-hover:[animation-play-state:paused]" aria-hidden={i === 1 ? "true" : "false"}>
