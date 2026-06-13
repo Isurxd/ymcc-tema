@@ -105,29 +105,29 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#fafafa]"></div>
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-center lg:items-start text-center lg:text-left w-full mt-16">
-          <h1 className="reveal text-5xl md:text-7xl lg:text-[6rem] font-anton tracking-wide uppercase leading-[1.05] mb-2 text-white drop-shadow-lg max-w-3xl">
+        <div className="relative z-10 max-w-6xl mx-auto flex flex-col items-center lg:items-start text-center lg:text-left w-full mt-24 md:mt-16">
+          <h1 className="reveal text-4xl sm:text-5xl md:text-7xl lg:text-[6rem] font-anton tracking-wide uppercase leading-[1.1] md:leading-[1.05] mb-4 text-white drop-shadow-lg max-w-3xl">
             NAVIGATE THE FUTURE
           </h1>
           <h2
-            className="reveal text-xl md:text-2xl font-poppins font-bold text-white mb-6 tracking-wide drop-shadow-md uppercase"
+            className="reveal text-lg sm:text-xl md:text-2xl font-poppins font-bold text-white mb-6 tracking-wide drop-shadow-md uppercase"
             style={{ transitionDelay: "100ms" }}
           >
             THE GREEN COMPASS INITIATIVE
           </h2>
 
           <p
-            className="reveal text-sm md:text-base font-medium text-gray-200 max-w-2xl leading-relaxed mb-10 drop-shadow-md"
+            className="reveal text-sm md:text-base font-medium text-gray-200 max-w-2xl leading-relaxed mb-8 md:mb-10 drop-shadow-md px-2 lg:px-0"
             style={{ transitionDelay: "200ms" }}
           >
             Guided by "The Green Compass," YMCC VII unites ASEAN, China, and Australia's brightest engineering talents. We exist to drive sustainable innovation, technical precision, and future-ready energy solutions in the global mineral resources sector.
           </p>
 
           <div
-            className="reveal flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mb-16"
+            className="reveal flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 w-full sm:w-auto mb-16"
             style={{ transitionDelay: "300ms" }}
           >
-            <Link href="/register">
+            <Link href="/register" className="w-full sm:w-auto">
               <button className="btn-brutal bg-[var(--color-grass)] text-[#111] font-poppins font-bold text-[13px] px-8 py-3.5 rounded-full uppercase tracking-wider w-full sm:w-auto">
                 REGISTER ACCOUNT
               </button>
@@ -139,7 +139,7 @@ export default function Home() {
         </div>
 
         {/* Floating Badge (20+ Regional delegations) */}
-        <div className="absolute bottom-12 right-6 lg:right-24 bg-white rounded-full px-4 py-2 border-2 shadow-brutal flex items-center gap-3 reveal z-20 hover:-translate-y-2 hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-all duration-500 ease-out" style={{ transitionDelay: "400ms" }}>
+        <div className="absolute bottom-8 md:bottom-12 right-1/2 translate-x-1/2 lg:translate-x-0 lg:right-24 bg-white rounded-full px-4 py-2 border-2 shadow-brutal flex items-center gap-3 reveal z-20 hover:-translate-y-2 hover:shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] transition-all duration-500 ease-out" style={{ transitionDelay: "400ms" }}>
           <div className="flex -space-x-2">
             <div className="w-8 h-8 rounded-full bg-white border border-black overflow-hidden flex items-center justify-center shrink-0">
               <Image src="/BENDERA/MALAYSIA.png" alt="Malaysia" width={32} height={32} className="object-cover w-full h-full" />
