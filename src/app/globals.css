@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: var(--font-poppins), sans-serif;
+  --font-anton: var(--font-anton), sans-serif;
+  --font-poppins: var(--font-poppins), sans-serif;
+
+  --color-grass: #a3ff12;
+  --color-grass-light: #f4ffcc;
+  --color-grass-dark: #111111;
+  --color-ymcc-crimson: #dc2626;
+  --color-ymcc-blue: #0284c7;
+  --color-ymcc-green: #16a34a;
+  --color-ymcc-yellow: #ca8a04;
+  --color-ymcc-copper: #ea580c;
+
+  --shadow-brutal: 4px 4px 0px 0px rgba(17, 17, 17, 1);
+  --shadow-brutal-lg: 6px 6px 0px 0px rgba(17, 17, 17, 1);
+  --shadow-brutal-hover: 2px 2px 0px 0px rgba(17, 17, 17, 1);
+}
+
+:root {
+  --background: #fafafa;
+  --foreground: #111111;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+.marker-highlight {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+}
+.marker-highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 0.15em;
+  left: -1%;
+  width: 102%;
+  height: 0.25em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0,10 Q25,2 50,10 T100,8' fill='none' stroke='%23a3ff12' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  z-index: -1;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #fafafa; }
+::-webkit-scrollbar-thumb { 
+  background: #111; 
+  border-radius: 4px; 
+}
+
+@layer base {
+  body {
+    @apply antialiased;
+    background-color: #fafafa;
+    background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+}
+
+/* Animation classes */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+  100% { transform: translateY(0px); }
+}
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.btn-brutal {
+  border: 2px solid #111;
+  box-shadow: 4px 4px 0px 0px rgba(17, 17, 17, 1);
+  transition: all 0.2s ease-in-out;
+  transform: translate(0, 0);
+}
+.btn-brutal:hover, .btn-brutal:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0px 0px 0px 0px rgba(17, 17, 17, 1);
+}
+
+#navbar {
+  transition: padding 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+.nav-transparent {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.nav-solid {
+  background-color: white;
+  border-color: #111;
+  box-shadow: 4px 4px 0px 0px rgba(17, 17, 17, 1);
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+@keyframes marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
