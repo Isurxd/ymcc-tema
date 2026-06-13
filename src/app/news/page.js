@@ -59,7 +59,7 @@ export default function NewsArticles() {
     <div className="min-h-screen bg-white text-black font-sans pb-24">
       {/* HEADER SECTION */}
       <div className="max-w-6xl mx-auto px-6 pt-24 pb-12 text-center">
-        <h1 className="font-anton text-5xl md:text-7xl uppercase tracking-wider mb-6">
+        <h1 className="font-anton text-3xl md:text-5xl lg:text-7xl uppercase tracking-wider mb-6">
           THE LATEST OPERATIONS
         </h1>
         <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-800">
@@ -94,7 +94,7 @@ export default function NewsArticles() {
                 </span>
                 <span className="text-gray-600 font-semibold">{featuredPost.date}</span>
               </div>
-              <h2 className="font-anton text-3xl md:text-5xl uppercase leading-tight mb-6">
+              <h2 className="font-anton text-2xl md:text-3xl lg:text-5xl uppercase leading-tight mb-6">
                 {featuredPost.title}
               </h2>
               <p className="text-lg text-gray-800 mb-8 leading-relaxed">
@@ -173,7 +173,7 @@ export default function NewsArticles() {
                   </span>
                   <span className="text-sm font-semibold text-gray-600">{article.date}</span>
                 </div>
-                <h3 className="font-anton text-2xl uppercase mb-4 leading-snug line-clamp-3">
+                <h3 className="font-anton text-xl md:text-2xl uppercase mb-4 leading-snug line-clamp-3">
                   {article.title}
                 </h3>
                 <p className="text-gray-700 flex-grow mb-6 line-clamp-4">
@@ -199,7 +199,7 @@ export default function NewsArticles() {
             <span className="bg-white border-2 border-black px-6 py-2 rounded-full text-sm font-bold inline-block mb-6">
               STAY INFORMED
             </span>
-            <h2 className="font-anton text-5xl md:text-7xl uppercase leading-none mb-6">
+            <h2 className="font-anton text-3xl md:text-5xl lg:text-7xl uppercase leading-none mb-6">
               SUBSCRIBE TO THE DISPATCH
             </h2>
             <p className="text-xl font-medium">

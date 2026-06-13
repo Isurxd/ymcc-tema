@@ -41,7 +41,7 @@ export default function FAQPage() {
           <FaChevronLeft /> BACK TO HOMEPAGE
         </Link>
         
-        <h1 className="text-5xl md:text-7xl font-anton uppercase text-[#111] mb-4">
+        <h1 className="text-3xl md:text-5xl lg:text-7xl font-anton uppercase text-[#111] mb-4">
           FREQUENTLY ASKED QUESTIONS
         </h1>
         <p className="text-gray-600 font-medium text-lg mb-12">
@@ -57,7 +57,7 @@ export default function FAQPage() {
             <div className="divide-y divide-gray-200">
               {faqs.map((faq, index) => (
                 <div key={faq.id || index} className="faq-item group">
-                  <button className="w-full flex justify-between items-center font-poppins font-bold text-xl cursor-pointer py-6 text-[#111] hover:text-gray-500 transition-colors text-left focus:outline-none" onClick={toggleFaq}>
+                  <button className="w-full flex justify-between items-center font-poppins font-bold text-base md:text-xl cursor-pointer py-6 text-[#111] hover:text-gray-500 transition-colors text-left focus:outline-none" onClick={toggleFaq}>
                     <span className="pr-8">{faq.q}</span>
                     <span className="faq-icon text-gray-400 font-light text-2xl transition-transform duration-300 w-4 h-4 flex items-center justify-center shrink-0 relative">
                       <span className="absolute w-full h-[2px] bg-current"></span>

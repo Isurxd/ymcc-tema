@@ -63,6 +63,13 @@ export default function MerchShop() {
     return () => clearInterval(interval);
   }, [selectedProduct, featuredSlides.length]);
 
+  // Scroll to top when a product is selected
+  useEffect(() => {
+    if (selectedProduct) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [selectedProduct]);
+
   const filteredProducts = activeCategory === "ALL GEAR" 
     ? products 
     : products.filter(p => p.category === activeCategory);
@@ -94,7 +101,7 @@ export default function MerchShop() {
               <div className="inline-flex items-center justify-center px-4 h-10 bg-[#c1ff00] border-2 border-black rounded-full mb-8 self-start">
                 <span className="font-anton text-xl tracking-wider">YMCC</span>
               </div>
-              <h1 className="font-anton text-5xl md:text-6xl text-[#111] uppercase tracking-wide leading-none mb-4">
+              <h1 className="font-anton text-3xl md:text-5xl lg:text-6xl text-[#111] uppercase tracking-wide leading-none mb-4">
                 {selectedProduct.name}
               </h1>
               <h3 className="font-poppins font-bold text-[#111] text-lg mb-6">
@@ -148,7 +155,7 @@ export default function MerchShop() {
 
             {/* Right Col: Price & Action */}
             <div className="p-10 lg:w-1/3 flex flex-col justify-center bg-white">
-              <h2 className="font-anton text-5xl text-[#111] tracking-wide mb-1">
+              <h2 className="font-anton text-3xl md:text-5xl text-[#111] tracking-wide mb-1">
                 {selectedProduct.price}
               </h2>
               <p className="font-poppins text-xs text-gray-500 underline mb-10">
@@ -214,7 +221,7 @@ export default function MerchShop() {
                   </div>
                   <div className="p-6">
                     <h3 className="font-poppins font-medium text-lg mb-2">{prod.name}</h3>
-                    <h2 className="font-anton text-3xl tracking-wide text-[#111] mb-2">{prod.price}</h2>
+                    <h2 className="font-anton text-2xl md:text-3xl tracking-wide text-[#111] mb-2">{prod.price}</h2>
                     <p className="font-poppins text-xs text-gray-500 underline">More details</p>
                   </div>
                 </div>
@@ -238,7 +245,7 @@ export default function MerchShop() {
   if (products.length === 0) {
     return (
       <div className="min-h-screen bg-white pt-32 pb-24 flex flex-col justify-center items-center">
-        <h1 className="font-anton text-4xl uppercase mb-4">Store is Empty</h1>
+        <h1 className="font-anton text-2xl md:text-4xl uppercase mb-4">Store is Empty</h1>
         <p className="font-poppins text-gray-500">New merchandise will be added soon.</p>
       </div>
     );
@@ -251,7 +258,7 @@ export default function MerchShop() {
         
         {/* Header Title */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-7xl font-anton uppercase text-[#111] tracking-wide mb-6">
+          <h1 className="text-3xl md:text-5xl lg:text-7xl font-anton uppercase text-[#111] tracking-wide mb-6">
             OFFICIAL FIELD GEAR
           </h1>
           <p className="font-poppins text-gray-600 max-w-3xl mx-auto text-sm md:text-base leading-relaxed">
@@ -415,7 +422,7 @@ export default function MerchShop() {
               </div>
               <div className="p-8 flex flex-col flex-grow relative">
                 <h3 className="font-poppins font-medium text-[#111] text-xl mb-1">{product.name}</h3>
-                <h2 className="font-anton text-4xl tracking-wide text-[#111] mb-2">{product.price}</h2>
+                <h2 className="font-anton text-2xl md:text-4xl tracking-wide text-[#111] mb-2">{product.price}</h2>
                 <p className="font-poppins text-xs text-[#111] underline font-medium mt-auto">More details</p>
               </div>
             </div>

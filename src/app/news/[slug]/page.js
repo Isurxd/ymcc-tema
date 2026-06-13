@@ -91,7 +91,7 @@ export default async function NewsArticleDetail({ params }) {
   if (!article) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#fafafa]">
-        <h1 className="font-anton text-6xl mb-4">404 - DISPATCH NOT FOUND</h1>
+        <h1 className="font-anton text-4xl md:text-6xl mb-4 text-center">404 - DISPATCH NOT FOUND</h1>
         <p className="font-poppins mb-8 text-gray-500">The article you are looking for has been archived or does not exist.</p>
         <Link href="/news">
           <button className="border-2 border-black px-8 py-3 bg-[#c1ff00] font-bold uppercase shadow-[4px_4px_0_0_#000] hover:translate-y-1 hover:shadow-none transition-all">
@@ -118,7 +118,7 @@ export default async function NewsArticleDetail({ params }) {
             <span className="text-gray-600 font-semibold">{article.date}</span>
           </div>
           
-          <h1 className="font-anton text-5xl md:text-7xl uppercase leading-tight mb-8">
+          <h1 className="font-anton text-3xl md:text-5xl lg:text-7xl uppercase leading-tight mb-8">
             {article.title}
           </h1>
         </div>
