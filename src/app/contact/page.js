@@ -30,8 +30,8 @@ export default function ContactFAQ() {
       <div className="max-w-4xl mx-auto">
         
         {/* Header Section */}
-        <div className="text-center mb-20">
-          <h1 className="font-anton text-5xl md:text-6xl uppercase tracking-wide text-[#111] mb-6">
+        <div className="text-center mb-16 md:mb-20">
+          <h1 className="font-anton text-4xl md:text-6xl uppercase tracking-wide text-[#111] mb-6">
             How Can We Help?
           </h1>
           <p className="font-poppins text-gray-600 max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
@@ -52,8 +52,8 @@ export default function ContactFAQ() {
           </div>
 
           {/* Right: Support Card */}
-          <div className="flex-grow bg-white border-2 border-black rounded-[2rem] p-8 md:p-10 shadow-brutal w-full hover:-translate-y-2 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] transition-all duration-300">
-            <h2 className="font-anton text-3xl md:text-4xl uppercase tracking-wide text-[#111] mb-2">
+          <div className="flex-grow bg-white border-2 border-black rounded-[2rem] p-6 md:p-10 shadow-brutal w-full hover:-translate-y-2 hover:shadow-[8px_8px_0px_0px_rgba(17,17,17,1)] transition-all duration-300">
+            <h2 className="font-anton text-2xl md:text-4xl uppercase tracking-wide text-[#111] mb-2">
               Central Support & Call Center
             </h2>
             <p className="font-poppins text-sm text-gray-600 mb-8">
@@ -88,7 +88,7 @@ export default function ContactFAQ() {
 
         {/* FAQ Section */}
         <div>
-          <h2 className="font-anton text-4xl md:text-5xl uppercase tracking-wide text-[#111] text-center mb-12">
+          <h2 className="font-anton text-3xl md:text-5xl uppercase tracking-wide text-[#111] text-center mb-10 md:mb-12">
             FREQUENTLY ASKED QUESTIONS
           </h2>
 

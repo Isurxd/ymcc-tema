@@ -542,7 +542,7 @@ export default function Portal() {
           <div className="lg:col-span-1 space-y-6">
             
             {/* Profile Card */}
-            <div className="bg-white border-2 border-black rounded-3xl p-8 shadow-[4px_4px_0_0_#000]">
+            <div className="bg-white border-2 border-black rounded-3xl p-6 md:p-8 shadow-[4px_4px_0_0_#000]">
               <div className="flex items-center gap-4 mb-6">
                 <FaUserCircle size={48} className="text-gray-300" />
                 <div>
@@ -601,7 +601,7 @@ export default function Portal() {
 
             {/* Event Pass & Certificate Card */}
             {userData?.registrationStatus === "VERIFIED" ? (
-              <div className="bg-[#c1ff00] border-2 border-black rounded-3xl p-8 shadow-[4px_4px_0_0_#000] text-center flex flex-col items-center">
+              <div className="bg-[#c1ff00] border-2 border-black rounded-3xl p-6 md:p-8 shadow-[4px_4px_0_0_#000] text-center flex flex-col items-center">
                 <h3 className="font-anton text-2xl uppercase mb-4 tracking-wide">My Event Pass</h3>
                 <div className="bg-white p-4 rounded-2xl border-2 border-black inline-block mb-4">
                   <QRCode value={user?.uid || "invalid"} size={160} />
@@ -625,7 +625,7 @@ export default function Portal() {
                 </div>
               </div>
             ) : (
-              <div className="bg-gray-100 border-2 border-dashed border-gray-400 rounded-3xl p-8 text-center flex flex-col items-center">
+              <div className="bg-gray-100 border-2 border-dashed border-gray-400 rounded-3xl p-6 md:p-8 text-center flex flex-col items-center">
                 <h3 className="font-anton text-xl text-gray-400 uppercase mb-2">Event Pass Locked</h3>
                 <p className="font-poppins text-xs text-gray-500 font-medium">Your profile must be VERIFIED by the admin to unlock your QR Event Pass.</p>
               </div>
@@ -655,7 +655,7 @@ export default function Portal() {
                 </div>
               ))}
               {competitions.length === 0 && (
-                <div className="col-span-2 bg-[#111] text-white border-2 border-black rounded-3xl p-8 sm:p-12 shadow-[4px_4px_0_0_#000] flex flex-col items-center justify-center text-center relative overflow-hidden">
+                <div className="col-span-2 bg-[#111] text-white border-2 border-black rounded-3xl p-6 sm:p-12 shadow-[4px_4px_0_0_#000] flex flex-col items-center justify-center text-center relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-2 bg-[#c1ff00]"></div>
                   <FaTrophy className="text-6xl text-[#c1ff00] mb-6 opacity-80" />
                   <h3 className="font-anton text-4xl uppercase tracking-wide mb-3">Compete Globally</h3>
@@ -667,7 +667,7 @@ export default function Portal() {
               )}
             </div>
 
-            <div className="mt-8 bg-white border-2 border-black p-8 rounded-2xl shadow-[4px_4px_0_0_#000]">
+            <div className="mt-8 bg-white border-2 border-black p-6 md:p-8 rounded-2xl shadow-[4px_4px_0_0_#000]">
               <div className="flex items-center gap-4 mb-4">
                 <FaFileAlt className="text-[#c1ff00] text-3xl" />
                 <h4 className="font-anton text-2xl uppercase tracking-wide">Competition Document Submission</h4>
@@ -711,7 +711,7 @@ export default function Portal() {
 
             {/* User Orders Section */}
             {userOrders.length > 0 && (
-                <div className="mt-8 bg-white border-2 border-black p-8 rounded-2xl shadow-[4px_4px_0_0_#000]">
+                <div className="mt-8 bg-white border-2 border-black p-6 md:p-8 rounded-2xl shadow-[4px_4px_0_0_#000]">
                   <h4 className="font-anton text-2xl uppercase tracking-wide mb-6">My Merchandise Orders</h4>
                   <div className="space-y-4">
                     {userOrders.map(order => (
@@ -742,7 +742,7 @@ export default function Portal() {
             )}
 
             {/* Support Tickets Section */}
-            <div className="mt-8 bg-white border-2 border-black p-8 rounded-2xl shadow-[4px_4px_0_0_#000]">
+            <div className="mt-8 bg-white border-2 border-black p-6 md:p-8 rounded-2xl shadow-[4px_4px_0_0_#000]">
               <div className="flex items-center gap-4 mb-4">
                 <FaEnvelope className="text-[#c1ff00] text-3xl" />
                 <h4 className="font-anton text-2xl uppercase tracking-wide">Live Helpdesk</h4>

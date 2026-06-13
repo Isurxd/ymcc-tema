@@ -87,7 +87,7 @@ export default function NewsArticles() {
               )}
             </div>
             {/* Content */}
-            <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+            <div className="md:w-1/2 p-6 md:p-12 flex flex-col justify-center">
               <div className="flex items-center gap-4 mb-4">
                 <span className="bg-[#c1ff00] border-2 border-black px-4 py-1 rounded-full text-sm font-bold">
                   {featuredPost.category}
@@ -194,7 +194,7 @@ export default function NewsArticles() {
 
       {/* SUBSCRIBE BLOCK */}
       <div className="max-w-6xl mx-auto px-6 mb-12">
-        <div className="bg-[#c1ff00] border-2 border-black rounded-[3rem] p-8 md:p-16 shadow-[12px_12px_0_0_#000] flex flex-col md:flex-row items-center gap-12">
+        <div className="bg-[#c1ff00] border-2 border-black rounded-[3rem] p-6 md:p-16 shadow-[12px_12px_0_0_#000] flex flex-col md:flex-row items-center gap-8 md:gap-12">
           <div className="md:w-1/2">
             <span className="bg-white border-2 border-black px-6 py-2 rounded-full text-sm font-bold inline-block mb-6">
               STAY INFORMED

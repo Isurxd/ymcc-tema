@@ -174,7 +174,7 @@ export default function Home() {
           </div>
 
           <div
-            className="lg:w-2/3 bg-white border-2 rounded-3xl p-10 md:p-14 shadow-brutal-lg w-full reveal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 ease-out cursor-default"
+            className="lg:w-2/3 bg-white border-2 rounded-3xl p-6 md:p-14 shadow-brutal-lg w-full reveal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 ease-out cursor-default"
             style={{ transitionDelay: "100ms" }}
           >
             <p className="text-gray-600 font-poppins font-medium text-sm md:text-base leading-relaxed mb-6">
@@ -193,8 +193,8 @@ export default function Home() {
           THE CORE VALUE ARCHITECTURE
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          <div className="reveal md:col-span-5 bg-[#f4ffcc] border-[2px] border-black rounded-3xl p-10 shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-500 ease-out flex flex-col group overflow-hidden relative">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+          <div className="reveal md:col-span-5 bg-[#f4ffcc] border-[2px] border-black rounded-3xl p-6 md:p-10 shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-500 ease-out flex flex-col group overflow-hidden relative">
             <div className="w-10 h-10 bg-[var(--color-grass)] rounded-full border border-black flex items-center justify-center font-anton text-xl text-[#111] mb-6 shadow-sm">
               1
             </div>
@@ -211,9 +211,9 @@ export default function Home() {
             </Link>
           </div>
 
-          <div className="md:col-span-7 flex flex-col gap-8">
+          <div className="md:col-span-7 flex flex-col gap-6 md:gap-8">
             <div
-              className="reveal bg-white border-[2px] border-black rounded-3xl p-8 md:p-10 shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-500 ease-out flex flex-col md:flex-row items-start gap-8 h-full group overflow-hidden relative"
+              className="reveal bg-white border-[2px] border-black rounded-3xl p-6 md:p-10 shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-500 ease-out flex flex-col md:flex-row items-start gap-6 md:gap-8 h-full group overflow-hidden relative"
               style={{ transitionDelay: "100ms" }}
             >
               <div className="w-10 h-10 shrink-0 bg-[var(--color-grass)] rounded-full border border-black flex items-center justify-center font-anton text-xl text-[#111] shadow-sm">
@@ -230,7 +230,7 @@ export default function Home() {
             </div>
 
             <div
-              className="reveal bg-white border-[2px] border-black rounded-3xl p-8 md:p-10 shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-500 ease-out flex flex-col md:flex-row items-start gap-8 h-full group overflow-hidden relative"
+              className="reveal bg-white border-[2px] border-black rounded-3xl p-6 md:p-10 shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all duration-500 ease-out flex flex-col md:flex-row items-start gap-6 md:gap-8 h-full group overflow-hidden relative"
               style={{ transitionDelay: "200ms" }}
             >
               <div className="w-10 h-10 shrink-0 bg-[var(--color-grass)] rounded-full border border-black flex items-center justify-center font-anton text-xl text-[#111] shadow-sm">
@@ -260,10 +260,10 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           {competitions.length > 0 ? competitions.map((comp, index) => (
-            <div key={comp.id} className="reveal bg-white border-[2px] border-black rounded-[2rem] p-8 shadow-brutal-lg flex flex-col items-center text-center hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 ease-out group" style={{ transitionDelay: `${index % 2 === 0 ? 0 : 100}ms` }}>
-              <div className="w-24 h-24 mb-6 bg-gray-50 rounded-full border-2 border-black flex items-center justify-center p-4 group-hover:scale-110 transition-transform duration-500 shadow-sm shrink-0">
+            <div key={comp.id} className="reveal bg-white border-[2px] border-black rounded-[2rem] p-6 md:p-8 shadow-brutal-lg flex flex-col items-center text-center hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 ease-out group" style={{ transitionDelay: `${index % 2 === 0 ? 0 : 100}ms` }}>
+              <div className="w-20 h-20 md:w-24 md:h-24 mb-6 bg-gray-50 rounded-full border-2 border-black flex items-center justify-center p-4 group-hover:scale-110 transition-transform duration-500 shadow-sm shrink-0">
                 {comp.icon ? <Image src={comp.icon} alt={comp.title} width={80} height={80} className="object-contain" /> : <div className="text-3xl font-anton text-gray-300">?</div>}
               </div>
               <span className="bg-[#f4ffcc] border border-black px-4 py-1.5 rounded-full text-[10px] font-bold font-poppins text-[#111] uppercase mb-4 w-full truncate">

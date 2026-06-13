@@ -97,7 +97,7 @@ export default function MerchShop() {
           <div className="bg-white border-2 border-black rounded-3xl flex flex-col lg:flex-row overflow-hidden shadow-brutal mb-20">
             
             {/* Left Col: Info */}
-            <div className="p-10 lg:w-1/3 flex flex-col justify-center border-b-2 lg:border-b-0 lg:border-r-2 border-black">
+            <div className="p-6 md:p-10 lg:w-1/3 flex flex-col justify-center border-b-2 lg:border-b-0 lg:border-r-2 border-black">
               <div className="inline-flex items-center justify-center px-4 h-10 bg-[#c1ff00] border-2 border-black rounded-full mb-8 self-start">
                 <span className="font-anton text-xl tracking-wider">YMCC</span>
               </div>
@@ -154,7 +154,7 @@ export default function MerchShop() {
             </div>
 
             {/* Right Col: Price & Action */}
-            <div className="p-10 lg:w-1/3 flex flex-col justify-center bg-white">
+            <div className="p-6 md:p-10 lg:w-1/3 flex flex-col justify-center bg-white">
               <h2 className="font-anton text-3xl md:text-5xl text-[#111] tracking-wide mb-1">
                 {selectedProduct.price}
               </h2>

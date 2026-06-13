@@ -82,7 +82,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen pt-32 px-6 flex items-center justify-center bg-[#fafafa]">
-      <div className="max-w-md w-full bg-white border-2 border-black rounded-3xl p-8 md:p-12 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative overflow-hidden">
+      <div className="max-w-md w-full bg-white border-2 border-black rounded-3xl p-6 md:p-12 shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] relative overflow-hidden">
         {/* Accent Bar */}
         <div className="absolute top-0 left-0 w-full h-3 bg-[var(--color-grass)] border-b-2 border-black"></div>
 

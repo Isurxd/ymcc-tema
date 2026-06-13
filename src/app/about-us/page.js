@@ -107,8 +107,8 @@ export default function AboutUs() {
             />
           </div>
           
-          <div className="lg:w-7/12 p-10 md:p-16 flex flex-col justify-center bg-white" style={{ transitionDelay: "100ms" }}>
-            <h1 className="text-5xl md:text-7xl font-anton uppercase text-[#111] leading-[0.9] tracking-wide mb-8">
+          <div className="lg:w-7/12 p-6 md:p-16 flex flex-col justify-center bg-white" style={{ transitionDelay: "100ms" }}>
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-anton uppercase text-[#111] leading-[1] md:leading-[0.9] tracking-wide mb-6 md:mb-8">
               DECODING THE<br/>COALITION
             </h1>
             <div className="text-gray-700 font-poppins text-sm md:text-base leading-relaxed space-y-6">
@@ -124,8 +124,8 @@ export default function AboutUs() {
       </section>
 
       {/* 2. THE SEVEN-STAGE EVOLUTION */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-4xl md:text-5xl font-anton uppercase text-[#111] leading-[1] tracking-wide mb-16 reveal">
+      <section className="max-w-6xl mx-auto px-6 py-12 md:py-16">
+        <h2 className="text-3xl md:text-5xl font-anton uppercase text-[#111] leading-[1] tracking-wide mb-10 md:mb-16 reveal">
           THE SEVEN-STAGE EVOLUTION
         </h2>
 
@@ -137,11 +137,11 @@ export default function AboutUs() {
             {/* Timeline Item 1 */}
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
-              <div className="bg-white border-2 border-[#111] rounded-[2rem] p-8 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
+              <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
                 <div className="inline-block bg-[#a855f7] text-[#111] font-anton text-[10px] uppercase px-3 py-1 rounded-sm border-2 border-[#111] mb-4 shadow-brutal-hover">
                   THE FOUNDATION ERA
                 </div>
-                <h3 className="text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC I - IV</h3>
+                <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC I - IV</h3>
                 <p className="font-poppins text-sm text-[#111] leading-relaxed">
                   Initiated as a localized tournament to bridge academic theories with standard field operations, focusing heavily on basic mining games and national safety standards.
                 </p>
@@ -151,11 +151,11 @@ export default function AboutUs() {
             {/* Timeline Item 2 */}
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
-              <div className="bg-white border-2 border-[#111] rounded-[2rem] p-8 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
+              <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
                 <div className="inline-block bg-[#f97316] text-[#111] font-anton text-[10px] uppercase px-3 py-1 rounded-sm border-2 border-[#111] mb-4 shadow-brutal-hover">
                   THE REGIONAL EXPANSION
                 </div>
-                <h3 className="text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC V - VI</h3>
+                <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC V - VI</h3>
                 <p className="font-poppins text-sm text-[#111] leading-relaxed">
                   Transformed into a regional-scale summit, integrating complex infrastructure mapping (MSIC) and introducing the initial digital registration interfaces.
                 </p>
@@ -165,11 +165,11 @@ export default function AboutUs() {
             {/* Timeline Item 3 */}
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
-              <div className="bg-white border-2 border-[#111] rounded-[2rem] p-8 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
+              <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
                 <div className="inline-block bg-[#22c55e] text-[#111] font-anton text-[10px] uppercase px-3 py-1 rounded-sm border-2 border-[#111] mb-4 shadow-brutal-hover">
                   THE SOVEREIGN TRANSITION
                 </div>
-                <h3 className="text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC VII</h3>
+                <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC VII</h3>
                 <p className="font-poppins text-sm text-[#111] leading-relaxed">
                   The current era. Guided by "The Green Compass," YMCC VII introduces state-of-the-art proctored Exam Engines, bilingual standardizations, and a heavy strategic focus on sustainable mineral extraction.
                 </p>
@@ -191,8 +191,8 @@ export default function AboutUs() {
             </div>
           </div>
           
-          <div className="md:w-3/4 bg-[#eefcf0] border-2 border-[#111] rounded-[2.5rem] p-10 md:p-14 shadow-brutal-lg flex flex-col justify-center">
-            <h2 className="text-4xl md:text-6xl font-anton uppercase text-[#111] leading-[0.95] tracking-wide mb-8">
+          <div className="md:w-3/4 bg-[#eefcf0] border-2 border-[#111] rounded-[2.5rem] p-6 md:p-14 shadow-brutal-lg flex flex-col justify-center">
+            <h2 className="text-3xl md:text-6xl font-anton uppercase text-[#111] leading-[1] md:leading-[0.95] tracking-wide mb-6 md:mb-8">
               THE STUDENT ASSOCIATION OF MINING ENGINEERING
             </h2>
             <p className="font-poppins text-[#111] text-sm md:text-base leading-relaxed">
@@ -204,8 +204,8 @@ export default function AboutUs() {
 
       {/* 3.5. STRUCTURAL DIRECTORY */}
       <section className="max-w-7xl mx-auto px-6 py-16">
-        <div className="text-center mb-16 reveal">
-          <h2 className="text-4xl md:text-5xl font-anton uppercase text-[#111] leading-[1] tracking-wide">
+        <div className="text-center mb-10 md:mb-16 reveal">
+          <h2 className="text-3xl md:text-5xl font-anton uppercase text-[#111] leading-[1] tracking-wide">
             STRATEGIC FORCE
           </h2>
           <p className="font-poppins font-bold text-lg md:text-xl text-[#111] mt-3">
@@ -216,9 +216,9 @@ export default function AboutUs() {
         <div className="flex flex-col gap-10 reveal">
           {/* Board of Directors Card */}
           {departments.filter(d => d.isBoard).map((board, idx) => (
-            <div key={idx} className="bg-[#111] border-2 border-[#111] rounded-[2.5rem] p-8 md:p-12 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full relative overflow-hidden cursor-default">
-              <div className="absolute top-0 right-0 p-8 opacity-10">
-                <h1 className="text-9xl font-anton text-white">BOD</h1>
+            <div key={idx} className="bg-[#111] border-2 border-[#111] rounded-[2.5rem] p-6 md:p-12 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full relative overflow-hidden cursor-default">
+              <div className="absolute top-0 right-0 p-6 md:p-8 opacity-10">
+                <h1 className="text-7xl md:text-9xl font-anton text-white">BOD</h1>
               </div>
               <div className="relative z-10">
                 <div className="inline-block bg-grass text-[#111] font-anton text-sm uppercase px-4 py-1.5 rounded-sm border-2 border-[#111] mb-6">
@@ -239,9 +239,9 @@ export default function AboutUs() {
           {/* Other Departments Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {departments.filter(d => !d.isBoard).map((dept, idx) => (
-              <div key={idx} className="bg-white border-2 border-[#111] rounded-[2rem] p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 cursor-default flex flex-col h-full">
+              <div key={idx} className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 cursor-default flex flex-col h-full">
                 <div className="mb-6 pb-6 border-b-2 border-dashed border-[#111]">
-                  <h3 className="text-3xl font-anton text-[#111] uppercase tracking-wide mb-1">{dept.name}</h3>
+                  <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-1">{dept.name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="bg-[#a855f7] text-white font-poppins text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase">HEAD</span>
                     <span className="font-poppins text-sm font-bold text-[#111]">{dept.head}</span>
@@ -262,11 +262,11 @@ export default function AboutUs() {
       </section>
 
       {/* 4. VISUAL METAPHORS */}
-      <section className="max-w-6xl mx-auto px-6 py-16 text-center">
-        <h2 className="text-4xl md:text-5xl font-anton uppercase text-[#111] leading-[1] tracking-wide reveal">
+      <section className="max-w-6xl mx-auto px-6 py-12 text-center">
+        <h2 className="text-3xl md:text-5xl font-anton uppercase text-[#111] leading-[1] tracking-wide reveal">
           VISUAL METAPHORS OF THE TRANSITION
         </h2>
-        <p className="font-poppins font-bold text-lg md:text-xl text-[#111] mt-3 mb-16 reveal">
+        <p className="font-poppins font-bold text-base md:text-xl text-[#111] mt-3 mb-10 md:mb-16 reveal">
           Logo Anatomy Breakdown
         </p>
 
@@ -274,8 +274,8 @@ export default function AboutUs() {
           {/* Left Grid: 2x2 */}
           <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* YOUTH */}
-            <div className="bg-white border-2 border-[#111] rounded-[2rem] p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
-              <div className="h-32 flex items-center justify-center mb-6">
+            <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
+              <div className="h-24 md:h-32 flex items-center justify-center mb-6">
                 <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/YOUTH (Y).png" alt="YOUTH" width={100} height={100} className="object-contain h-full" />
               </div>
               <div className="bg-grass text-[#111] font-anton text-sm uppercase px-6 py-1 rounded-full border-2 border-[#111] mb-4 shadow-brutal-hover">
@@ -287,8 +287,8 @@ export default function AboutUs() {
             </div>
             
             {/* MINE */}
-            <div className="bg-white border-2 border-[#111] rounded-[2rem] p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
-              <div className="h-32 flex items-center justify-center mb-6">
+            <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
+              <div className="h-24 md:h-32 flex items-center justify-center mb-6">
                 <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/MINING (M).png" alt="MINE" width={100} height={100} className="object-contain h-full" />
               </div>
               <div className="bg-grass text-[#111] font-anton text-sm uppercase px-6 py-1 rounded-full border-2 border-[#111] mb-4 shadow-brutal-hover">
@@ -300,8 +300,8 @@ export default function AboutUs() {
             </div>
 
             {/* CAMP */}
-            <div className="bg-white border-2 border-[#111] rounded-[2rem] p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
-              <div className="h-32 flex items-center justify-center mb-6">
+            <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
+              <div className="h-24 md:h-32 flex items-center justify-center mb-6">
                 <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/CAMP (C1).png" alt="CAMP" width={100} height={100} className="object-contain h-full" />
               </div>
               <div className="bg-grass text-[#111] font-anton text-sm uppercase px-6 py-1 rounded-full border-2 border-[#111] mb-4 shadow-brutal-hover">
@@ -313,8 +313,8 @@ export default function AboutUs() {
             </div>
 
             {/* COMPASS */}
-            <div className="bg-white border-2 border-[#111] rounded-[2rem] p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
-              <div className="h-32 flex items-center justify-center mb-6">
+            <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
+              <div className="h-24 md:h-32 flex items-center justify-center mb-6">
                 <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/COMPETITION (C2).png" alt="COMPASS" width={100} height={100} className="object-contain h-full" />
               </div>
               <div className="bg-grass text-[#111] font-anton text-sm uppercase px-6 py-1 rounded-full border-2 border-[#111] mb-4 shadow-brutal-hover">
@@ -327,9 +327,9 @@ export default function AboutUs() {
           </div>
 
           {/* Right Tall Card */}
-          <div className="lg:col-span-4 bg-white border-2 border-[#111] rounded-[2.5rem] p-10 shadow-brutal flex flex-col items-center justify-center hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 cursor-default">
+          <div className="lg:col-span-4 bg-white border-2 border-[#111] rounded-[2.5rem] p-6 md:p-10 shadow-brutal flex flex-col items-center justify-center hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 cursor-default">
             <div className="flex-grow flex items-center justify-center mb-8">
-              <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/VII.png" alt="VII" width={250} height={250} className="object-contain animate-float" />
+              <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/VII.png" alt="VII" width={180} height={180} className="object-contain animate-float" />
             </div>
             <div className="bg-grass text-[#111] font-anton text-lg uppercase px-8 py-1.5 rounded-full border-2 border-[#111] mb-6 shadow-brutal-hover">
               VII
@@ -351,7 +351,7 @@ export default function AboutUs() {
             <p className="font-poppins font-bold text-sm text-grass bg-[#111] px-4 py-1.5 rounded-full inline-block mb-4 border-2 border-grass">
               MASCOT PHILOSOPHY
             </p>
-            <h2 className="text-4xl md:text-6xl font-anton uppercase text-[#111] leading-[0.95] tracking-wide mb-6">
+            <h2 className="text-3xl md:text-6xl font-anton uppercase text-[#111] leading-[1] md:leading-[0.95] tracking-wide mb-4 md:mb-6">
               YOTTA
             </h2>
             <p className="font-poppins text-sm md:text-base text-[#111] leading-relaxed">

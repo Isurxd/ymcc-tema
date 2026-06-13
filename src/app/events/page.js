@@ -104,7 +104,7 @@ export default function EventsCompetitions() {
             filteredData.map((item) => (
               <div 
                 key={item.id} 
-                className="bg-white border-2 border-[#111] rounded-[2rem] p-8 flex flex-col justify-between shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 animate-fade-in-up"
+                className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-8 flex flex-col justify-between shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 animate-fade-in-up"
               >
                 <div>
                   <div className="flex items-start gap-4 mb-5">
@@ -112,7 +112,7 @@ export default function EventsCompetitions() {
                       <Image src={item.icon} alt={item.title} width={48} height={48} className="object-contain w-full h-full" />
                     </div>
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-anton uppercase text-[#111] leading-[1] tracking-wide mb-2 line-clamp-2">
+                      <h2 className="text-xl md:text-3xl font-anton uppercase text-[#111] leading-[1] tracking-wide mb-2 line-clamp-2">
                         {item.title}
                       </h2>
                       <div className="flex flex-wrap gap-2">
@@ -179,7 +179,7 @@ export default function EventsCompetitions() {
             {/* Close Button */}
             <button 
               onClick={() => setSelectedEvent(null)}
-              className="absolute top-6 right-6 w-10 h-10 bg-white border-2 border-[#111] rounded-full flex items-center justify-center text-[#111] hover:bg-gray-200 transition-colors z-10"
+              className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 bg-white border-2 border-[#111] rounded-full flex items-center justify-center text-[#111] hover:bg-gray-200 transition-colors z-10"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12"></path>
@@ -187,8 +187,8 @@ export default function EventsCompetitions() {
             </button>
 
             {/* Modal Content */}
-            <div className="p-8 md:p-12">
-              <div className="flex flex-col md:flex-row items-start gap-6 mb-8 pr-8">
+            <div className="p-6 md:p-12">
+              <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-6 md:mb-8 pr-6 md:pr-8">
                 <div className="w-20 h-20 shrink-0 bg-white border-2 border-[#111] rounded-2xl flex items-center justify-center p-3 shadow-brutal-sm">
                   <Image src={selectedEvent.icon} alt={selectedEvent.title} width={60} height={60} className="object-contain w-full h-full" />
                 </div>
@@ -196,7 +196,7 @@ export default function EventsCompetitions() {
                   <span className="text-gray-500 font-poppins font-bold text-xs tracking-widest uppercase mb-1 block">
                     {selectedEvent.type}
                   </span>
-                  <h2 className="text-3xl md:text-5xl font-anton uppercase text-[#111] leading-[0.95] tracking-wide mb-4">
+                  <h2 className="text-2xl md:text-5xl font-anton uppercase text-[#111] leading-[1] md:leading-[0.95] tracking-wide mb-4">
                     {selectedEvent.title}
                   </h2>
                   <div className="flex flex-col gap-2">
@@ -218,7 +218,7 @@ export default function EventsCompetitions() {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 bg-gray-50 border-2 border-[#111] rounded-2xl p-6">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 bg-gray-50 border-2 border-[#111] rounded-2xl p-4 md:p-6">
                 <div className="flex items-center gap-3 text-[#ea580c] font-poppins font-bold text-sm">
                   <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

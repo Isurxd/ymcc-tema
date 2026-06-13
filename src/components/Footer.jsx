@@ -12,8 +12,8 @@ export default function Footer() {
 
   return (
     <footer className="max-w-screen-2xl mx-auto px-4 pb-4 mt-8 relative z-0">
-      <div className="bg-[#18181b] text-white rounded-[3rem] p-10 md:p-14 border border-black overflow-hidden relative">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16 relative z-10">
+      <div className="bg-[#18181b] text-white rounded-[2rem] md:rounded-[3rem] p-6 md:p-14 border border-black overflow-hidden relative">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-16 relative z-10">
           {/* Column 1 */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-6">
