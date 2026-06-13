@@ -12,11 +12,11 @@ export default function AboutUs() {
         isBoard: true,
         subs: [
             { title: "Executive Director", lead: "Aghniyo Hammaddankhairi Putra Hermawan" },
-            { title: "Finance Director I", lead: "Rizky Mayfandra" },
-            { title: "Finance Director II", lead: "Naila Farihiya" },
+            { title: "Vice Executive Director", lead: "Faiz Marvel Attaurrahman Ridwan" },
             { title: "Secretary I", lead: "Kartika Rahmadani" }, 
             { title: "Secretary II", lead: "Nabila Khairun Nisa" },
-            { title: "Vice Executive Director", lead: "Faiz Marvel Attaurrahman Ridwan" }
+            { title: "Finance Director I", lead: "Rizky Mayfandra" },
+            { title: "Finance Director II", lead: "Naila Farihiya" }
         ]
     },
     {
