@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import FadeInImage from "@/components/FadeInImage";
 import dynamic from "next/dynamic";
 
 const MapPicker = dynamic(() => import("@/components/MapPicker"), { ssr: false });
@@ -367,7 +368,7 @@ export default function CheckoutPage() {
               {cartItems.map((item, idx) => (
                 <div key={idx} className="flex gap-4 items-center">
                   <div className="w-16 h-16 bg-gray-100 border-2 border-black relative shrink-0">
-                    <Image src={item.image} alt={item.name} fill className="object-cover" />
+                    <FadeInImage src={item.image} alt={item.name} fill className="object-cover" />
                   </div>
                   <div className="flex-grow">
                     <h4 className="font-bold uppercase text-sm leading-tight line-clamp-1">{item.name}</h4>

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import FadeInImage from "@/components/FadeInImage";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
@@ -115,7 +116,7 @@ export default function MerchShop() {
             {/* Middle Col: Image */}
             <div className="relative h-[500px] lg:h-auto lg:w-1/3 border-b-2 lg:border-b-0 lg:border-r-2 border-black bg-gray-100 flex flex-col">
               <div className="relative flex-grow">
-                 <Image 
+                 <FadeInImage 
                    src={
                      currentImageIndex === 0 
                        ? selectedProduct.image 
@@ -138,7 +139,7 @@ export default function MerchShop() {
                     onClick={() => setCurrentImageIndex(0)}
                     className={`w-16 h-16 flex-shrink-0 relative border-2 cursor-pointer ${currentImageIndex === 0 ? 'border-[#c1ff00]' : 'border-black hover:border-gray-500'}`}
                   >
-                    <Image src={selectedProduct.image} alt="Thumbnail Main" fill className="object-cover" />
+                    <FadeInImage src={selectedProduct.image} alt="Thumbnail Main" fill className="object-cover" />
                   </div>
                   {selectedProduct.additionalImages.join(',').split(',').map(s=>s.trim()).filter(s=>s).map((imgUrl, idx) => (
                     <div 
@@ -146,7 +147,7 @@ export default function MerchShop() {
                       onClick={() => setCurrentImageIndex(idx + 1)}
                       className={`w-16 h-16 flex-shrink-0 relative border-2 cursor-pointer ${currentImageIndex === idx + 1 ? 'border-[#c1ff00]' : 'border-black hover:border-gray-500'}`}
                     >
-                      <Image src={imgUrl} alt={`Thumbnail ${idx}`} fill className="object-cover" />
+                      <FadeInImage src={imgUrl} alt={`Thumbnail ${idx}`} fill className="object-cover" />
                     </div>
                   ))}
                 </div>
@@ -217,7 +218,7 @@ export default function MerchShop() {
                     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-[#c1ff00] px-4 py-1.5 border-2 border-black rounded-full font-poppins font-bold text-[10px] uppercase tracking-widest">
                       {prod.category}
                     </div>
-                    <Image src={prod.image} alt={prod.name} fill className={`object-cover group-hover:scale-105 transition-transform duration-500 ${prod.category === 'ACCESSORIES' ? 'object-contain p-8' : ''}`} />
+                    <FadeInImage src={prod.image} alt={prod.name} fill className={`object-cover group-hover:scale-105 transition-transform duration-500 ${prod.category === 'ACCESSORIES' ? 'object-contain p-8' : ''}`} />
                   </div>
                   <div className="p-6">
                     <h3 className="font-poppins font-medium text-lg mb-2">{prod.name}</h3>
@@ -279,7 +280,7 @@ export default function MerchShop() {
           >
             {featuredSlides[currentSlide] && (
               <>
-                <Image src={featuredSlides[currentSlide].image} alt="Featured Gear Main" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                <FadeInImage src={featuredSlides[currentSlide].image} alt="Featured Gear Main" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 {featuredSlides[currentSlide].product.stockAmount <= 0 && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-10 pointer-events-none">
                     <span className="font-anton text-3xl text-red-500 border-4 border-red-500 px-6 py-2 rotate-[-15deg] rounded-xl bg-black/50">HABIS TERJUAL</span>
@@ -304,7 +305,7 @@ export default function MerchShop() {
                 className="relative flex-1 rounded-[2rem] overflow-hidden border-2 border-black cursor-pointer shadow-brutal min-h-[250px] group"
                 onClick={() => setSelectedProduct(featuredSlides[1].product)}
               >
-                <Image src={featuredSlides[1].image} alt="Featured Gear 2" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                <FadeInImage src={featuredSlides[1].image} alt="Featured Gear 2" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 {featuredSlides[1].product.stockAmount <= 0 && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-10 pointer-events-none">
                     <span className="font-anton text-xl text-red-500 border-4 border-red-500 px-4 py-1 rotate-[-15deg] rounded-lg bg-black/50">HABIS TERJUAL</span>
@@ -317,7 +318,7 @@ export default function MerchShop() {
                 className="relative flex-1 rounded-[2rem] overflow-hidden border-2 border-black cursor-pointer shadow-brutal min-h-[250px] group"
                 onClick={() => setSelectedProduct(featuredSlides[2].product)}
               >
-                <Image src={featuredSlides[2].image} alt="Featured Gear 3" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                <FadeInImage src={featuredSlides[2].image} alt="Featured Gear 3" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 {featuredSlides[2].product.stockAmount <= 0 && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-10 pointer-events-none">
                     <span className="font-anton text-xl text-red-500 border-4 border-red-500 px-4 py-1 rotate-[-15deg] rounded-lg bg-black/50">HABIS TERJUAL</span>
@@ -408,7 +409,7 @@ export default function MerchShop() {
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-transparent border-2 border-black rounded flex items-center justify-center z-10 hover:bg-white"><span className="font-bold text-[#111]">◀</span></div>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-transparent border-2 border-black rounded flex items-center justify-center z-10 hover:bg-white"><span className="font-bold text-[#111]">▶</span></div>
                 
-                <Image 
+                <FadeInImage 
                   src={product.image} 
                   alt={product.name} 
                   fill 

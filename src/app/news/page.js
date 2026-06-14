@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import FadeInImage from "@/components/FadeInImage";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
@@ -78,7 +79,7 @@ export default function NewsArticles() {
             {/* Image */}
             <div className="md:w-1/2 h-80 md:h-auto relative border-b-[3px] md:border-b-0 md:border-r-[3px] border-black">
               {featuredPost.imageUrl && (
-                <Image 
+                <FadeInImage 
                   src={featuredPost.imageUrl}
                   alt={featuredPost.title}
                   fill
@@ -158,7 +159,7 @@ export default function NewsArticles() {
             <div key={article.id} className="border-2 border-black rounded-3xl overflow-hidden bg-white shadow-[4px_4px_0_0_#000] flex flex-col">
               <div className="h-56 relative border-b-[3px] border-black">
                 {article.imageUrl && (
-                  <Image 
+                  <FadeInImage 
                     src={article.imageUrl}
                     alt={article.title}
                     fill

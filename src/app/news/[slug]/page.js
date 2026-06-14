@@ -1,4 +1,5 @@
 import Image from "next/image";
+import FadeInImage from "@/components/FadeInImage";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { db } from "@/lib/firebase";
@@ -47,7 +48,7 @@ export async function generateMetadata({ params }) {
       url: `https://ymccvii.com/news/${slug}`,
       images: [
         {
-          url: article.imageUrl || "https://ymccvii.com/HERO FOTO.jpg",
+          url: article.imageUrl || "https://ymccvii.com/opengraph-image.jpg",
           width: 1200,
           height: 630,
           alt: article.title,
@@ -61,7 +62,7 @@ export async function generateMetadata({ params }) {
       card: "summary_large_image",
       title: articleTitle,
       description: articleDesc,
-      images: [article.imageUrl || "https://ymccvii.com/HERO FOTO.jpg"],
+      images: [article.imageUrl || "https://ymccvii.com/opengraph-image.jpg"],
     },
   };
 }
@@ -124,7 +125,7 @@ export default async function NewsArticleDetail({ params }) {
         </div>
 
         <div className="relative w-full h-[400px] md:h-[600px] mb-12 border-2 border-black rounded-[2rem] overflow-hidden shadow-[4px_4px_0_0_#000]">
-          <Image 
+          <FadeInImage 
             src={article.imageUrl || "/EVENTS_COMP/IMG_8741.jpg"}
             alt={article.title}
             fill

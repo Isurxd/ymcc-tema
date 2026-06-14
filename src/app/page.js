@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import FadeInImage from "@/components/FadeInImage";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, orderBy, limit, where } from "firebase/firestore";
 
@@ -268,7 +269,7 @@ export default function Home() {
           {competitions.length > 0 ? competitions.map((comp, index) => (
             <div key={comp.id} className="reveal bg-white border-[2px] border-black rounded-[2rem] p-6 md:p-8 shadow-brutal-lg flex flex-col items-center text-center hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 ease-out group" style={{ transitionDelay: `${index % 2 === 0 ? 0 : 100}ms` }}>
               <div className="w-20 h-20 md:w-24 md:h-24 mb-6 bg-gray-50 rounded-full border-2 border-black flex items-center justify-center p-4 group-hover:scale-110 transition-transform duration-500 shadow-sm shrink-0">
-                {comp.icon ? <Image src={comp.icon} alt={comp.title} width={80} height={80} className="object-contain" /> : <div className="text-3xl font-anton text-gray-300">?</div>}
+                {comp.icon ? <FadeInImage src={comp.icon} alt={comp.title} width={80} height={80} className="object-contain" /> : <div className="text-3xl font-anton text-gray-300">?</div>}
               </div>
               <span className="bg-[#f4ffcc] border border-black px-4 py-1.5 rounded-full text-[10px] font-bold font-poppins text-[#111] uppercase mb-4 w-full truncate">
                 {comp.pills && comp.pills.length > 0 ? comp.pills[0] : "COMPETITION"}
@@ -315,7 +316,7 @@ export default function Home() {
                 <Link href={`/news/${newsItem.slug || newsItem.id}`}>
                   <div className="bg-[#f4f4f5] rounded-3xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-brutal transition-all duration-500 h-full flex flex-col cursor-pointer active:scale-[0.98]">
                     <div className="relative h-56 w-full border-b-[3px] border-[#111]">
-                       <Image src={newsItem.imageUrl || "/EVENTS_COMP/IMG_8741.jpg"} alt={newsItem.title} fill className="object-cover" />
+                       <FadeInImage src={newsItem.imageUrl || "/EVENTS_COMP/IMG_8741.jpg"} alt={newsItem.title} fill className="object-cover" />
                        <div className="absolute top-4 left-4 bg-[var(--color-grass)] px-3 py-1 rounded border-2 border-black font-anton text-[#111] text-sm shadow-brutal-sm">{newsItem.category}</div>
                     </div>
                     <div className="p-6 md:p-8 flex flex-col flex-grow">
@@ -394,7 +395,7 @@ export default function Home() {
               {Array.from({ length: Math.max(1, Math.ceil(20 / (sponsors.length || 1))) }).flatMap(() => sponsors).map((sponsor, idx) => (
                 <a key={`${i}-${idx}`} href={sponsor.websiteUrl || "#"} target={sponsor.websiteUrl ? "_blank" : "_self"} rel={sponsor.websiteUrl ? "noopener noreferrer" : ""} className="flex justify-center items-center shrink-0 pr-16 transition-all duration-300 hover:scale-105 hover:-translate-y-1 drop-shadow-sm hover:drop-shadow-md">
                   {sponsor.imageUrl ? (
-                    <Image src={sponsor.imageUrl} alt={sponsor.name} width={160} height={60} className="object-contain h-12 max-w-full" />
+                    <FadeInImage src={sponsor.imageUrl} alt={sponsor.name} width={160} height={60} className="object-contain h-12 max-w-full" />
                   ) : (
                     <span className="font-poppins font-bold text-gray-800 text-xl">{sponsor.name}</span>
                   )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import imageCompression from 'browser-image-compression';
 import { auth, db, storage, secondaryAuth } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -373,14 +374,28 @@ export default function StaffDashboard({ portalType = "operator" }) {
     };
   }, [dateFilter, subscribers, newsFeedback, activityClicks, activities, news, sponsors, orders, users, merchandise]);
 
-  const handleFileUpload = async (file, folder) => {
-    if (!file) return null;
+  const handleUploadImage = async (file, folder) => {
     if (!storage) {
        console.error("Storage not initialized.");
        return null;
     }
-    const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
-    await uploadBytes(storageRef, file);
+
+    let fileToUpload = file;
+    if (file.type.startsWith("image/")) {
+      try {
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true
+        };
+        fileToUpload = await imageCompression(file, options);
+      } catch (error) {
+        console.error("Image compression error:", error);
+      }
+    }
+
+    const storageRef = ref(storage, `${folder}/${Date.now()}_${fileToUpload.name}`);
+    await uploadBytes(storageRef, fileToUpload);
     return await getDownloadURL(storageRef);
   };
 
