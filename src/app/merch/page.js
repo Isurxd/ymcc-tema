@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import FadeInImage from "@/components/FadeInImage";
+import ShareButton from "@/components/ShareButton";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
@@ -105,9 +106,12 @@ export default function MerchShop() {
               <h1 className="font-anton text-3xl md:text-5xl lg:text-6xl text-[#111] uppercase tracking-wide leading-none mb-4">
                 {selectedProduct.name}
               </h1>
-              <h3 className="font-poppins font-bold text-[#111] text-lg mb-6">
-                {selectedProduct.tagline}
-              </h3>
+              <div className="flex items-center gap-4 mb-6">
+                <h3 className="font-poppins font-bold text-[#111] text-lg">
+                  {selectedProduct.tagline}
+                </h3>
+                <ShareButton title={`Beli ${selectedProduct.name} di YMCC VII`} />
+              </div>
               <p className="font-poppins text-gray-600 text-sm leading-relaxed">
                 {selectedProduct.description}
               </p>

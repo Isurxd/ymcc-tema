@@ -1,5 +1,6 @@
 import Image from "next/image";
 import FadeInImage from "@/components/FadeInImage";
+import ShareButton from "@/components/ShareButton";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { db } from "@/lib/firebase";
@@ -117,6 +118,7 @@ export default async function NewsArticleDetail({ params }) {
               {article.category}
             </span>
             <span className="text-gray-600 font-semibold">{article.date}</span>
+            <ShareButton title={article.title} />
           </div>
           
           <h1 className="font-anton text-3xl md:text-5xl lg:text-7xl uppercase leading-tight mb-8">
