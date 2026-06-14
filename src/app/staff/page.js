@@ -27,7 +27,7 @@ export default function StaffLogin() {
     return () => unsub();
   }, [router]);
 
-  const checkAccess = async (user) => {
+  async function checkAccess(user) {
     setLoading(true);
     try {
       // Superadmin bypass

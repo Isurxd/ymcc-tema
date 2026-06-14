@@ -8,6 +8,10 @@ export async function POST(req) {
       return NextResponse.json({ success: false, error: "Destination postal code is required" }, { status: 400 });
     }
 
+    if (!items || !Array.isArray(items)) {
+      return NextResponse.json({ success: false, error: "Items array is required" }, { status: 400 });
+    }
+
     const payload = {
       origin_postal_code: "55283", // UPN Veteran Yogyakarta, Condongcatur
       destination_postal_code: destinationPostalCode,

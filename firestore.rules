@@ -56,14 +56,14 @@ service cloud.firestore {
       allow write: if isStaff();
     }
 
-    match /Orders/{document=**} {
-      allow read: if isStaff() || request.auth != null;
-      allow write: if isStaff() || request.auth != null;
+    match /Orders/{orderId} {
+      allow read: if isStaff() || (request.auth != null && resource.data.userDetails.email == request.auth.token.email);
+      allow write: if isStaff() || (request.auth != null && request.resource.data.userDetails.email == request.auth.token.email);
     }
 
     match /Inventory_Locks/{document=**} {
       allow read: if true;
-      allow write: if true;
+      allow write: if request.auth != null || isStaff();
     }
 
     match /subscribers/{document=**} {

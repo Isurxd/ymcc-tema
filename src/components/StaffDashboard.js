@@ -5,7 +5,7 @@ import { auth, db, storage, secondaryAuth } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword, updateEmail } from "firebase/auth";
-import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload } from "react-icons/fa";
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend } from "recharts";
 import { useRouter } from "next/navigation";
@@ -175,7 +175,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
       });
 
       unsubOrders = onSnapshot(collection(db, "Orders"), (snap) => {
-        setMerchOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setMerchOrders(list);
+        setOrders(list);
       });
 
       unsubBanners = onSnapshot(collection(db, "merch_banners"), (snap) => {
@@ -729,9 +731,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
       await logAuditAction("APPROVE_STAFF", `Approved ${roleModal.staffId} as ${roleModal.role}`);
 
       try {
+        const idToken = await auth.currentUser.getIdToken();
         await fetch('/api/send-email', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
           body: JSON.stringify({
             to: roleModal.staffId,
             subject: 'Pemberitahuan Akun Staf YMCC VII',
@@ -763,9 +769,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
     try { 
       await deleteDoc(doc(db, "staff_applications", id)); 
       
+      const idToken = await auth.currentUser.getIdToken();
       await fetch('/api/admin/delete-user', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
         body: JSON.stringify({ email: id })
       });
 

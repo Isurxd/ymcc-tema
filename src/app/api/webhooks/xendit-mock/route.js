@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
+import { FieldValue } from "firebase-admin/firestore";
 
 export async function POST(req) {
   try {
@@ -21,7 +22,7 @@ export async function POST(req) {
       // Update Order Status
       transaction.update(orderRef, {
         status: status, // "PAID"
-        paidAt: admin.firestore.FieldValue.serverTimestamp()
+        paidAt: FieldValue.serverTimestamp()
       });
 
       // Find all locks for this order and convert them to permanent deductions
@@ -36,7 +37,17 @@ export async function POST(req) {
         transaction.delete(lockDoc.ref);
       });
 
-      // Normally we would also deduct from the `Products` collection's `stock` field here
+      const orderData = orderDoc.data();
+      if (orderData && Array.isArray(orderData.items)) {
+        orderData.items.forEach((item) => {
+          if (item.id) {
+            const merchRef = db.collection('merchandise').doc(item.id);
+            transaction.update(merchRef, {
+              stockAmount: FieldValue.increment(-item.quantity)
+            });
+          }
+        });
+      }
     });
 
     return NextResponse.json({ success: true, message: "Webhook processed" });

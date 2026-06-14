@@ -1,8 +1,22 @@
 import nodemailer from 'nodemailer';
 import { NextResponse } from 'next/server';
+import { auth } from "@/lib/firebaseAdmin";
 
 export async function POST(req) {
   try {
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    const token = authHeader.split("Bearer ")[1];
+    if (auth) {
+      try {
+        await auth.verifyIdToken(token);
+      } catch (e) {
+        return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+      }
+    }
+
     const { to, bcc, subject, html, text } = await req.json();
 
     if ((!to && !bcc) || !subject || (!text && !html)) {

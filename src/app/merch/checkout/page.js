@@ -53,7 +53,7 @@ export default function CheckoutPage() {
     }
   }, [formData.postalCode]);
 
-  const fetchRates = async () => {
+  async function fetchRates() {
     setIsFetchingRates(true);
     try {
       const res = await fetch("/api/biteship/rates", {

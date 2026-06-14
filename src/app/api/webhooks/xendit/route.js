@@ -42,6 +42,20 @@ export async function POST(req) {
       locksSnapshot.docs.forEach((lockDoc) => {
         transaction.delete(lockDoc.ref);
       });
+
+      if (status === "PAID" || status === "SETTLED") {
+        const orderData = orderDoc.data();
+        if (orderData && Array.isArray(orderData.items)) {
+          orderData.items.forEach((item) => {
+            if (item.id) {
+              const merchRef = db.collection('merchandise').doc(item.id);
+              transaction.update(merchRef, {
+                stockAmount: FieldValue.increment(-item.quantity)
+              });
+            }
+          });
+        }
+      }
     });
 
     return NextResponse.json({ success: true, message: "Webhook processed successfully" });
