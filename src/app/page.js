@@ -99,7 +99,11 @@ export default function Home() {
             src="/HERO FOTO.jpg"
             alt="Mining Engineers"
             fill
-            className="w-full h-full object-cover opacity-60"
+            className="w-full h-full object-cover opacity-0 transition-opacity duration-1000 ease-in-out"
+            onLoad={(e) => {
+              e.target.classList.remove("opacity-0");
+              e.target.classList.add("opacity-60");
+            }}
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-[#fafafa]"></div>
@@ -160,7 +164,7 @@ export default function Home() {
         <div className="flex flex-col lg:flex-row items-start gap-16">
           <div className="lg:w-1/3 flex flex-col reveal">
             <div className="flex items-center mb-6 animate-float">
-              <Image src="/LOGO YMCC RASIO 1X1.png" alt="YMCC Logo" width={220} height={80} className="object-contain transition-all duration-500 hover:rotate-6 hover:scale-110 cursor-pointer drop-shadow-md" />
+              <Image src="/LOGO YMCC RASIO 1X1.png" alt="YMCC Logo" width={220} height={80} className="object-contain transition-all duration-1000 opacity-0 hover:rotate-6 hover:scale-110 cursor-pointer drop-shadow-md" onLoad={(e) => e.target.classList.remove("opacity-0")} priority />
             </div>
             <h2 className="text-2xl md:text-4xl lg:text-5xl font-anton uppercase text-[#111] leading-[1.2] md:leading-[1.1] tracking-wide mt-2">
               THE COALITION OF EARTH SCIENCE EXCELLENCE

@@ -103,7 +103,9 @@ export default function AboutUs() {
               src="/ABOUT_US/HERO_NEW.jpg" 
               alt="YMCC Field Operations" 
               fill
-              className="object-cover w-full h-full transition-all duration-700" 
+              className="object-cover w-full h-full transition-opacity duration-1000 opacity-0"
+              onLoad={(e) => e.target.classList.remove("opacity-0")}
+              priority
             />
           </div>
           
