@@ -11,7 +11,19 @@ export async function POST(req) {
     const token = authHeader.split("Bearer ")[1];
     if (auth) {
       try {
-        await auth.verifyIdToken(token);
+        const decoded = await auth.verifyIdToken(token);
+        const email = decoded.email;
+        const masterAdmins = ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"];
+        
+        if (!masterAdmins.includes(email)) {
+          // Check if they are approved staff
+          const { getFirestore } = require("firebase-admin/firestore");
+          const db = getFirestore();
+          const staffDoc = await db.collection("staff_applications").doc(email).get();
+          if (!staffDoc.exists || staffDoc.data().status !== "APPROVED") {
+            return NextResponse.json({ error: "Forbidden: Not an admin/staff" }, { status: 403 });
+          }
+        }
       } catch (e) {
         return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
       }

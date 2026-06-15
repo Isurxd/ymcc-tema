@@ -851,9 +851,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
       });
 
       try {
+        const idToken = await auth.currentUser.getIdToken();
         await fetch('/api/send-email', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
           body: JSON.stringify({
             to: addStaffModal.email,
             subject: 'Pemberitahuan Akun Staf YMCC VII',
@@ -989,9 +993,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
       // Convert newlines to <br> for HTML email
       const htmlMessage = broadcastMessage.replace(/\n/g, "<br/>");
 
+      const idToken = await auth.currentUser.getIdToken();
       const res = await fetch("/api/send-email", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${idToken}`
+        },
         body: JSON.stringify({
           bcc: targetEmails.join(","),
           subject: broadcastSubject,
@@ -2580,9 +2588,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     
                     if (emailText) {
                         try {
+                            const idToken = await auth.currentUser.getIdToken();
                             await fetch('/api/send-email', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: { 
+                                  'Content-Type': 'application/json',
+                                  'Authorization': `Bearer ${idToken}`
+                                },
                                 body: JSON.stringify({
                                     to: participantModal.data.email,
                                     subject: 'YMCC VII Registration Update',
