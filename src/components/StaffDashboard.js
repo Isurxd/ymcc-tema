@@ -111,7 +111,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     if (!auth) return;
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        if (user.email === "m.fairuzadhimularifin@gmail.com") {
+        if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
            setIsAuthenticated(true);
            setUserEmail(user.email);
            setUserRole("Superadmin");
@@ -1180,7 +1180,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* Master Only Tabs */}
-          {portalType === "master" && userEmail === "m.fairuzadhimularifin@gmail.com" && (
+          {portalType === "master" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
             <>
               <button onClick={() => { setActiveTab("users"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaUsers /> User Management
@@ -1453,7 +1453,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                 )}
 
                 {/* Master Revenue Chart */}
-                {portalType === "master" && userEmail === "m.fairuzadhimularifin@gmail.com" && (
+                {portalType === "master" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
                   <div className="bg-white p-8 rounded-2xl shadow-sm border-2 border-black lg:col-span-3">
                     <h3 className="font-anton text-2xl uppercase mb-6 border-b-2 border-gray-100 pb-4">Revenue Trend Analysis (Merchandise)</h3>
                     <div className="h-72 w-full">
@@ -1519,7 +1519,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* AUDIT LOGS TAB */}
-          {!loadingData && activeTab === "audit_logs" && userEmail === "m.fairuzadhimularifin@gmail.com" && (
+          {!loadingData && activeTab === "audit_logs" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
             <div className="max-w-6xl mx-auto space-y-6 animate-fade-in-up">
               <div className="bg-white p-8 rounded-3xl shadow-sm border-2 border-black">
                 <h3 className="font-anton text-2xl uppercase mb-6">System Audit Trail</h3>
@@ -2050,7 +2050,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* USERS TAB */}
-          {!loadingData && activeTab === "users" && userEmail === "m.fairuzadhimularifin@gmail.com" && (
+          {!loadingData && activeTab === "users" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
             <div className="max-w-5xl mx-auto space-y-8">
               <div className="bg-[#c1ff00] p-6 rounded-2xl border border-black shadow-[4px_4px_0_0_#000] mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>

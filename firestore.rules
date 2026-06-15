@@ -6,7 +6,7 @@ service cloud.firestore {
     // Function to check if user is a verified Admin/Operator
     function isStaff() {
       return request.auth != null && (
-        request.auth.token.email == "m.fairuzadhimularifin@gmail.com" ||
+        request.auth.token.email in ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"] ||
         get(/databases/$(database)/documents/staff_applications/$(request.auth.token.email)).data.status == "APPROVED"
       );
     }

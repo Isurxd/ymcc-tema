@@ -2,7 +2,9 @@ import { initializeApp, cert } from 'firebase-admin/app';
 import { getSecurityRules } from 'firebase-admin/security-rules';
 import fs from 'fs';
 
-const serviceAccount = JSON.parse(fs.readFileSync("./firebase-admin-key.json", "utf8"));
+const envFile = fs.readFileSync('.env.local', 'utf8');
+const match = envFile.match(/FIREBASE_SERVICE_ACCOUNT_KEY='(.*?)'/s);
+const serviceAccount = JSON.parse(match[1]);
 
 initializeApp({
   credential: cert(serviceAccount)

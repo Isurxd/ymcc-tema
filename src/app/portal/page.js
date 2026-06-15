@@ -162,7 +162,7 @@ export default function Portal() {
       if (currentUser.email) {
         const staffDocRef = doc(db, "staff_applications", currentUser.email);
         const staffSnap = await getDoc(staffDocRef);
-        if (currentUser.email === "m.fairuzadhimularifin@gmail.com" || 
+        if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(currentUser.email) || 
            (staffSnap.exists() && staffSnap.data().status === "APPROVED" && (staffSnap.data().role === "Operator" || staffSnap.data().role === "Admin"))) {
           setIsStaff(true);
         }

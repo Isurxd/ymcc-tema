@@ -21,7 +21,7 @@ export default function Login() {
       const { user, error } = await loginUser(email, password);
       if (error) throw new Error(error);
 
-      if (user.email === "m.fairuzadhimularifin@gmail.com") {
+      if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
         router.push("/master");
         return;
       }
@@ -59,7 +59,7 @@ export default function Login() {
           createdAt: serverTimestamp()
         });
       }
-      if (user.email === "m.fairuzadhimularifin@gmail.com") {
+      if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
         router.push("/master");
         return;
       }

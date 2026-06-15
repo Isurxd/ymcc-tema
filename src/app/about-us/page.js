@@ -314,16 +314,16 @@ export default function AboutUs() {
               </p>
             </div>
 
-            {/* COMPASS */}
+            {/* COMPETITION */}
             <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-8 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 flex flex-col items-center cursor-default">
               <div className="h-24 md:h-32 flex items-center justify-center mb-6">
-                <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/COMPETITION (C2).png" alt="COMPASS" width={100} height={100} className="object-contain h-full" />
+                <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/COMPETITION (C2).png" alt="COMPETITION" width={100} height={100} className="object-contain h-full" />
               </div>
               <div className="bg-grass text-[#111] font-anton text-sm uppercase px-6 py-1 rounded-full border-2 border-[#111] mb-4 shadow-brutal-hover">
-                COMPASS
+                COMPETITION
               </div>
               <p className="font-poppins text-xs text-[#111] leading-relaxed text-center">
-                Represents "The Green Compass," our guiding instrument pointing toward technological advancement.
+                Represents the culmination of knowledge, skill, and sportsmanship in the Youth Mining Camp Competition.
               </p>
             </div>
           </div>
