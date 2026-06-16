@@ -40,22 +40,17 @@ export async function POST(req) {
 
       // Delete the locks because the order is either PAID (lock is permanent) or EXPIRED (lock releases)
       locksSnapshot.docs.forEach((lockDoc) => {
+        const lockData = lockDoc.data();
+        if (status === "PAID" || status === "SETTLED") {
+          const productRef = db.collection('merchandise').doc(lockData.productId);
+          transaction.update(productRef, {
+            stockAmount: FieldValue.increment(-lockData.quantity)
+          });
+        }
         transaction.delete(lockDoc.ref);
       });
 
-      if (status === "PAID" || status === "SETTLED") {
-        const orderData = orderDoc.data();
-        if (orderData && Array.isArray(orderData.items)) {
-          orderData.items.forEach((item) => {
-            if (item.id) {
-              const merchRef = db.collection('merchandise').doc(item.id);
-              transaction.update(merchRef, {
-                stockAmount: FieldValue.increment(-item.quantity)
-              });
-            }
-          });
-        }
-      }
+
     });
 
     return NextResponse.json({ success: true, message: "Webhook processed successfully" });

@@ -3,7 +3,7 @@ export default function robots() {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/operator/', '/portal/', '/api/'],
+      disallow: ['/admin/', '/operator/', '/portal/', '/api/', '/master/', '/fundraising/'],
     },
     sitemap: 'https://ymccvii.com/sitemap.xml',
   };

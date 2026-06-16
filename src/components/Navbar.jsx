@@ -29,7 +29,9 @@ export default function Navbar() {
 
   // Close mobile menu when route changes
   useEffect(() => {
-    setIsMobileMenuOpen(false);
+    setTimeout(() => {
+      setIsMobileMenuOpen(false);
+    }, 0);
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -39,7 +41,8 @@ export default function Navbar() {
 
   const isSolid = isScrolled || pathname !== "/" || isMobileMenuOpen;
 
-  if (pathname?.startsWith("/operator") || pathname?.startsWith("/admin") || pathname?.startsWith("/staff") || pathname?.startsWith("/portal")) return null;
+  const isPortalRoute = ["/admin", "/operator", "/fundraising", "/master", "/portal", "/login", "/register", "/staff-register", "/staff"].some(route => pathname?.startsWith(route));
+  if (isPortalRoute) return null;
 
   const navLinks = [
     { href: "/", label: "Home" },

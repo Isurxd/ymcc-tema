@@ -48,13 +48,7 @@ export default function CheckoutPage() {
       .then(data => setProvinces(data));
   }, []);
 
-  useEffect(() => {
-    if (formData.postalCode.length >= 5 && deliveryMethod === "shipping") {
-      fetchRates();
-    }
-  }, [formData.postalCode]);
-
-  async function fetchRates() {
+  const fetchRates = async () => {
     setIsFetchingRates(true);
     try {
       const res = await fetch("/api/biteship/rates", {
@@ -81,6 +75,13 @@ export default function CheckoutPage() {
       setIsFetchingRates(false);
     }
   };
+
+  useEffect(() => {
+    if (formData.postalCode.length >= 5 && deliveryMethod === "shipping") {
+      setTimeout(() => { fetchRates(); }, 0);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.postalCode]);
 
   const handleChange = async (e) => {
     const { name, value } = e.target;

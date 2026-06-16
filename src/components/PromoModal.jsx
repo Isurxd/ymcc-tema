@@ -53,7 +53,8 @@ export default function PromoModal() {
     return () => clearInterval(interval);
   }, [isVisible]);
 
-  if (pathname?.startsWith("/operator")) return null;
+  const isPortalRoute = ["/admin", "/operator", "/fundraising", "/master", "/portal", "/login", "/register", "/staff-register", "/staff"].some(route => pathname?.startsWith(route));
+  if (isPortalRoute) return null;
 
   const handleDismiss = () => {
     localStorage.setItem("ymcc_promo_seen", "true");

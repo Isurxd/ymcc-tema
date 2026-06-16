@@ -55,11 +55,14 @@ export default function MapPicker({ latitude, longitude, setCoordinates, searchA
       }, 1000); // Debounce
       return () => clearTimeout(timeout);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchAddress]);
 
   useEffect(() => {
     if (position) {
-      setCenter(position);
+      setTimeout(() => {
+        setCenter(position);
+      }, 0);
     }
   }, [position]);
 

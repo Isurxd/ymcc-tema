@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
+import PromoModal from "@/components/PromoModal";
 
 export default function ClientLayoutWrapper({ children }) {
   const pathname = usePathname();
@@ -27,6 +28,7 @@ export default function ClientLayoutWrapper({ children }) {
     <>
       <Navbar />
       <CookieConsent />
+      <PromoModal />
       <main className="flex-grow">{children}</main>
       <Footer />
     </>

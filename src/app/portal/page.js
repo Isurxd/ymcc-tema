@@ -96,9 +96,11 @@ export default function Portal() {
         .then(data => setCitiesList(data))
         .catch(console.warn);
     } else {
-      setCitiesList([]);
-      setDistrictsList([]);
-      setVillagesList([]);
+      setTimeout(() => {
+        setCitiesList([]);
+        setDistrictsList([]);
+        setVillagesList([]);
+      }, 0);
     }
   }, [editProfileModal.data.provinceId]);
 
@@ -110,8 +112,10 @@ export default function Portal() {
         .then(data => setDistrictsList(data))
         .catch(console.warn);
     } else {
-      setDistrictsList([]);
-      setVillagesList([]);
+      setTimeout(() => {
+        setDistrictsList([]);
+        setVillagesList([]);
+      }, 0);
     }
   }, [editProfileModal.data.cityId]);
 
@@ -123,7 +127,9 @@ export default function Portal() {
         .then(data => setVillagesList(data))
         .catch(console.warn);
     } else {
-      setVillagesList([]);
+      setTimeout(() => {
+        setVillagesList([]);
+      }, 0);
     }
   }, [editProfileModal.data.districtId]);
 
@@ -146,7 +152,9 @@ export default function Portal() {
       }, 500);
       return () => clearTimeout(delayDebounceFn);
     } else {
-      setUniversityResults([]);
+      setTimeout(() => {
+        setUniversityResults([]);
+      }, 0);
     }
   }, [editProfileModal.data.institution, editProfileModal.data.educationLevel, editProfileModal.data.country, editProfileModal.isOpen]);
 
@@ -162,7 +170,8 @@ export default function Portal() {
       if (currentUser.email) {
         const staffDocRef = doc(db, "staff_applications", currentUser.email);
         const staffSnap = await getDoc(staffDocRef);
-        if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(currentUser.email) || 
+        const cleanEmail = currentUser.email.toLowerCase().trim();
+        if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(cleanEmail) ||
            (staffSnap.exists() && staffSnap.data().status === "APPROVED" && (staffSnap.data().role === "Operator" || staffSnap.data().role === "Admin"))) {
           setIsStaff(true);
         }
@@ -642,6 +651,7 @@ export default function Portal() {
               {competitions.map((comp) => (
                 <div key={comp.id} className="bg-white border-2 border-black rounded-2xl p-6 shadow-[4px_4px_0_0_#000] flex flex-col justify-between">
                   <div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     {comp.icon && <img src={comp.icon} alt={comp.title} className="w-12 h-12 mb-4" />}
                     <h3 className="font-poppins font-bold text-xl uppercase mb-2 leading-tight">{comp.title}</h3>
                     <p className="text-sm text-gray-600 mb-4 line-clamp-3">{comp.desc}</p>
@@ -674,8 +684,8 @@ export default function Portal() {
               </div>
               <p className="text-sm font-poppins text-gray-600 mb-6">
                 Please upload your competition file (PDF/PPT) here. Maximum file size is 10MB. 
-                {userData.documentStatus === "VERIFIED" && <span className="text-green-600 font-bold block mt-2">✅ Your document has been VERIFIED by the judges.</span>}
-                {userData.documentStatus === "PENDING_VERIFICATION" && <span className="text-orange-500 font-bold block mt-2">⏳ Your document is under review.</span>}
+                {userData?.documentStatus === "VERIFIED" && <span className="text-green-600 font-bold block mt-2">✅ Your document has been VERIFIED by the judges.</span>}
+                {userData?.documentStatus === "PENDING_VERIFICATION" && <span className="text-orange-500 font-bold block mt-2">⏳ Your document is under review.</span>}
               </p>
               
               <form onSubmit={handleSubmitDriveLink} className="flex flex-col sm:flex-row gap-4">
@@ -697,14 +707,14 @@ export default function Portal() {
               
               {userData?.documentStatus && (
                 <div className={`mt-6 p-4 rounded-xl border-2 font-poppins text-sm font-bold ${
-                  userData.documentStatus === 'VERIFIED' ? 'bg-green-100 border-green-500 text-green-700' :
-                  userData.documentStatus === 'REJECTED' ? 'bg-red-100 border-red-500 text-red-700' :
+                  userData?.documentStatus === 'VERIFIED' ? 'bg-green-100 border-green-500 text-green-700' :
+                  userData?.documentStatus === 'REJECTED' ? 'bg-red-100 border-red-500 text-red-700' :
                   'bg-yellow-100 border-yellow-500 text-yellow-700'
                 }`}>
-                  Document Status: {userData.documentStatus}
-                  {userData.documentStatus === 'VERIFIED' && " - Your documents have been verified. Good luck in the competition!"}
-                  {userData.documentStatus === 'REJECTED' && " - There was an issue with your documents. Please check your email or update your link."}
-                  {userData.documentStatus === 'PENDING_VERIFICATION' && " - Waiting for Admin review."}
+                  Document Status: {userData?.documentStatus}
+                  {userData?.documentStatus === 'VERIFIED' && " - Your documents have been verified. Good luck in the competition!"}
+                  {userData?.documentStatus === 'REJECTED' && " - There was an issue with your documents. Please check your email or update your link."}
+                  {userData?.documentStatus === 'PENDING_VERIFICATION' && " - Waiting for Admin review."}
                 </div>
               )}
             </div>

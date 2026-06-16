@@ -412,7 +412,7 @@ export default function StaffRegister() {
               title="Must be a valid Google Drive link"
               className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all" 
             />
-            <p className="text-xs text-gray-500 mt-2 font-poppins">Technical limit: We cannot auto-verify if the link is public. <span className="font-bold text-red-500">Please ensure the link is set to "Anyone with the link can view".</span></p>
+            <p className="text-xs text-gray-500 mt-2 font-poppins">Technical limit: We cannot auto-verify if the link is public. <span className="font-bold text-red-500">Please ensure the link is set to &quot;Anyone with the link can view&quot;.</span></p>
           </div>
 
           <button 

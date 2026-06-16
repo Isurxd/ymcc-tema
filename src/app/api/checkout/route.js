@@ -21,6 +21,16 @@ export async function POST(req) {
     // Begin Firestore transaction for Atomic Soft-Lock
     await db.runTransaction(async (transaction) => {
       for (const item of items) {
+        // Verify available stock
+        const productRef = db.collection('merchandise').doc(item.id);
+        const productSnap = await transaction.get(productRef);
+        if (productSnap.exists) {
+          const productData = productSnap.data();
+          if (productData.stockAmount !== undefined && productData.stockAmount < item.quantity) {
+            throw new Error(`Insufficient stock for ${item.name}. Available: ${productData.stockAmount}`);
+          }
+        }
+
         // Create an Inventory Lock for 15 minutes
         const lockRef = db.collection('Inventory_Locks').doc();
         transaction.set(lockRef, {
@@ -98,6 +108,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Checkout Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

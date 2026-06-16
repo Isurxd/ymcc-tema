@@ -275,9 +275,9 @@ This Policy shall be governed by, construed, and enforced in accordance with the
 
 function replaceContent(filePath, newContent) {
   let fileContent = fs.readFileSync(filePath, 'utf8');
-  fileContent = fileContent.replace(/const content = \`[\\s\\S]*?\`;/, \`const content = \\\`\n\${newContent}\\\`;\`);
+  fileContent = fileContent.replace(/const content = \`[\s\S]*?\`;/, 'const content = \`\n' + newContent + '\`;');
   fs.writeFileSync(filePath, fileContent);
-  console.log(\`Updated \${filePath}\`);
+  console.log(`Updated ${filePath}`);
 }
 
 replaceContent(path.join(__dirname, 'src/app/cookies/page.js'), cookiesContent);

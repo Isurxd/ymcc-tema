@@ -111,7 +111,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
     if (!auth) return;
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
+        const cleanEmail = user.email ? user.email.toLowerCase().trim() : "";
+        if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(cleanEmail)) {
            setIsAuthenticated(true);
            setUserEmail(user.email);
            setUserRole("Superadmin");
@@ -141,7 +142,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    setLoadingData(true);
+    setTimeout(() => {
+      setLoadingData(true);
+    }, 0);
 
     let unsubUsers = () => {};
     let unsubMerch = () => {};
@@ -1122,36 +1125,52 @@ export default function StaffDashboard({ portalType = "operator" }) {
         </div>
       )}
 
+      {/* Backdrop overlay for mobile sidebar */}
+      {isSidebarOpen && (
+        <div 
+          onClick={() => setIsSidebarOpen(false)} 
+          className="fixed inset-0 bg-black/60 z-30 md:hidden transition-opacity duration-300"
+        />
+      )}
+
       {/* SIDEBAR */}
-      <div className="w-64 bg-black text-white flex flex-col hidden md:flex">
-        <div className="p-6 border-b border-gray-800">
-          <h2 className="font-anton text-3xl text-[#c1ff00] tracking-wide uppercase">YMCC VII</h2>
-          <p className="text-xs text-gray-400 font-medium tracking-widest mt-1 uppercase">
-            {portalType === "master" ? "MASTER DASHBOARD" : `PORTAL ${portalType}`}
-          </p>
+      <div className={`w-64 bg-black text-white flex flex-col transition-all duration-300 z-40 ${isSidebarOpen ? 'fixed inset-y-0 left-0 flex shadow-2xl' : 'hidden md:flex'}`}>
+        <div className="p-6 border-b border-gray-800 flex justify-between items-center">
+          <div>
+            <h2 className="font-anton text-3xl text-[#c1ff00] tracking-wide uppercase">YMCC VII</h2>
+            <p className="text-xs text-gray-400 font-medium tracking-widest mt-1 uppercase">
+              {portalType === "master" ? "MASTER DASHBOARD" : `PORTAL ${portalType}`}
+            </p>
+          </div>
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden text-gray-400 hover:text-white transition-colors"
+          >
+            <FaTimes size={20} />
+          </button>
         </div>
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {/* Dashboard is visible to all */}
-          <button onClick={() => { setActiveTab("dashboard"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "dashboard" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+          <button onClick={() => { setActiveTab("dashboard"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "dashboard" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
             <FaChartBar /> Dashboard
           </button>
 
           {/* Operator/Master CMS Tabs */}
           {(portalType === "operator" || portalType === "master") && (
             <>
-              <button onClick={() => { setActiveTab("activities"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "activities" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("activities"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "activities" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaTasks /> Activities
               </button>
-              <button onClick={() => { setActiveTab("tickets"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "tickets" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("tickets"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "tickets" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaEnvelope /> Helpdesk Tickets
               </button>
-              <button onClick={() => { setActiveTab("news"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "news" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("news"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "news" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaNewspaper /> News & Articles
               </button>
-              <button onClick={() => { setActiveTab("faqs"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "faqs" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("faqs"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "faqs" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaQuestionCircle /> FAQs
               </button>
-              <button onClick={() => { setActiveTab("sponsors"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "sponsors" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("sponsors"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "sponsors" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaHandshake /> Sponsors
               </button>
             </>
@@ -1160,16 +1179,16 @@ export default function StaffDashboard({ portalType = "operator" }) {
           {/* Admin/Master Bureaucracy Tabs */}
           {(portalType === "admin" || portalType === "master") && (
             <>
-              <button onClick={() => { setActiveTab("participants"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "participants" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("participants"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "participants" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaUsers /> Verification Hub
               </button>
-              <button onClick={() => { setActiveTab("submissions"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "submissions" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("submissions"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "submissions" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaFileAlt /> Submission Locker
               </button>
-              <button onClick={() => { setActiveTab("qr_scanner"); resetForm(); setScannerActive(true); setScannedUser(null); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "qr_scanner" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("qr_scanner"); resetForm(); setScannerActive(true); setScannedUser(null); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "qr_scanner" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaQrcode /> QR Scanner
               </button>
-              <button onClick={() => { setActiveTab("broadcast"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "broadcast" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("broadcast"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "broadcast" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaEnvelope /> Broadcast Center
               </button>
             </>
@@ -1178,10 +1197,10 @@ export default function StaffDashboard({ portalType = "operator" }) {
           {/* Fundraising/Master E-Commerce Tabs */}
           {(portalType === "fundraising" || portalType === "master") && (
             <>
-              <button onClick={() => { setActiveTab("merch_orders"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "merch_orders" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("merch_orders"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "merch_orders" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaTasks /> Order Management
               </button>
-              <button onClick={() => { setActiveTab("merch_inventory"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "merch_inventory" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("merch_inventory"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "merch_inventory" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaHandshake /> Inventory
               </button>
             </>
@@ -1190,17 +1209,17 @@ export default function StaffDashboard({ portalType = "operator" }) {
           {/* Master Only Tabs */}
           {portalType === "master" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
             <>
-              <button onClick={() => { setActiveTab("users"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("users"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaUsers /> User Management
               </button>
-              <button onClick={() => { setActiveTab("audit_logs"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "audit_logs" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+              <button onClick={() => { setActiveTab("audit_logs"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "audit_logs" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                 <FaSearch /> Audit Logs
               </button>
             </>
           )}
 
           {/* Settings for all */}
-          <button onClick={() => { setActiveTab("settings"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "settings" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+          <button onClick={() => { setActiveTab("settings"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "settings" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
             <FaCog /> Settings
           </button>
         </nav>
@@ -1218,15 +1237,21 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
       {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <header className="bg-white border-b border-gray-200 p-6 flex justify-between items-center shadow-sm z-10">
-          <div className="mb-8 border-b-2 border-black pb-4">
-            <h1 className="font-anton text-4xl uppercase tracking-wider">
+        <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm z-10">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-2xl p-1 text-black hover:text-[#c1ff00] focus:outline-none transition-colors"
+            >
+              ☰
+            </button>
+            <h1 className="font-anton text-2xl md:text-3xl uppercase tracking-wider">
               {activeTab === "users" ? "User Management" : activeTab === "audit_logs" ? "System Audit Logs" : activeTab.replace(/_/g, ' ').toUpperCase()}
             </h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-[#c1ff00] rounded-full flex items-center justify-center font-bold text-black border border-black shadow-sm">
-              {userEmail.charAt(0).toUpperCase()}
+              {userEmail ? userEmail.charAt(0).toUpperCase() : "?"}
             </div>
             <span className="text-sm font-semibold text-gray-700 hidden sm:block">{userEmail}</span>
           </div>
@@ -1608,7 +1633,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
             <div className="max-w-4xl mx-auto space-y-8">
               <div className="bg-[#c1ff00] p-6 rounded-2xl border border-black shadow-[4px_4px_0_0_#000] mb-8">
                 <h3 className="font-anton text-2xl uppercase mb-2">Check-In & Attendance Scanner</h3>
-                <p className="font-poppins text-sm font-medium">Point your camera at the participant's Event Pass QR Code to view their profile, presentation documents, and mark attendance.</p>
+                <p className="font-poppins text-sm font-medium">Point your camera at the participant&apos;s Event Pass QR Code to view their profile, presentation documents, and mark attendance.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1693,7 +1718,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <div className="flex-1 flex items-center justify-center flex-col text-gray-400">
                       <FaQrcode className="text-6xl mb-4 opacity-50" />
                       <p className="font-bold uppercase text-center">Waiting for scan...</p>
-                      <p className="text-xs text-center mt-2">Scan a participant's Event Pass to view their profile.</p>
+                      <p className="text-xs text-center mt-2">Scan a participant&apos;s Event Pass to view their profile.</p>
                     </div>
                   )}
                 </div>
@@ -1707,7 +1732,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
               <div className="bg-[#111] text-white p-8 rounded-3xl border-2 border-black shadow-[4px_4px_0_0_#000] relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-2 bg-[#c1ff00]"></div>
                 <h3 className="font-anton text-3xl uppercase mb-2">Mass Broadcast Center</h3>
-                <p className="font-poppins text-sm text-gray-400 font-medium">Send massive email announcements directly to participants' inboxes via secure BCC routing.</p>
+                <p className="font-poppins text-sm text-gray-400 font-medium">Send massive email announcements directly to participants&apos; inboxes via secure BCC routing.</p>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -1830,6 +1855,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">Icon/Logo Image</label>
                       <input type="file" accept="image/*" onChange={(e) => setUploadFile(e.target.files[0])} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       {activityForm.icon && !uploadFile && <img src={activityForm.icon} alt="Preview" className="h-12 mt-2 object-contain" />}
                     </div>
                     <div>
@@ -1859,6 +1885,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <div key={a.id} className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
                       {a.icon && (
                         <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center p-1">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={a.icon} alt="" className="w-full h-full object-contain" />
                         </div>
                       )}
@@ -1915,6 +1942,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <span className="font-bold text-gray-400">OR</span>
                       <input type="url" placeholder="https://imgur.com/your-image.jpg" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={newsForm.imageUrl} onChange={e => setNewsForm({...newsForm, imageUrl: e.target.value})} />
                     </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     {newsForm.imageUrl && !uploadFile && <img src={newsForm.imageUrl} className="h-20 mt-3 object-cover rounded" alt="Preview" />}
                     <p className="text-xs text-gray-500 mt-2">Upload directly via Firebase Storage OR provide an external URL.</p>
                   </div>
@@ -1936,6 +1964,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <div key={n.id} className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
                       {n.imageUrl && (
                         <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={n.imageUrl} alt="" className="w-full h-full object-cover" />
                         </div>
                       )}
@@ -2028,6 +2057,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <span className="font-bold text-gray-400">OR</span>
                       <input type="url" placeholder="https://imgur.com/company-logo.png" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={sponsorForm.imageUrl} onChange={e => setSponsorForm({...sponsorForm, imageUrl: e.target.value})} />
                     </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     {sponsorForm.imageUrl && !uploadFile && <img src={sponsorForm.imageUrl} className="h-16 mt-3 object-contain" alt="Preview" />}
                   </div>
                   <button type="submit" disabled={actionLoading} className="w-full bg-black text-white py-4 rounded-xl font-bold uppercase hover:bg-[#c1ff00] hover:text-black transition-colors disabled:opacity-50">
@@ -2046,6 +2076,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                         <button onClick={() => handleDeleteSponsor(s.id)} className="text-red-500 hover:text-red-700 p-1"><FaTrash size={14} /></button>
                       </div>
                       <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm overflow-hidden">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         {s.imageUrl ? <img src={s.imageUrl} className="w-full h-full object-contain p-2" alt={s.name} /> : <FaHandshake className="text-gray-300 text-2xl" />}
                       </div>
                       <h4 className="font-bold text-gray-900 text-center mb-1 text-sm">{s.name}</h4>
@@ -2228,6 +2259,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                           <button onClick={() => handleDeleteBanner(b.id)} className="text-red-500 hover:text-red-700 p-1"><FaTrash size={14} /></button>
                         </div>
                         <div className="h-32 bg-gray-100 rounded-lg mb-2 overflow-hidden">
+                           {/* eslint-disable-next-line @next/next/no-img-element */}
                            {b.image ? <img src={b.image} className="w-full h-full object-cover" alt={b.title} /> : <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>}
                         </div>
                         <h4 className="font-bold text-gray-900 uppercase truncate">{b.title}</h4>
@@ -2304,6 +2336,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                          <span className="text-gray-400 font-bold">OR</span>
                          <input type="url" placeholder="https://..." className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.image} onChange={e => setMerchForm({...merchForm, image: e.target.value})} />
                       </div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       {merchForm.image && !uploadFile && <img src={merchForm.image} className="h-16 mt-2 object-cover rounded" alt="Preview" />}
                     </div>
                     <div>
@@ -2341,6 +2374,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                         <button onClick={() => handleDeleteMerch(m.id)} className="text-red-500 hover:text-red-700 p-1"><FaTrash size={14} /></button>
                       </div>
                       <div className="h-40 bg-gray-100 rounded-lg mb-3 overflow-hidden relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         {m.image ? <img src={m.image} className="w-full h-full object-cover" alt={m.name} /> : <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>}
                         <div className="absolute bottom-2 right-2 bg-black text-white text-[10px] font-bold px-2 py-1 rounded uppercase">Stock: {m.stockAmount !== undefined ? m.stockAmount : '-'}</div>
                         <div className="absolute top-2 left-2 bg-[#c1ff00] text-black text-[10px] font-bold px-2 py-1 rounded uppercase">{m.stockType || "READY"}</div>
@@ -2429,7 +2463,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                 <h2 className="font-anton text-2xl uppercase mb-6 border-b pb-4">Account Settings</h2>
                 <div className="mb-8 p-4 bg-orange-50 border border-orange-200 rounded-xl">
                   <p className="text-sm font-bold text-orange-800 mb-1">Security Notice</p>
-                  <p className="text-xs text-orange-700">Mengubah password memerlukan "Recent Login". Jika Anda baru saja mengubahnya atau sesi login Anda sudah lama, Firebase mungkin meminta Anda untuk logout dan login kembali demi keamanan.</p>
+                  <p className="text-xs text-orange-700">Mengubah password memerlukan &quot;Recent Login&quot;. Jika Anda baru saja mengubahnya atau sesi login Anda sudah lama, Firebase mungkin meminta Anda untuk logout dan login kembali demi keamanan.</p>
                 </div>
                 
                 <form onSubmit={handleUpdateAccount} className="space-y-6">

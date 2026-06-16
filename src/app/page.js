@@ -125,7 +125,7 @@ export default function Home() {
             className="reveal text-xs sm:text-sm md:text-base font-medium text-gray-200 max-w-2xl leading-relaxed mb-8 md:mb-10 drop-shadow-md px-2 lg:px-0"
             style={{ transitionDelay: "200ms" }}
           >
-            Guided by "The Green Compass," YMCC VII unites ASEAN, China, and Australia's brightest engineering talents. We exist to drive sustainable innovation, technical precision, and future-ready energy solutions in the global mineral resources sector.
+            Guided by &quot;The Green Compass,&quot; YMCC VII unites ASEAN, China, and Australia&apos;s brightest engineering talents. We exist to drive sustainable innovation, technical precision, and future-ready energy solutions in the global mineral resources sector.
           </p>
 
           <div
@@ -183,7 +183,7 @@ export default function Home() {
             style={{ transitionDelay: "100ms" }}
           >
             <p className="text-gray-600 font-poppins font-medium text-sm md:text-base leading-relaxed mb-6">
-              Established by the Student Association of Mining Engineering (HMTA) at Universitas Pembangunan Nasional "Veteran" Yogyakarta, the Youth Mining Camp Competition (YMCC) has evolved from a local competition into the premier biennial summit for global mining engineering.
+              Established by the Student Association of Mining Engineering (HMTA) at Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta, the Youth Mining Camp Competition (YMCC) has evolved from a local competition into the premier biennial summit for global mining engineering.
             </p>
             <p className="text-[#111] font-poppins font-bold text-sm md:text-base leading-relaxed">
               As the industry undergoes a monumental energy transition, YMCC VII acts as a structural anchor. We do not just test academic capacity; we forge elite pioneers who will manage the extraction of critical minerals ethically, sustainably, and with absolute engineering precision.

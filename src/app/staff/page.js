@@ -15,24 +15,13 @@ export default function StaffLogin() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!auth) return;
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        checkAccess(user);
-      } else {
-        setLoading(false);
-      }
-    });
-    return () => unsub();
-  }, [router]);
-
-  async function checkAccess(user) {
+  const checkAccess = async (user) => {
     setLoading(true);
     try {
       // Superadmin bypass
-      if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
-        router.push("/operator");
+      const cleanEmail = user.email ? user.email.toLowerCase().trim() : "";
+      if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(cleanEmail)) {
+        router.push("/master");
         return;
       }
 
@@ -62,6 +51,19 @@ export default function StaffLogin() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (!auth) return;
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        checkAccess(user);
+      } else {
+        setLoading(false);
+      }
+    });
+    return () => unsub();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   const handleGoogleLogin = async () => {
     setErrorMsg("");
