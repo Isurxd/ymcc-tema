@@ -237,8 +237,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       return items.filter(item => {
-        if (!item.createdAt) return false;
-        const itemDate = new Date(item.createdAt);
+        const dateStr = item.createdAt || item.timestamp || item.appliedAt || item.created_at;
+        if (!dateStr) return false;
+        const itemDate = new Date(dateStr);
         if (dateFilter === "today") {
           return itemDate >= today;
         } else if (dateFilter === "yesterday") {
