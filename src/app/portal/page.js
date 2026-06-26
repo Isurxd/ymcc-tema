@@ -30,6 +30,7 @@ export default function Portal() {
   
   const [editProfileModal, setEditProfileModal] = useState({ isOpen: false, data: {} });
   const [savingProfile, setSavingProfile] = useState(false);
+  const [profilePhotoFile, setProfilePhotoFile] = useState(null);
   const [isStaff, setIsStaff] = useState(false);
   
   // APIs for dynamic dropdowns
@@ -46,8 +47,7 @@ export default function Portal() {
   // Profile completion fields
   const profileFields = [
     "fullName", "studentId", "whatsapp", "institution", "educationLevel",
-    "country", "province", "city", "district", "village", "birthDate", "gender", "address", 
-    "dietary", "medicalHistory", "tshirtSize", "emergencyContact"
+    "country", "province", "city"
   ];
 
   const calculateProgress = () => {
@@ -174,6 +174,8 @@ export default function Portal() {
         const unsubUserData = onSnapshot(userDocRef, (docSnap) => {
           if (docSnap.exists()) {
             setUserData(docSnap.data());
+          } else {
+            router.push("/register");
           }
         });
 
@@ -237,8 +239,8 @@ export default function Portal() {
         toast.error("Please select a file to upload.");
         return;
     }
-    if (submissionFile.size > 10 * 1024 * 1024) {
-        toast.error("File is too large. Maximum size is 10MB.");
+    if (submissionFile.size > 25 * 1024 * 1024) {
+        toast.error("File is too large. Maximum size is 25MB.");
         return;
     }
 
@@ -411,68 +413,228 @@ export default function Portal() {
 
   const downloadIdCard = async () => {
     try {
-      const toastId = toast.loading("Generating ID Card...");
+      const toastId = toast.loading("Generating VIP ID Card...");
+
+      // Ensure fonts are loaded before calculating dimensions
+      await document.fonts.ready;
+
+      // Prefetch images as base64 to avoid html2canvas CORS issues
+      const fetchBase64 = (url) => new Promise((resolve) => {
+        if (!url) return resolve("");
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+          const cvs = document.createElement("canvas");
+          cvs.width = img.width; cvs.height = img.height;
+          cvs.getContext("2d").drawImage(img, 0, 0);
+          resolve(cvs.toDataURL("image/png"));
+        };
+        img.onerror = () => {
+          if (url.startsWith('/api/proxy-image') || url.startsWith('/')) {
+             return resolve("");
+          }
+          const proxyImg = new Image();
+          proxyImg.crossOrigin = "Anonymous";
+          proxyImg.onload = () => {
+            const cvs = document.createElement("canvas");
+            cvs.width = proxyImg.width; cvs.height = proxyImg.height;
+            cvs.getContext("2d").drawImage(proxyImg, 0, 0);
+            resolve(cvs.toDataURL("image/png"));
+          };
+          proxyImg.onerror = () => resolve("");
+          proxyImg.src = `/api/proxy-image?url=${encodeURIComponent(url)}`;
+        };
+        img.src = url;
+      });
+
+      const logoB64 = await fetchBase64("/logo.png");
+      let photoB64 = "";
+      if (userData?.profilePhotoUrl) {
+        photoB64 = await fetchBase64(userData.profilePhotoUrl);
+      }
+
+      // Generate QR
+      const verifyUrl = `https://ymccvii.com/verify?id=${user?.uid || "invalid"}`;
+      const qrDataUrl = await QRCodeLib.toDataURL(verifyUrl, { margin: 0, width: 300, color: { dark: '#000000', light: '#ffffff' } });
+
+      // Create a hidden container
+      const container = document.createElement("div");
+      container.style.position = "absolute";
+      container.style.left = "-9999px";
+      container.style.top = "0";
       
+      const html = `
+        <div id="id-card-render" style="width: 860px; height: 540px; background-color: #fff; border-radius: 20px; overflow: hidden; position: relative; font-family: var(--font-poppins), sans-serif;">
+          
+          <!-- Base Pattern Background -->
+          <svg width="100%" height="100%" style="position: absolute; top: 0; left: 0; z-index: 0;">
+            <defs>
+              <pattern id="bg-pattern" width="80" height="120" patternUnits="userSpaceOnUse">
+                <rect width="80" height="120" fill="#ff4d00" />
+                <polygon points="0,60 80,0 80,60 0,120" fill="#c1ff00" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#bg-pattern)" />
+          </svg>
+
+          <!-- White Overlay Shape -->
+          <svg viewBox="0 0 860 540" style="position: absolute; top: 0; left: 0; z-index: 1;">
+            <path d="M-10,250 L390,250 C480,250 560,130 650,130 L870,130 L870,550 L-10,550 Z" fill="#ffffff" />
+          </svg>
+          
+          <!-- Content Container (Z-Index 2) -->
+          <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;">
+            
+            <!-- Top Right Circle -->
+            <div style="position: absolute; right: 40px; top: 25px; width: 30px; height: 30px; background: #c1ff00; border-radius: 50%; border: 4px solid #111; box-shadow: 4px 4px 0 #111;"></div>
+
+            <!-- Logo -->
+            ${logoB64 ? `<img src="${logoB64}" style="position: absolute; right: 60px; top: 160px; height: 35px; object-fit: contain;" />` : ''}
+
+            <!-- Photo -->
+            <div style="position: absolute; left: 50px; top: 45px; width: 170px; height: 230px; border-radius: 20px; border: 4px solid #111; background: #5a22e6; overflow: hidden; display: flex; justify-content: center; align-items: center; z-index: 3;">
+              ${photoB64 ? `<img src="${photoB64}" style="width: 100%; height: 100%; object-fit: cover;" />` : '<span style="color: #fff; font-weight: bold;">NO PHOTO</span>'}
+            </div>
+
+            <!-- Role Badge -->
+            <div style="position: absolute; left: 235px; top: 215px; width: 150px; height: 28px; z-index: 3;">
+              <svg width="100%" height="100%" viewBox="0 0 150 28" style="position: absolute; top: 0; left: 0; z-index: 0;">
+                <rect width="150" height="28" rx="14" ry="14" fill="#c1ff00" />
+              </svg>
+              <div style="position: absolute; top: 5px; left: 0; width: 100%; text-align: center; z-index: 1;">
+                <p style="font-family: var(--font-poppins), sans-serif; font-size: 14px; font-weight: 800; color: #111; margin: 0; line-height: 1;">Official Delegate</p>
+              </div>
+            </div>
+
+            <!-- Name -->
+            <div style="position: absolute; left: 235px; top: 260px; width: 575px;">
+              <h2 id="card-name" style="font-family: var(--font-anton), sans-serif; font-size: 42px; margin: 0; padding: 10px 0; line-height: 1.4; color: #111; text-transform: uppercase; white-space: nowrap; width: 100%;">
+                ${userData?.fullName || 'PARTICIPANT'}
+              </h2>
+            </div>
+
+            <!-- Details: Col 1 -->
+            <div style="position: absolute; left: 235px; top: 335px; width: 270px;">
+              <p style="font-family: var(--font-poppins), sans-serif; font-size: 14px; color: #777; font-weight: 700; margin: 0; line-height: 1.2;">ID Number</p>
+              <p id="card-id" style="font-family: var(--font-poppins), sans-serif; font-size: 20px; color: #111; font-weight: 600; margin: 0; padding: 2px 0; white-space: nowrap; width: 100%; line-height: 1.4;">${userData?.studentId || '-'}</p>
+            </div>
+            
+            <div style="position: absolute; left: 235px; top: 395px; width: 270px;">
+              <p style="font-family: var(--font-poppins), sans-serif; font-size: 14px; color: #777; font-weight: 700; margin: 0; line-height: 1.2;">Institution</p>
+              <p id="card-institution" style="font-family: var(--font-poppins), sans-serif; font-size: 16px; color: #111; font-weight: 600; margin: 0; padding: 2px 0; width: 100%; text-transform: uppercase; line-height: 1.3;">${userData?.institution || '-'}</p>
+            </div>
+
+            <!-- Details: Col 2 -->
+            <div style="position: absolute; left: 530px; top: 335px; width: 270px;">
+              <p style="font-family: var(--font-poppins), sans-serif; font-size: 14px; color: #777; font-weight: 700; margin: 0; line-height: 1.2;">Phone</p>
+              <p id="card-phone" style="font-family: var(--font-poppins), sans-serif; font-size: 20px; color: #111; font-weight: 600; margin: 0; padding: 2px 0; white-space: nowrap; width: 100%; line-height: 1.4;">${userData?.whatsapp || '-'}</p>
+            </div>
+
+            <div style="position: absolute; left: 530px; top: 395px; width: 270px;">
+              <p style="font-family: var(--font-poppins), sans-serif; font-size: 14px; color: #777; font-weight: 700; margin: 0; line-height: 1.2;">Country</p>
+              <p id="card-country" style="font-family: var(--font-poppins), sans-serif; font-size: 20px; color: #111; font-weight: 600; margin: 0; padding: 2px 0; white-space: nowrap; width: 100%; text-transform: uppercase; line-height: 1.4;">${userData?.country || 'Indonesia'}</p>
+            </div>
+
+            <!-- QR Code -->
+            <div style="position: absolute; left: 50px; top: 290px; width: 170px; height: 170px;">
+              <img id="qr-target" src="${qrDataUrl}" style="width: 100%; height: 100%; border: 4px solid #111; border-radius: 16px; padding: 8px; background: white;" />
+            </div>
+
+            <!-- Signature -->
+            <div style="position: absolute; right: 50px; bottom: 30px;">
+              <p style="font-family: var(--font-poppins), sans-serif; font-size: 12px; color: #111; font-weight: 800; margin: 0;">Yours Sincerely, YMCC Committee</p>
+            </div>
+          </div>
+        </div>
+      `;
+      container.innerHTML = html;
+      document.body.appendChild(container);
+
+      // Auto-scale fonts to fit container
+      const shrinkText = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let fontSize = parseFloat(window.getComputedStyle(el).fontSize);
+        while (el.scrollWidth > el.clientWidth && fontSize > 10) {
+          fontSize -= 1;
+          el.style.fontSize = fontSize + "px";
+        }
+      };
+
+      // Give the DOM a tiny fraction of a second to render layout before shrinking
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      shrinkText("card-name");
+      shrinkText("card-id");
+      // We do NOT shrink card-institution because it is allowed to wrap to multiple lines!
+      shrinkText("card-phone");
+      shrinkText("card-country");
+
+      // Small delay for stability
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      const html2canvas = (await import("html2canvas")).default;
+      const cardElement = document.getElementById("id-card-render");
+      const canvas = await html2canvas(cardElement, {
+        scale: 2, // Retain high resolution for printing
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null
+      });
+
+      document.body.removeChild(container);
+      const imgData = canvas.toDataURL("image/png");
+
       const pdf = new jsPDF({
-        orientation: "portrait",
+        orientation: "landscape",
         unit: "mm",
-        format: [54, 86] // CR80 standard ID card size
+        format: [86, 54]
       });
       
-      // Draw background
-      pdf.setFillColor(255, 255, 255);
-      pdf.rect(0, 0, 54, 86, "F");
-
-      // Draw top black bar
-      pdf.setFillColor(0, 0, 0);
-      pdf.rect(0, 0, 54, 25, "F");
-
-      // Add YMCC Title
-      pdf.setTextColor(193, 255, 0); // #c1ff00
-      pdf.setFontSize(22);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("YMCC VII", 27, 16, { align: "center" });
-
-      // Generate QR code image
-      const qrDataUrl = await QRCodeLib.toDataURL(user?.uid || "invalid", { margin: 1, width: 200, color: { dark: '#000000', light: '#ffffff' } });
+      pdf.addImage(imgData, 'PNG', 0, 0, 86, 54);
       
-      // Add QR Code
-      pdf.addImage(qrDataUrl, "PNG", 12, 30, 30, 30);
-
-      // Add Participant Name
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(11);
-      const name = userData?.fullName || "PARTICIPANT";
-      pdf.text(name.length > 20 ? name.substring(0, 20) + "..." : name, 27, 68, { align: "center" });
-
-      // Add Institution
-      pdf.setFontSize(7);
-      pdf.setTextColor(100, 100, 100);
-      pdf.text(userData?.institution?.substring(0, 40) || "-", 27, 72, { align: "center" });
-
-      // Add Official tag
-      pdf.setFillColor(193, 255, 0);
-      pdf.rect(12, 75, 30, 5, "F");
-      pdf.setTextColor(0, 0, 0);
-      pdf.setFontSize(6);
-      pdf.text("OFFICIAL PARTICIPANT", 27, 78.5, { align: "center" });
-      
-      pdf.save(`YMCC_ID_Card_${userData?.fullName?.replace(/\s+/g, '_') || 'Participant'}.pdf`);
+      const cleanName = (userData?.fullName || 'Participant').replace(/[^a-zA-Z0-9]/g, '_');
+      pdf.save(`Delegate_Pass_YMCCVII_2026_${cleanName}.pdf`);
       toast.dismiss(toastId);
       toast.success("ID Card downloaded successfully!");
     } catch (error) {
       console.error(error);
+      toast.dismiss(toastId);
       toast.error("Failed to generate ID card");
     }
   };
 
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    
+    let finalPhotoUrl = editProfileModal.data.profilePhotoUrl || null;
+    
+    if (profilePhotoFile) {
+      if (profilePhotoFile.size > 200 * 1024) {
+        toast.error("Profile photo must be under 200KB!");
+        return;
+      }
+      setSavingProfile(true);
+      try {
+        const toastId = toast.loading("Uploading formal photo...");
+        const photoRef = ref(storage, `profiles/${user.uid}_${Date.now()}`);
+        await uploadBytes(photoRef, profilePhotoFile);
+        finalPhotoUrl = await getDownloadURL(photoRef);
+        toast.dismiss(toastId);
+      } catch (err) {
+        setSavingProfile(false);
+        toast.error("Failed to upload photo.");
+        return;
+      }
+    }
+
     setSavingProfile(true);
     try {
-      await setDoc(doc(db, "users", user.uid), editProfileModal.data, { merge: true });
-      setUserData(editProfileModal.data);
+      const updatedData = { ...editProfileModal.data, profilePhotoUrl: finalPhotoUrl };
+      await setDoc(doc(db, "users", user.uid), updatedData, { merge: true });
+      setUserData(updatedData);
       setEditProfileModal({ isOpen: false, data: {} });
+      setProfilePhotoFile(null);
       toast.success("Profile updated successfully!");
     } catch (err) {
       console.error(err);
@@ -673,9 +835,10 @@ export default function Portal() {
                 <h4 className="font-anton text-2xl uppercase tracking-wide">Competition Document Submission</h4>
               </div>
               <p className="text-sm font-poppins text-gray-600 mb-6">
-                Please upload your competition file (PDF/PPT) here. Maximum file size is 10MB. 
-                {userData.documentStatus === "VERIFIED" && <span className="text-green-600 font-bold block mt-2">✅ Your document has been VERIFIED by the judges.</span>}
-                {userData.documentStatus === "PENDING_VERIFICATION" && <span className="text-orange-500 font-bold block mt-2">⏳ Your document is under review.</span>}
+                Please upload your competition file (PDF/PPT) here. Maximum file size is 25MB.<br/>
+                <span className="text-gray-500 font-medium">You can re-upload your file before the deadline to replace the old one.</span> 
+                {userData?.documentStatus === "VERIFIED" && <span className="text-green-600 font-bold block mt-2">✅ Your document has been VERIFIED by the judges.</span>}
+                {userData?.documentStatus === "PENDING_VERIFICATION" && <span className="text-orange-500 font-bold block mt-2">⏳ Your document is under review.</span>}
               </p>
               
               <form onSubmit={handleSubmitDriveLink} className="flex flex-col sm:flex-row gap-4">
@@ -749,6 +912,9 @@ export default function Portal() {
               </div>
               <p className="text-sm font-poppins text-gray-600 mb-6">Need assistance? Submit a ticket and our staff will reply shortly.</p>
               
+              <div className="bg-yellow-50 border border-yellow-400 text-yellow-800 p-4 rounded-xl mb-6 font-poppins text-sm">
+                <strong>Attention:</strong> Admin replies will not appear on this website. Answers or solutions to your ticket will be sent directly to your registered <strong>WhatsApp</strong> number or <strong>Email</strong> within 24 Hours.
+              </div>
               <form onSubmit={handleSubmitTicket} className="flex flex-col gap-4 mb-8">
                 <input 
                   type="text" 
@@ -808,7 +974,17 @@ export default function Portal() {
             
             <form onSubmit={handleSaveProfile} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div><label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Full Legal Name</label><input required className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#c1ff00] outline-none" value={editProfileModal.data.fullName || ""} onChange={e => setEditProfileModal({...editProfileModal, data: {...editProfileModal.data, fullName: e.target.value.toUpperCase()}})} /></div>
+                
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Formal Profile Photo (Red Background)</label>
+                  <input type="file" accept="image/*" onChange={(e) => setProfilePhotoFile(e.target.files[0])} className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-[#c1ff00] outline-none" />
+                  <p className="text-[10px] text-red-600 font-bold mt-1">STRICT: Max 200KB. Must be formal with SOLID RED background.</p>
+                  {(editProfileModal.data.profilePhotoUrl || profilePhotoFile) && (
+                    <div className="mt-2 text-xs font-bold text-green-600">Photo attached ✅</div>
+                  )}
+                </div>
+
+<div><label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Full Legal Name</label><input required className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#c1ff00] outline-none" value={editProfileModal.data.fullName || ""} onChange={e => setEditProfileModal({...editProfileModal, data: {...editProfileModal.data, fullName: e.target.value.toUpperCase()}})} /></div>
                 <div><label className="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1">Student ID / Passport Number</label><input required className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#c1ff00] outline-none" value={editProfileModal.data.studentId || ""} onChange={e => setEditProfileModal({...editProfileModal, data: {...editProfileModal.data, studentId: e.target.value}})} /></div>
               </div>
               
