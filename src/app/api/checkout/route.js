@@ -117,7 +117,8 @@ export async function POST(req) {
     return NextResponse.json({ 
       success: true, 
       orderId, 
-      checkoutUrl: midtransData.redirect_url 
+      checkoutUrl: midtransData.redirect_url,
+      token: midtransData.token
     });
 
   } catch (error) {

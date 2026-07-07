@@ -9,6 +9,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import Image from "next/image";
 import FadeInImage from "@/components/FadeInImage";
 import dynamic from "next/dynamic";
+import Script from "next/script";
 
 const MapPicker = dynamic(() => import("@/components/MapPicker"), { ssr: false });
 
@@ -214,8 +215,32 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (data.success && data.checkoutUrl) {
-        clearCart(); 
-        router.push(data.checkoutUrl); 
+        if (window.snap && data.token) {
+          window.snap.pay(data.token, {
+            onSuccess: function () {
+              clearCart();
+              toast.success("Payment successful!");
+              router.push("/dashboard");
+            },
+            onPending: function () {
+              clearCart();
+              toast.success("Order created! Please complete payment.");
+              router.push("/dashboard");
+            },
+            onError: function () {
+              toast.error("Payment failed!");
+              router.push("/dashboard");
+            },
+            onClose: function () {
+              clearCart();
+              toast.error("Payment cancelled. You can resume it from your dashboard.");
+              router.push("/dashboard");
+            }
+          });
+        } else {
+          clearCart(); 
+          router.push(data.checkoutUrl); 
+        }
       } else {
         toast.error(data.error || "Checkout failed");
       }
@@ -240,8 +265,14 @@ export default function CheckoutPage() {
   const finalTotal = cartTotal - discountAmount + (deliveryMethod === "shipping" ? shippingCost : 0) + PLATFORM_FEE;
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pt-32 pb-24 px-6 md:px-12 font-sans">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <>
+      <Script 
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="Mid-client-EWKZ34tGlzjdynzr"
+        strategy="beforeInteractive"
+      />
+      <div className="min-h-screen bg-[#fafafa] pt-32 pb-24 px-6 md:px-12 font-sans">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         
         {/* Left Col: Form */}
         <div>
@@ -494,6 +525,7 @@ export default function CheckoutPage() {
 
       </div>
     </div>
+    </>
   );
 }
 
