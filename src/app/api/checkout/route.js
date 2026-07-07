@@ -39,7 +39,7 @@ export async function POST(req) {
         // Direct Row-level Locking: Decrement stock immediately
         transaction.update(docSnap.ref, { stockAmount: FieldValue.increment(-Number(item.quantity || 1)) });
 
-        const dbPrice = Number(docSnap.data().price) || 0;
+        const dbPrice = Number(docSnap.data().priceNumber) || 0;
         const qty = Number(item.quantity) || 1;
         totalAmount += dbPrice * qty;
         totalItems += qty;
