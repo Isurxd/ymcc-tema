@@ -207,7 +207,16 @@ export default function EventsCompetitions() {
             <div className="p-6 md:p-12">
               <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-6 md:mb-8 pr-6 md:pr-8">
                 <div className="w-20 h-20 shrink-0 bg-white border-2 border-[#111] rounded-2xl flex items-center justify-center p-3 shadow-brutal-sm">
-                  <Image src={selectedEvent.icon} alt={selectedEvent.title} width={60} height={60} className="object-contain w-full h-full" />
+                  {(() => {
+                    const iconName = selectedEvent.icon;
+                    const IconComp = FaIcons[iconName];
+                    if (IconComp) {
+                      return <IconComp size={60} className="text-[#111] w-full h-full" />;
+                    }
+                    const isValidUrl = iconName && (iconName.startsWith('http') || iconName.startsWith('/') || iconName.startsWith('data:'));
+                    const srcUrl = isValidUrl ? iconName : "/LOGO YMCC RASIO 1X1.png";
+                    return <Image src={srcUrl} alt={selectedEvent.title || "Event"} width={60} height={60} className="object-contain w-full h-full" />;
+                  })()}
                 </div>
                 <div>
                   <span className="text-gray-500 font-poppins font-bold text-xs tracking-widest uppercase mb-1 block">
@@ -216,12 +225,17 @@ export default function EventsCompetitions() {
                   <h2 className="text-2xl md:text-5xl font-anton uppercase text-[#111] leading-[1] md:leading-[0.95] tracking-wide mb-4">
                     {selectedEvent.title}
                   </h2>
-                  <div className="flex flex-col gap-2">
-                    {selectedEvent.pills.map((pill, pIdx) => (
-                      <span key={pIdx} className="bg-grass border-2 border-[#111] text-[#111] font-poppins font-bold text-xs md:text-sm px-4 py-1.5 rounded-full inline-block w-max">
-                        {pill}
-                      </span>
-                    ))}
+                  <div className="flex flex-wrap gap-2">
+                    {(() => {
+                      const pillsArray = Array.isArray(selectedEvent.pills) 
+                        ? selectedEvent.pills 
+                        : (typeof selectedEvent.pills === 'string' ? selectedEvent.pills.split(',').map(s=>s.trim()) : []);
+                      return pillsArray.map((pill, pIdx) => (
+                        <span key={pIdx} className="bg-grass border-2 border-[#111] text-[#111] font-poppins font-bold text-xs md:text-sm px-4 py-1.5 rounded-full inline-block w-max">
+                          {pill}
+                        </span>
+                      ));
+                    })()}
                   </div>
                 </div>
               </div>
