@@ -17,7 +17,7 @@ export default function NewsArticles() {
   useEffect(() => {
     const fetchNews = async () => {
       const unsub = onSnapshot(query(collection(db, "news"), orderBy("createdAt", "desc")), (snap) => {
-        setArticles(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        setArticles(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(a => !a.status || a.status === "PUBLISHED"));
         setLoading(false);
       });
       return () => unsub();
@@ -54,7 +54,7 @@ export default function NewsArticles() {
   // Filter regular articles
   const filteredArticles = activeFilter === "ALL DISPATCHES" 
     ? otherArticles 
-    : otherArticles.filter(a => a.category.toUpperCase().includes(activeFilter.replace(/S$/, "")));
+    : otherArticles.filter(a => (a.category || "").toUpperCase().includes(activeFilter.replace(/S$/, "")));
 
   return (
     <div className="min-h-screen bg-white text-black font-sans pb-24">

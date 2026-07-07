@@ -21,7 +21,7 @@ export default function Home() {
     });
 
     const unsubSponsor = onSnapshot(collection(db, "sponsors"), (snap) => {
-      setSponsors(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setSponsors(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).sort((a,b) => (b.priority || 0) - (a.priority || 0)));
     });
 
     const unsubFaq = onSnapshot(query(collection(db, "faqs"), limit(3)), (snap) => {
@@ -394,10 +394,10 @@ export default function Home() {
             <div key={i} className="animate-marquee shrink-0 whitespace-nowrap flex items-center group-hover:[animation-play-state:paused]" aria-hidden={i === 1 ? "true" : "false"}>
               {Array.from({ length: Math.max(1, Math.ceil(20 / (sponsors.length || 1))) }).flatMap(() => sponsors).map((sponsor, idx) => (
                 <a key={`${i}-${idx}`} href={sponsor.websiteUrl || "#"} target={sponsor.websiteUrl ? "_blank" : "_self"} rel={sponsor.websiteUrl ? "noopener noreferrer" : ""} className="flex justify-center items-center shrink-0 pr-16 transition-all duration-300 hover:scale-105 hover:-translate-y-1 drop-shadow-sm hover:drop-shadow-md">
-                  {sponsor.imageUrl ? (
-                    <FadeInImage src={sponsor.imageUrl} alt={sponsor.name} width={160} height={60} className="object-contain h-12 max-w-full" />
+                  {(sponsor.imageUrl || sponsor.logo) ? (
+                    <FadeInImage src={sponsor.imageUrl || sponsor.logo} alt={sponsor.name} width={160} height={60} className="object-contain h-12 max-w-full" />
                   ) : (
-                    <span className="font-poppins font-bold text-gray-800 text-xl">{sponsor.name}</span>
+                    <span className="font-poppins font-bold text-gray-800 text-xl whitespace-nowrap">{sponsor.name}</span>
                   )}
                 </a>
               ))}

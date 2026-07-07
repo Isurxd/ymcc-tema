@@ -434,6 +434,33 @@ export default function MerchShop() {
           ))}
         </div>
 
+        {/* Affiliate Recruitment Banner (Matching Subscribe to Dispatch) */}
+        <div className="max-w-6xl mx-auto mt-24 mb-12">
+          <div className="bg-[#c1ff00] border-2 border-black rounded-[3rem] p-6 md:p-16 shadow-[12px_12px_0_0_#000] flex flex-col md:flex-row items-center gap-8 md:gap-12">
+            <div className="md:w-1/2">
+              <span className="bg-white border-2 border-black px-6 py-2 rounded-full text-sm font-bold inline-block mb-6">
+                AFFILIATE PROGRAM
+              </span>
+              <h2 className="font-anton text-3xl md:text-5xl lg:text-7xl uppercase leading-none mb-6">
+                JOIN OUR AFFILIATE PROGRAM!
+              </h2>
+              <p className="text-xl font-medium">
+                Help promote YMCC VII Merchandise and earn attractive commissions for every product sold using your referral code.
+              </p>
+            </div>
+            <div className="md:w-1/2 w-full flex flex-col items-end justify-center">
+              <div className="w-full flex flex-col sm:flex-row gap-4 mb-4 justify-end">
+                <Link href="/affiliate/register" className="bg-black text-white px-10 py-4 rounded-full font-bold uppercase text-lg hover:bg-white hover:text-black hover:border-2 hover:border-black transition-all text-center">
+                  REGISTER NOW
+                </Link>
+              </div>
+              <p className="text-sm font-semibold text-gray-800 text-right w-full mt-2">
+                Registration is open to the <span className="underline">public</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

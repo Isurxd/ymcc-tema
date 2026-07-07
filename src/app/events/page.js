@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import * as FaIcons from "react-icons/fa";
 import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, orderBy, where } from "firebase/firestore";
 
@@ -109,23 +110,39 @@ export default function EventsCompetitions() {
                 <div>
                   <div className="flex items-start gap-4 mb-5">
                     <div className="w-16 h-16 shrink-0 bg-white border-2 border-[#111] rounded-2xl flex items-center justify-center p-2 shadow-brutal-sm">
-                      <Image src={item.icon} alt={item.title} width={48} height={48} className="object-contain w-full h-full" />
+                      {(() => {
+                        const iconName = item.icon;
+                        const IconComp = FaIcons[iconName];
+                        if (IconComp) {
+                          return <IconComp size={48} className="text-[#111] w-full h-full" />;
+                        }
+                        const isValidUrl = iconName && (iconName.startsWith('http') || iconName.startsWith('/') || iconName.startsWith('data:'));
+                        const srcUrl = isValidUrl ? iconName : "/LOGO YMCC RASIO 1X1.png";
+                        return <Image src={srcUrl} alt={item.title || "Event"} width={48} height={48} className="object-contain w-full h-full" />;
+                      })()}
                     </div>
                     <div>
                       <h2 className="text-xl md:text-3xl font-anton uppercase text-[#111] leading-[1] tracking-wide mb-2 line-clamp-2">
                         {item.title}
                       </h2>
                       <div className="flex flex-wrap gap-2">
-                        {item.pills.slice(0, 1).map((pill, pIdx) => (
-                          <span key={pIdx} className="bg-grass border-2 border-[#111] text-[#111] font-poppins font-bold text-[10px] md:text-xs px-3 py-1 rounded-full">
-                            {pill}
-                          </span>
-                        ))}
-                        {item.pills.length > 1 && (
-                          <span className="bg-gray-200 border-2 border-[#111] text-[#111] font-poppins font-bold text-[10px] md:text-xs px-3 py-1 rounded-full">
-                            +{item.pills.length - 1} more
-                          </span>
-                        )}
+                        {(() => {
+                          const pillsArray = Array.isArray(item.pills) ? item.pills : (typeof item.pills === 'string' ? item.pills.split(',').map(s=>s.trim()) : []);
+                          return (
+                            <>
+                              {pillsArray.slice(0, 1).map((pill, pIdx) => (
+                                <span key={pIdx} className="bg-grass border-2 border-[#111] text-[#111] font-poppins font-bold text-[10px] md:text-xs px-3 py-1 rounded-full">
+                                  {pill}
+                                </span>
+                              ))}
+                              {pillsArray.length > 1 && (
+                                <span className="bg-gray-200 border-2 border-[#111] text-[#111] font-poppins font-bold text-[10px] md:text-xs px-3 py-1 rounded-full">
+                                  +{pillsArray.length - 1} more
+                                </span>
+                              )}
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

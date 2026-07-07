@@ -7,7 +7,10 @@ service cloud.firestore {
     function isStaff() {
       return request.auth != null && (
         request.auth.token.email in ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"] ||
-        get(/databases/$(database)/documents/staff_applications/$(request.auth.token.email)).data.status == "APPROVED"
+        (
+          exists(/databases/$(database)/documents/staff_applications/$(request.auth.token.email)) &&
+          get(/databases/$(database)/documents/staff_applications/$(request.auth.token.email)).data.status == "APPROVED"
+        )
       );
     }
 
@@ -96,6 +99,16 @@ service cloud.firestore {
 
     match /audit_logs/{document=**} {
       allow read, write: if isStaff();
+    }
+
+    match /promos/{document=**} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /affiliate_applications/{document=**} {
+      allow read: if isStaff();
+      allow write: if true;
     }
 
     // Default deny

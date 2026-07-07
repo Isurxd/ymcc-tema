@@ -19,12 +19,33 @@ export async function POST(req) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    await db.runTransaction(async (transaction) => {
-      const orderRef = db.collection('Orders').doc(orderId);
-      const orderDoc = await transaction.get(orderRef);
+    // Fetch order first to get dependencies
+    const orderRef = db.collection('Orders').doc(orderId);
+    const orderDocSnap = await orderRef.get();
+    if (!orderDocSnap.exists) {
+      throw new Error("Order not found");
+    }
+    const orderData = orderDocSnap.data();
 
-      if (!orderDoc.exists) {
-        throw new Error("Order not found");
+    if (orderData.status === "PAID" || orderData.status === "SETTLED" || orderData.status === "EXPIRED") {
+       return NextResponse.json({ success: true, message: "Already processed" });
+    }
+
+    let promoRef = null;
+    if (orderData.promoCode) {
+       const pSnap = await db.collection('promos').where('code', '==', orderData.promoCode).limit(1).get();
+       if (!pSnap.empty) {
+          promoRef = pSnap.docs[0].ref;
+       }
+    }
+
+    await db.runTransaction(async (transaction) => {
+      // Re-read order to enforce transaction safety
+      const orderDoc = await transaction.get(orderRef);
+      if (!orderDoc.exists) throw new Error("Order missing in tx");
+      const data = orderDoc.data();
+      if (data.status === "PAID" || data.status === "SETTLED" || data.status === "EXPIRED") {
+         return; // already handled
       }
 
       // Update Order Status
@@ -33,24 +54,36 @@ export async function POST(req) {
         paidAt: status === "PAID" || status === "SETTLED" ? FieldValue.serverTimestamp() : null
       });
 
-      // Find all locks for this order and convert them to permanent deductions
-      const locksSnapshot = await db.collection('Inventory_Locks')
-        .where('orderId', '==', orderId)
-        .get();
-
-      // Delete the locks because the order is either PAID (lock is permanent) or EXPIRED (lock releases)
-      locksSnapshot.docs.forEach((lockDoc) => {
-        const lockData = lockDoc.data();
-        if (status === "PAID" || status === "SETTLED") {
-          const productRef = db.collection('merchandise').doc(lockData.productId);
-          transaction.update(productRef, {
-            stockAmount: FieldValue.increment(-lockData.quantity)
+      if (status === "EXPIRED") {
+        // Return stock
+        if (Array.isArray(data.items)) {
+          data.items.forEach((item) => {
+            if (item.productId) { 
+              const merchRef = db.collection('merchandise').doc(item.productId);
+              transaction.update(merchRef, {
+                stockAmount: FieldValue.increment(item.quantity)
+              });
+            }
           });
         }
-        transaction.delete(lockDoc.ref);
-      });
-
-
+        
+        // Remove frozen balance
+        if (promoRef && data.commissionFrozen) {
+           transaction.update(promoRef, {
+              frozenBalance: FieldValue.increment(-data.commissionFrozen)
+           });
+        }
+      } else if (status === "PAID" || status === "SETTLED") {
+        // Stock already decremented at checkout, do nothing for merch
+        
+        // Move frozen to available
+        if (promoRef && data.commissionFrozen) {
+           transaction.update(promoRef, {
+              frozenBalance: FieldValue.increment(-data.commissionFrozen),
+              availableBalance: FieldValue.increment(data.commissionFrozen)
+           });
+        }
+      }
     });
 
     return NextResponse.json({ success: true, message: "Webhook processed successfully" });

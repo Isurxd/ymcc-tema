@@ -17,7 +17,8 @@ export default function ClientLayoutWrapper({ children }) {
     "/login", 
     "/register", 
     "/staff-register",
-    "/staff"
+    "/staff",
+    "/affiliate"
   ].some(route => pathname?.startsWith(route));
 
   if (isPortalRoute) {

@@ -18,7 +18,7 @@ if (!getApps().length) {
 }
 
 const app = getApps()[0];
-const db = app ? getFirestore(app) : null;
+const db = app ? getFirestore(app, "ymcc-vii") : null;
 const auth = app ? getAuth(app) : null;
 
 export { db, auth };

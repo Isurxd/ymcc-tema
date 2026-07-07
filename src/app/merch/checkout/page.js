@@ -3,6 +3,9 @@
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import Image from "next/image";
 import FadeInImage from "@/components/FadeInImage";
 import dynamic from "next/dynamic";
@@ -15,6 +18,12 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState("shipping"); // "shipping" | "pickup"
+  
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoError, setPromoError] = useState("");
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+  const PLATFORM_FEE = 5000;
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -84,6 +93,37 @@ export default function CheckoutPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.postalCode]);
 
+  const handleApplyPromo = async () => {
+    setPromoError("");
+    setIsApplyingPromo(true);
+    setAppliedPromo(null);
+    if (!promoCodeInput) {
+      setIsApplyingPromo(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/promo?code=${encodeURIComponent(promoCodeInput.toUpperCase())}`);
+      const json = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(json.error || "Failed to validate");
+      }
+      
+      if (!json.promo) {
+        setPromoError("Invalid Promo Code");
+        setIsApplyingPromo(false);
+        return;
+      }
+      
+      const promoData = json.promo;
+      setAppliedPromo(promoData);
+    } catch (err) {
+      setPromoError("Failed to validate code.");
+    }
+    setIsApplyingPromo(false);
+  };
+
   const handleChange = async (e) => {
     const { name, value } = e.target;
 
@@ -151,6 +191,15 @@ export default function CheckoutPage() {
           items: cartItems,
           deliveryMethod,
           shippingCost: deliveryMethod === "pickup" ? 0 : shippingCost,
+          platformFee: PLATFORM_FEE,
+          promo: appliedPromo ? {
+             id: appliedPromo.id,
+             code: appliedPromo.code,
+             type: appliedPromo.type,
+             discountAmount: appliedPromo.discountType === "PERCENT" ? Math.min(cartTotal, cartTotal * (Number(appliedPromo.discount) / 100)) : Math.min(cartTotal, Number(appliedPromo.discount)),
+             affiliateEmail: appliedPromo.affiliateEmail || null,
+             commission: appliedPromo.commission || 0
+          } : null,
           userDetails: {
             name: `${formData.firstName} ${formData.lastName}`,
             email: formData.email,
@@ -200,17 +249,27 @@ export default function CheckoutPage() {
           }
         }
       } else {
-        alert(data.error || "Checkout failed");
+        toast.error(data.error || "Checkout failed");
       }
     } catch (error) {
       console.error("Checkout Error:", error);
-      alert("Something went wrong during checkout.");
+      toast.error("Something went wrong during checkout.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const finalTotal = cartTotal + (deliveryMethod === "shipping" ? shippingCost : 0);
+  let discountAmount = 0;
+  if (appliedPromo) {
+     if (appliedPromo.discountType === "PERCENT") {
+         discountAmount = cartTotal * (Number(appliedPromo.discount) / 100);
+     } else {
+         discountAmount = Number(appliedPromo.discount);
+     }
+     if (discountAmount > cartTotal) discountAmount = cartTotal; // Max discount is subtotal
+  }
+
+  const finalTotal = cartTotal - discountAmount + (deliveryMethod === "shipping" ? shippingCost : 0) + PLATFORM_FEE;
 
   return (
     <div className="min-h-screen bg-[#fafafa] pt-32 pb-24 px-6 md:px-12 font-sans">
@@ -362,10 +421,10 @@ export default function CheckoutPage() {
                       if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(
                           (pos) => setFormData(prev => ({ ...prev, latitude: pos.coords.latitude.toString(), longitude: pos.coords.longitude.toString() })),
-                          (err) => alert("Failed to get location. Please allow browser location access.")
+                          (err) => toast.error("Failed to get location. Please allow browser location access.")
                         );
                       } else {
-                        alert("Geolocation not supported by browser.");
+                        toast.error("Geolocation not supported by browser.");
                       }
                     }}
                     className="mt-4 text-sm font-bold bg-[#c1ff00] border-2 border-black px-6 py-3 rounded-full hover:bg-black hover:text-[#c1ff00] transition-colors shadow-[4px_4px_0_0_#000] hover:translate-y-1 hover:shadow-none w-max"
@@ -407,11 +466,35 @@ export default function CheckoutPage() {
               ))}
             </div>
 
+            <div className="border-t-2 border-black pt-4 mb-4">
+              <label className="block font-bold text-xs uppercase mb-2">Promo / Referral Code</label>
+              <div className="flex gap-2">
+                <input type="text" value={promoCodeInput} onChange={e => setPromoCodeInput(e.target.value)} disabled={appliedPromo} className="w-full border-2 border-black rounded-lg p-2 outline-none uppercase font-bold text-sm" placeholder="ENTER CODE" />
+                {!appliedPromo ? (
+                  <button type="button" onClick={handleApplyPromo} disabled={isApplyingPromo || cartItems.length===0} className="bg-black text-[#c1ff00] font-bold px-4 rounded-lg uppercase text-sm border-2 border-black hover:bg-[#c1ff00] hover:text-black transition-colors shadow-[2px_2px_0_0_#000] disabled:opacity-50">
+                    {isApplyingPromo ? "..." : "Apply"}
+                  </button>
+                ) : (
+                  <button type="button" onClick={() => { setAppliedPromo(null); setPromoCodeInput(""); }} className="bg-red-500 text-white font-bold px-4 rounded-lg uppercase text-sm border-2 border-black hover:bg-red-600 transition-colors shadow-[2px_2px_0_0_#000]">
+                    Remove
+                  </button>
+                )}
+              </div>
+              {promoError && <p className="text-red-500 text-xs font-bold mt-1">{promoError}</p>}
+              {appliedPromo && <p className="text-green-600 text-xs font-bold mt-1">Code applied! You got {appliedPromo.discountType === 'PERCENT' ? `${appliedPromo.discount}%` : `Rp ${Number(appliedPromo.discount).toLocaleString()}`} off.</p>}
+            </div>
+
             <div className="border-t-2 border-black pt-4 space-y-2 font-bold mb-4">
               <div className="flex justify-between">
                 <span className="text-gray-500">Subtotal</span>
                 <span>Rp {cartTotal.toLocaleString("id-ID")}</span>
               </div>
+              {appliedPromo && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount</span>
+                  <span>- Rp {discountAmount.toLocaleString("id-ID")}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-500">Shipping Fee</span>
                 <span>
@@ -422,6 +505,10 @@ export default function CheckoutPage() {
                       : <span className="text-xs italic font-normal text-gray-500 mt-1">Select Village to calculate</span>
                   }
                 </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Platform Fee</span>
+                <span>Rp {PLATFORM_FEE.toLocaleString("id-ID")}</span>
               </div>
             </div>
 

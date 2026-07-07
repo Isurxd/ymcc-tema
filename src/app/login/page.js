@@ -52,7 +52,6 @@ export default function Login() {
     try {
       const { user, error: authError } = await loginWithGoogle();
       if (authError) throw new Error(authError);
-
       if (isMasterEmail(user.email)) {
         router.push("/master");
         return;
