@@ -20,6 +20,7 @@ export async function POST(req) {
 
     let totalAmount = 0;
     let totalItems = 0;
+    let discountAmount = 0;
     const orderItems = [];
     
     // Generate order ID (fallback to timestamp if db is not initialized)
@@ -57,7 +58,6 @@ export async function POST(req) {
         });
 
         // 2. Handle Promo and Affiliate Commission
-        let discountAmount = 0;
         let totalCommission = 0;
         if (promo) {
            discountAmount = promo.discountAmount || 0;
@@ -93,7 +93,6 @@ export async function POST(req) {
       });
     } else {
       console.warn("⚠️ Database is not initialized. Running in Mock Mode to allow Midtrans checkout.");
-      let discountAmount = 0;
       if (promo) {
         discountAmount = promo.discountAmount || 0;
       }
@@ -138,6 +137,26 @@ export async function POST(req) {
         price: shippingCost,
         quantity: 1,
         name: "Shipping Fee"
+      });
+    }
+
+    // Add platform fee to item details
+    if (platformFee > 0) {
+      parameter.item_details.push({
+        id: "platform-fee",
+        price: platformFee,
+        quantity: 1,
+        name: "Platform Fee"
+      });
+    }
+
+    // Add discount to item details as negative value
+    if (discountAmount > 0) {
+      parameter.item_details.push({
+        id: "discount",
+        price: -discountAmount,
+        quantity: 1,
+        name: "Promo Discount"
       });
     }
 
