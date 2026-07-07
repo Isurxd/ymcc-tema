@@ -14,7 +14,7 @@ export default function About() {
               Decoding The Coalition
             </h1>
             <p className="text-sm leading-relaxed text-gray-700">
-              The Youth Mining Camp Competition (YMCC) is the flagship biennial event organized by the Student Association of Mining Engineering (Himpunan Mahasiswa Teknik Pertambangan - HMTA) of Universitas Pembangunan Nasional "Veteran" Yogyakarta. Founded as a platform to test national engineering capabilities, YMCC has expanded into a prestigious multinational summit, serving as a critical nexus where future mining executives, global researchers, and energy corporations meet to solve real-world industrial and ecological challenges.
+              The Youth Mining Camp Competition (YMCC) is the flagship biennial event organized by the Student Association of Mining Engineering (Himpunan Mahasiswa Teknik Pertambangan - HMTA) of Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta. Founded as a platform to test national engineering capabilities, YMCC has expanded into a prestigious multinational summit, serving as a critical nexus where future mining executives, global researchers, and energy corporations meet to solve real-world industrial and ecological challenges.
             </p>
           </div>
         </div>
@@ -48,7 +48,7 @@ export default function About() {
             <div className="neo-box w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 ml-auto md:ml-0">
               <span className="bg-green-200 text-green-900 text-[10px] font-bold px-2 py-1 rounded uppercase border border-black mb-2 inline-block">The Sovereign Transition</span>
               <h3 className="text-2xl font-black uppercase mb-2">YMCC VII</h3>
-              <p className="text-sm">The current era. Guided by "The Green Compass," YMCC VII introduces state-of-the-art proctored Exam Engines, bilingual standardizations, and a heavy strategic focus on sustainable mineral extraction.</p>
+              <p className="text-sm">The current era. Guided by &quot;The Green Compass,&quot; YMCC VII introduces state-of-the-art proctored Exam Engines, bilingual standardizations, and a heavy strategic focus on sustainable mineral extraction.</p>
             </div>
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function About() {
             The Student Association<br/>Of Mining Engineering
           </h2>
           <p className="text-sm leading-relaxed font-medium">
-            HMTA UPN "Veteran" Yogyakarta is one of the most prominent, active, and long-standing student engineering associations in Indonesia. Governed by principles of discipline, technical mastery, and strong fraternal bonds, HMTA serves as the incubator for student engineers. Every operational detail of YMCC VII is planned, managed, and executed by our dedicated student officers—collectively known as the Strategic Force—under strict academic and professional supervision.
+            HMTA UPN &quot;Veteran&quot; Yogyakarta is one of the most prominent, active, and long-standing student engineering associations in Indonesia. Governed by principles of discipline, technical mastery, and strong fraternal bonds, HMTA serves as the incubator for student engineers. Every operational detail of YMCC VII is planned, managed, and executed by our dedicated student officers—collectively known as the Strategic Force—under strict academic and professional supervision.
           </p>
         </div>
       </section>

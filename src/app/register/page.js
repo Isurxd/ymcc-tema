@@ -84,9 +84,11 @@ export default function Register() {
         .then(data => setCitiesList(data))
         .catch(console.warn);
     } else {
-      setCitiesList([]);
-      setDistrictsList([]);
-      setVillagesList([]);
+      setTimeout(() => {
+        setCitiesList([]);
+        setDistrictsList([]);
+        setVillagesList([]);
+      }, 0);
     }
   }, [formData.provinceId]);
 
@@ -97,8 +99,10 @@ export default function Register() {
         .then(data => setDistrictsList(data))
         .catch(console.warn);
     } else {
-      setDistrictsList([]);
-      setVillagesList([]);
+      setTimeout(() => {
+        setDistrictsList([]);
+        setVillagesList([]);
+      }, 0);
     }
   }, [formData.cityId]);
 
@@ -109,7 +113,9 @@ export default function Register() {
         .then(data => setVillagesList(data))
         .catch(console.warn);
     } else {
-      setVillagesList([]);
+      setTimeout(() => {
+        setVillagesList([]);
+      }, 0);
     }
   }, [formData.districtId]);
 
@@ -134,7 +140,9 @@ export default function Register() {
       }, 500);
       return () => clearTimeout(delayDebounceFn);
     } else {
-      setUniversityResults([]);
+      setTimeout(() => {
+        setUniversityResults([]);
+      }, 0);
     }
   }, [formData.institution, formData.educationLevel, formData.country]);
 

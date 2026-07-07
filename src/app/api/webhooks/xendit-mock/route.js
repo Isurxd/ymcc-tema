@@ -32,22 +32,17 @@ export async function POST(req) {
         .where('orderId', '==', orderId)
         .get();
 
-      // Delete the locks because the order is now PAID (lock is permanent)
+      // Delete the locks because the order is now PAID (lock is permanent) and deduct from stock
       locksSnapshot.docs.forEach((lockDoc) => {
+        const lockData = lockDoc.data();
+        if (status === "PAID") {
+          const productRef = db.collection('merchandise').doc(lockData.productId);
+          transaction.update(productRef, {
+            stockAmount: FieldValue.increment(-lockData.quantity)
+          });
+        }
         transaction.delete(lockDoc.ref);
       });
-
-      const orderData = orderDoc.data();
-      if (orderData && Array.isArray(orderData.items)) {
-        orderData.items.forEach((item) => {
-          if (item.id) {
-            const merchRef = db.collection('merchandise').doc(item.id);
-            transaction.update(merchRef, {
-              stockAmount: FieldValue.increment(-item.quantity)
-            });
-          }
-        });
-      }
     });
 
     return NextResponse.json({ success: true, message: "Webhook processed" });

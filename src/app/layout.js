@@ -2,7 +2,6 @@ import { Anton, Poppins } from "next/font/google";
 import "./globals.css";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import CookieConsent from "@/components/CookieConsent";
-import PromoModal from "@/components/PromoModal";
 import { CartProvider } from "@/context/CartContext";
 import { ConfirmProvider } from "@/context/ConfirmContext";
 import { Toaster } from "sonner";

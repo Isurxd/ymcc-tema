@@ -15,19 +15,7 @@ export default function StaffLogin() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!auth) return;
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        checkAccess(user);
-      } else {
-        setLoading(false);
-      }
-    });
-    return () => unsub();
-  }, [router]);
-
-  async function checkAccess(user) {
+  const checkAccess = async (user) => {
     setLoading(true);
     try {
       // Superadmin bypass
@@ -62,6 +50,19 @@ export default function StaffLogin() {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (!auth) return;
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        checkAccess(user);
+      } else {
+        setLoading(false);
+      }
+    });
+    return () => unsub();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
   const handleGoogleLogin = async () => {
     setErrorMsg("");

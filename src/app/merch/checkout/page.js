@@ -57,13 +57,7 @@ export default function CheckoutPage() {
       .then(data => setProvinces(data));
   }, []);
 
-  useEffect(() => {
-    if (formData.postalCode.length >= 5 && deliveryMethod === "shipping") {
-      fetchRates();
-    }
-  }, [formData.postalCode]);
-
-  async function fetchRates() {
+  const fetchRates = async () => {
     setIsFetchingRates(true);
     try {
       const res = await fetch("/api/biteship/rates", {

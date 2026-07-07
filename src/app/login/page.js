@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { loginUser, loginWithGoogle } from "@/lib/auth";
+import { loginUser, loginWithGoogle, logoutUser } from "@/lib/auth";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "sonner";
 import { db } from "@/lib/firebase";
@@ -15,13 +15,19 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
+  const isMasterEmail = (email) => {
+    if (!email) return false;
+    const cleanEmail = email.toLowerCase().trim();
+    return cleanEmail === "m.fairuzadhimularifin@gmail.com" || cleanEmail === "suryatripatih@gmail.com" || cleanEmail === "noreply@ymccvii.com";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { user, error } = await loginUser(email, password);
       if (error) throw new Error(error);
 
-      if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
+      if (isMasterEmail(user.email)) {
         router.push("/master");
         return;
       }
@@ -55,16 +61,33 @@ export default function Login() {
         return;
       }
 
+      // Check if user is staff/operator
       const staffDocRef = doc(db, "staff_applications", user.email);
       const staffSnap = await getDoc(staffDocRef);
 
-      if (staffSnap.exists() && staffSnap.data().status === "APPROVED") {
-         const role = (staffSnap.data().role || staffSnap.data().department || "").toLowerCase();
-         if (role.includes("admin")) router.push("/admin");
-         else if (role.includes("fundraising") || role.includes("dana usaha")) router.push("/fundraising");
-         else router.push("/operator");
+      if (staffSnap.exists()) {
+        if (staffSnap.data().status === "APPROVED") {
+          const role = (staffSnap.data().role || staffSnap.data().department || "").toLowerCase();
+          if (role.includes("admin")) router.push("/admin");
+          else if (role.includes("fundraising") || role.includes("dana usaha")) router.push("/fundraising");
+          else router.push("/operator");
+        } else {
+          toast.error(`Your staff application is currently: ${staffSnap.data().status}`);
+          await logoutUser();
+        }
+        return;
+      }
+
+      // Check participant user document
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        router.push("/portal");
       } else {
-         router.push("/portal");
+        toast.error("Account not registered. Please register first.");
+        await logoutUser();
+        router.push("/register");
       }
     } catch (err) {
       toast.error(err.message);

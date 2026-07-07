@@ -7,7 +7,7 @@ import { FaXTwitter, FaInstagram, FaTiktok, FaLinkedinIn } from "react-icons/fa6
 
 export default function Footer() {
   const pathname = usePathname();
-  const internalRoutes = ["/operator", "/admin", "/staff", "/staff-register", "/portal", "/login", "/register"];
+  const internalRoutes = ["/admin", "/operator", "/fundraising", "/master", "/portal", "/login", "/register", "/staff-register", "/staff"];
   if (internalRoutes.some(route => pathname?.startsWith(route))) return null;
 
   return (
@@ -21,7 +21,7 @@ export default function Footer() {
             </div>
             <div className="font-poppins font-bold text-sm mb-4">NAVIGATE THE FUTURE.</div>
             <p className="text-gray-400 font-poppins text-xs leading-relaxed">
-              The premier international student engineering assembly led by the Student Association of Mining Engineering (HMTA) at Universitas Pembangunan Nasional "Veteran" Yogyakarta.
+              The premier international student engineering assembly led by the Student Association of Mining Engineering (HMTA) at Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta.
             </p>
 
             <div className="flex items-center gap-4 mt-6">

@@ -10,10 +10,18 @@ export async function POST(req) {
     const token = authHeader.split("Bearer ")[1];
 
     if (!auth) return NextResponse.json({ error: "Admin auth not initialized" }, { status: 500 });
+    let decoded;
     try {
-      await auth.verifyIdToken(token);
+      decoded = await auth.verifyIdToken(token);
     } catch (e) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+    }
+
+    const requesterEmail = decoded.email;
+    const masterAdmins = ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"];
+    
+    if (!masterAdmins.includes(requesterEmail)) {
+      return NextResponse.json({ error: "Forbidden: Only Master Admins can delete users" }, { status: 403 });
     }
 
     const { email } = await req.json();

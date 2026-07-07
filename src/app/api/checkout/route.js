@@ -122,6 +122,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Checkout Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

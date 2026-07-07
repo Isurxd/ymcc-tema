@@ -24,17 +24,11 @@ const nextConfig = {
       }
     ],
   },
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
-  },
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
+    // Dangerously allow production builds to complete even if there are type errors.
     ignoreBuildErrors: true,
   },
+  serverExternalPackages: ['firebase-admin'],
 };
 
 export default nextConfig;
