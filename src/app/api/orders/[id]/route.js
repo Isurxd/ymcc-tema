@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getFirestore } from "firebase-admin/firestore";
-import { app } from "@/lib/firebaseAdmin";
+import { db } from "@/lib/firebaseAdmin";
 
 export async function GET(request, { params }) {
   try {
@@ -9,7 +8,6 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Order ID is required" }, { status: 400 });
     }
 
-    const db = getFirestore(app, "ymcc-vii");
     const orderDoc = await db.collection("Orders").doc(orderId).get();
 
     if (!orderDoc.exists) {
