@@ -116,6 +116,10 @@ export async function POST(req) {
         order_id: orderId,
         gross_amount: totalAmount,
       },
+      expiry: {
+        duration: 5,
+        unit: "minute"
+      },
       item_details: orderItems.map(item => ({
         id: item.productId,
         price: item.price,
