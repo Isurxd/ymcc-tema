@@ -114,6 +114,12 @@ export async function POST(req) {
       throw new Error(midtransData.error_messages?.[0] || "Failed to generate payment link");
     }
 
+    // Update the order in Firestore with the generated Midtrans link & token
+    await db.collection("Orders").doc(orderId).update({
+      checkoutUrl: midtransData.redirect_url,
+      token: midtransData.token
+    });
+
     return NextResponse.json({ 
       success: true, 
       orderId, 

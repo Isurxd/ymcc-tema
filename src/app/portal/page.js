@@ -13,6 +13,7 @@ import QRCodeLib from "qrcode";
 import jsPDF from "jspdf";
 import { storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import Script from "next/script";
 
 export default function Portal() {
   const router = useRouter();
@@ -667,8 +668,35 @@ export default function Portal() {
     );
   }
 
+  const handleResumePayment = (token, checkoutUrl) => {
+    if (window.snap && token) {
+      window.snap.pay(token, {
+        onSuccess: function () {
+          toast.success("Payment successful!");
+        },
+        onPending: function () {
+          toast.success("Please complete payment instructions.");
+        },
+        onError: function () {
+          toast.error("Payment failed!");
+        },
+        onClose: function () {
+          toast.error("Payment window closed.");
+        }
+      });
+    } else {
+      window.location.href = checkoutUrl;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col">
+    <>
+      <Script 
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="Mid-client-EWKZ34tGlzjdynzr"
+        strategy="beforeInteractive"
+      />
+      <div className="min-h-screen bg-[#fafafa] flex flex-col">
       {/* CUSTOM PORTAL HEADER */}
       <nav className="bg-black text-white px-6 py-4 flex justify-between items-center border-b-4 border-[#c1ff00] sticky top-0 z-50 shadow-lg">
         <div className="flex items-center gap-4">
@@ -898,9 +926,9 @@ export default function Portal() {
                             </div>
                             <div className="flex gap-2">
                                 {order.status === 'PENDING_PAYMENT' && order.checkoutUrl && (
-                                    <a href={order.checkoutUrl} className="bg-black text-[#c1ff00] text-sm font-bold px-4 py-2 rounded-xl uppercase hover:bg-gray-800 border-2 border-transparent">
+                                    <button onClick={() => handleResumePayment(order.token, order.checkoutUrl)} className="bg-black text-[#c1ff00] text-sm font-bold px-4 py-2 rounded-xl uppercase hover:bg-gray-800 border-2 border-transparent">
                                         Pay Now
-                                    </a>
+                                    </button>
                                 )}
                                 {order.status === 'PAID' && (
                                     <button onClick={() => generateInvoice(order)} className="bg-white border-2 border-black text-black text-sm font-bold px-4 py-2 rounded-xl uppercase hover:bg-gray-100 flex items-center gap-2">
@@ -1123,5 +1151,6 @@ export default function Portal() {
         <p className="font-poppins text-xs text-gray-400 font-medium uppercase tracking-wider">Participant Command Portal &copy; 2026. All Systems Operational.</p>
       </footer>
     </div>
+    </>
   );
 }
