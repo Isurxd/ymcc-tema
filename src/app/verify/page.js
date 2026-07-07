@@ -154,7 +154,7 @@ function VerifyContent() {
                   {competitions.map((comp, i) => (
                      <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-xl gap-2">
                         <span className="font-semibold text-sm">{comp.fileName || "Document Submitted"}</span>
-                        <span className={\`text-xs font-bold uppercase px-3 py-1 rounded-full \${comp.status === 'VERIFIED' ? 'bg-green-100 text-green-700' : comp.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}\`}>
+                        <span className={`text-xs font-bold uppercase px-3 py-1 rounded-full ${comp.status === 'VERIFIED' ? 'bg-green-100 text-green-700' : comp.status === 'REJECTED' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
                            {comp.status}
                         </span>
                      </div>
@@ -179,7 +179,7 @@ function VerifyContent() {
                            <span className="font-bold block">{ord.id.substring(0,8).toUpperCase()}</span>
                            <span className="text-gray-500">{ord.items?.length || 0} items (Rp {ord.totalAmount?.toLocaleString('id-ID')})</span>
                         </div>
-                        <span className={\`text-xs font-bold uppercase px-3 py-1 rounded-full \${ord.status === 'PAID' ? 'bg-green-100 text-green-700' : ord.status === 'SHIPPED' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}\`}>
+                        <span className={`text-xs font-bold uppercase px-3 py-1 rounded-full ${ord.status === 'PAID' ? 'bg-green-100 text-green-700' : ord.status === 'SHIPPED' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'}`}>
                            {ord.status}
                         </span>
                      </div>

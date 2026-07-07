@@ -112,7 +112,7 @@ export default function NewsArticles() {
           </div>
         ) : (
           <div className="h-64 w-full border-2 border-black rounded-[2rem] bg-white flex items-center justify-center shadow-[4px_4px_0_0_#000]">
-            <p className="font-poppins font-bold text-gray-500">No dispatches available.</p>
+            <p className="font-poppins font-bold text-gray-500">No updates available.</p>
           </div>
         )}
       </div>
@@ -181,14 +181,14 @@ export default function NewsArticles() {
                   {article.desc}
                 </p>
                 <Link href={`/news/${article.slug || article.id}`} className="font-bold uppercase tracking-wide hover:text-[#c1ff00] transition-colors flex items-center gap-2">
-                  READ DISPATCH <span className="text-xl">→</span>
+                  READ ARTICLE <span className="text-xl">→</span>
                 </Link>
               </div>
             </div>
           ))
         ) : !loading && (
           <div className="col-span-full text-center py-12">
-            <p className="font-poppins text-xl text-gray-500">No dispatches match the selected filter.</p>
+            <p className="font-poppins text-xl text-gray-500">No updates match the selected filter.</p>
           </div>
         )}
       </div>

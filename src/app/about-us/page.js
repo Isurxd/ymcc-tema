@@ -140,7 +140,7 @@ export default function AboutUs() {
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
               <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
-                <div className="inline-block bg-[#a855f7] text-white font-anton text-xs md:text-sm uppercase px-4 py-2 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
+                <div className="inline-block bg-[#a855f7] text-white font-anton text-sm md:text-base uppercase px-6 py-2.5 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
                   THE FOUNDATION ERA
                 </div>
                 <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC I - IV</h3>
@@ -154,7 +154,7 @@ export default function AboutUs() {
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
               <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
-                <div className="inline-block bg-[#f97316] text-white font-anton text-xs md:text-sm uppercase px-4 py-2 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
+                <div className="inline-block bg-[#f97316] text-white font-anton text-sm md:text-base uppercase px-6 py-2.5 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
                   THE REGIONAL EXPANSION
                 </div>
                 <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC V - VI</h3>
@@ -168,7 +168,7 @@ export default function AboutUs() {
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
               <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
-                <div className="inline-block bg-[#22c55e] text-white font-anton text-xs md:text-sm uppercase px-4 py-2 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
+                <div className="inline-block bg-[#22c55e] text-white font-anton text-sm md:text-base uppercase px-6 py-2.5 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
                   THE SOVEREIGN TRANSITION
                 </div>
                 <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC VII</h3>

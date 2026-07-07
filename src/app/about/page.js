@@ -28,7 +28,7 @@ export default function About() {
           <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
             <div className="w-10 h-10 rounded-full border-3 border-black bg-[var(--color-ymcc-green)] absolute left-0 md:left-1/2 -translate-y-4 sm:translate-y-0 transform -translate-x-1/2 flex items-center justify-center shadow-[2px_2px_0px_#000]"></div>
             <div className="neo-box w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 ml-auto md:ml-0">
-              <span className="bg-purple-200 text-purple-900 text-[10px] font-bold px-2 py-1 rounded uppercase border border-black mb-2 inline-block">The Foundation Era</span>
+              <span className="bg-purple-200 text-purple-900 text-xs md:text-sm font-bold px-4 py-2 rounded-md uppercase border-2 border-black mb-2 inline-block shadow-[2px_2px_0px_#000]">The Foundation Era</span>
               <h3 className="text-2xl font-black uppercase mb-2">YMCC I - IV</h3>
               <p className="text-sm">Initiated as a localized tournament to bridge academic theories with standard field operations, focusing heavily on basic mining games and national safety standards.</p>
             </div>
@@ -37,7 +37,7 @@ export default function About() {
           <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
             <div className="w-10 h-10 rounded-full border-3 border-black bg-[var(--color-ymcc-green)] absolute left-0 md:left-1/2 -translate-y-4 sm:translate-y-0 transform -translate-x-1/2 flex items-center justify-center shadow-[2px_2px_0px_#000]"></div>
             <div className="neo-box w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 mr-auto md:mr-0 ml-16 md:ml-0">
-              <span className="bg-orange-200 text-orange-900 text-[10px] font-bold px-2 py-1 rounded uppercase border border-black mb-2 inline-block">The Regional Expansion</span>
+              <span className="bg-orange-200 text-orange-900 text-xs md:text-sm font-bold px-4 py-2 rounded-md uppercase border-2 border-black mb-2 inline-block shadow-[2px_2px_0px_#000]">The Regional Expansion</span>
               <h3 className="text-2xl font-black uppercase mb-2">YMCC V - VI</h3>
               <p className="text-sm">Transformed into a regional-scale summit, integrating complex infrastructure mapping (MSIC) and introducing the initial digital registration interfaces.</p>
             </div>
@@ -46,7 +46,7 @@ export default function About() {
           <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
             <div className="w-10 h-10 rounded-full border-3 border-black bg-[var(--color-ymcc-green)] absolute left-0 md:left-1/2 -translate-y-4 sm:translate-y-0 transform -translate-x-1/2 flex items-center justify-center shadow-[2px_2px_0px_#000]"></div>
             <div className="neo-box w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 ml-auto md:ml-0">
-              <span className="bg-green-200 text-green-900 text-[10px] font-bold px-2 py-1 rounded uppercase border border-black mb-2 inline-block">The Sovereign Transition</span>
+              <span className="bg-green-200 text-green-900 text-xs md:text-sm font-bold px-4 py-2 rounded-md uppercase border-2 border-black mb-2 inline-block shadow-[2px_2px_0px_#000]">The Sovereign Transition</span>
               <h3 className="text-2xl font-black uppercase mb-2">YMCC VII</h3>
               <p className="text-sm">The current era. Guided by &quot;The Green Compass,&quot; YMCC VII introduces state-of-the-art proctored Exam Engines, bilingual standardizations, and a heavy strategic focus on sustainable mineral extraction.</p>
             </div>

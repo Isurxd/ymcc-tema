@@ -77,7 +77,7 @@ export default function TrackOrder() {
                   <div className="pl-8">
                     <h4 className="font-bold text-lg uppercase">Manifested (Warehouse)</h4>
                     <p className="text-sm text-gray-500 font-semibold mb-1">May 28, 2026 - 14:00 WIB</p>
-                    <p className="text-gray-700">Package has been scanned and SLA fulfilled within 24 hours.</p>
+                    <p className="text-gray-700">Package has been scanned and processed within 24 hours.</p>
                   </div>
                 </div>
 

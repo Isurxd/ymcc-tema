@@ -326,7 +326,7 @@ export default function Home() {
                       <h3 className="font-poppins font-bold text-[#111] text-lg md:text-xl mb-3 line-clamp-2 leading-tight">{newsItem.title}</h3>
                       <p className="text-sm font-poppins text-gray-600 mb-6 line-clamp-3 flex-grow">{newsItem.desc || newsItem.content}</p>
                       <span className="mt-auto bg-black text-[#c1ff00] border-2 border-black font-poppins font-bold text-[10px] px-4 py-2 rounded-full uppercase w-max max-w-full flex items-center gap-2 hover:bg-[#c1ff00] hover:text-black transition-colors">
-                        READ DISPATCH <span className="text-sm">→</span>
+                        READ ARTICLE <span className="text-sm">→</span>
                       </span>
                     </div>
                   </div>
@@ -335,7 +335,7 @@ export default function Home() {
             ))}
             {newsArticles.length === 0 && (
               <div className="w-full text-center py-10">
-                 <p className="font-poppins font-medium text-gray-400 text-lg">No dispatches available at this moment.</p>
+                 <p className="font-poppins font-medium text-gray-400 text-lg">No updates available at this moment.</p>
               </div>
             )}
           </div>

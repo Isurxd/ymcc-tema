@@ -1885,7 +1885,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <span className="text-5xl font-anton text-black">{filteredData.activitiesCount}</span>
                     </div>
                     <div className="bg-white p-6 rounded-2xl shadow-sm border-2 border-black flex flex-col hover:shadow-brutal transition-shadow duration-300">
-                      <span className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">Dispatches</span>
+                      <span className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-2">News & Articles</span>
                       <span className="text-5xl font-anton text-black">{filteredData.newsCount}</span>
                     </div>
                   </>
@@ -1929,7 +1929,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* News Feedback Pie Chart */}
                 <div className="bg-white p-8 rounded-2xl shadow-sm border-2 border-black lg:col-span-1">
-                  <h3 className="font-anton text-2xl uppercase mb-6 border-b-2 border-gray-100 pb-4">Dispatch Feedback ({filteredData.rawFeedbackLength} Responses)</h3>
+                  <h3 className="font-anton text-2xl uppercase mb-6 border-b-2 border-gray-100 pb-4">Article Feedback ({filteredData.rawFeedbackLength} Responses)</h3>
                   <div className="h-64 w-full">
                     {filteredData.rawFeedbackLength > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
@@ -2588,7 +2588,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
             <div className="max-w-5xl mx-auto space-y-8">
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
                 <div className="flex justify-between items-center mb-6 border-b pb-4">
-                  <h2 className="font-anton text-2xl uppercase">{editingId ? "Edit Dispatch" : "Publish Dispatch"}</h2>
+                  <h2 className="font-anton text-2xl uppercase">{editingId ? "Edit Article" : "Publish Article"}</h2>
                   {editingId && <button onClick={resetForm} className="text-sm font-bold text-gray-500 hover:text-black">CANCEL EDIT</button>}
                 </div>
                 <form onSubmit={handleSaveNews} className="space-y-6">
@@ -2623,13 +2623,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <p className="text-xs text-gray-500 mt-2">Format text using standard Markdown syntax. The main site will render it automatically.</p>
                   </div>
                   <button type="submit" disabled={actionLoading} className="w-full bg-black text-white py-4 rounded-xl font-bold uppercase hover:bg-[#c1ff00] hover:text-black transition-colors disabled:opacity-50">
-                    {actionLoading ? 'Publishing...' : (editingId ? 'Update Dispatch' : 'Publish to Main Web')}
+                    {actionLoading ? 'Publishing...' : (editingId ? 'Update Article' : 'Publish to Main Web')}
                   </button>
                 </form>
               </div>
 
               <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
-                <h2 className="font-anton text-2xl uppercase mb-6 border-b pb-4">Published Dispatches</h2>
+                <h2 className="font-anton text-2xl uppercase mb-6 border-b pb-4">Published Articles</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {news.map(n => (
                     <div key={n.id} className="flex gap-4 p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow">
@@ -2654,7 +2654,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       </div>
                     </div>
                   ))}
-                  {news.length === 0 && <div className="col-span-full text-center py-8 text-gray-400">No dispatches available.</div>}
+                  {news.length === 0 && <div className="col-span-full text-center py-8 text-gray-400">No articles available.</div>}
                 </div>
               </div>
             </div>
