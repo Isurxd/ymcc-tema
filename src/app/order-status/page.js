@@ -96,7 +96,7 @@ function OrderStatusContent() {
       <Script 
         src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="Mid-client-EWKZ34tGlzjdynzr"
-        strategy="beforeInteractive"
+        strategy="lazyOnload"
       />
       <div className="min-h-screen bg-[#fafafa] pt-32 pb-24 px-6 md:px-12 font-sans flex flex-col items-center">
         <div className="max-w-3xl w-full">

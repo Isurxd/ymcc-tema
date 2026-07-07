@@ -269,7 +269,7 @@ export default function CheckoutPage() {
       <Script 
         src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="Mid-client-EWKZ34tGlzjdynzr"
-        strategy="beforeInteractive"
+        strategy="lazyOnload"
       />
       <div className="min-h-screen bg-[#fafafa] pt-32 pb-24 px-6 md:px-12 font-sans">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">

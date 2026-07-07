@@ -694,7 +694,7 @@ export default function Portal() {
       <Script 
         src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="Mid-client-EWKZ34tGlzjdynzr"
-        strategy="beforeInteractive"
+        strategy="lazyOnload"
       />
       <div className="min-h-screen bg-[#fafafa] flex flex-col">
       {/* CUSTOM PORTAL HEADER */}
