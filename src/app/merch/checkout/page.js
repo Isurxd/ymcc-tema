@@ -222,13 +222,14 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (data.success && data.token) {
-        clearCart(); 
         if (window.snap) {
           window.snap.pay(data.token, {
             onSuccess: function (result) {
+              clearCart();
               router.push(`/merch/track?orderId=${data.orderId}`);
             },
             onPending: function (result) {
+              clearCart();
               router.push(`/merch/track?orderId=${data.orderId}`);
             },
             onError: function (result) {
@@ -243,7 +244,7 @@ export default function CheckoutPage() {
         } else {
           // Fallback if snap is not loaded yet
           if (data.redirectUrl) {
-            router.push(data.redirectUrl);
+            window.location.href = data.redirectUrl;
           } else {
             alert("Midtrans payment SDK not loaded yet. Please try again.");
           }
@@ -531,7 +532,7 @@ export default function CheckoutPage() {
           : "https://app.sandbox.midtrans.com/snap/snap.js"
         }
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-        strategy="lazyOnload"
+        strategy="afterInteractive"
       />
     </div>
   );
