@@ -1,22 +1,42 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
+import crypto from "crypto";
 
 export async function POST(req) {
   try {
-    const callbackToken = req.headers.get("x-callback-token");
+    const payload = await req.json();
+    
+    const { 
+      order_id: orderId, 
+      transaction_status: midtransStatus, 
+      status_code: statusCode, 
+      gross_amount: grossAmount, 
+      signature_key: signatureKey 
+    } = payload;
 
-    // Verify Xendit Webhook Secret
-    if (process.env.XENDIT_WEBHOOK_SECRET && callbackToken !== process.env.XENDIT_WEBHOOK_SECRET) {
-      return NextResponse.json({ error: "Invalid Callback Token" }, { status: 403 });
+    // Verify Midtrans Webhook Signature
+    const serverKey = process.env.MIDTRANS_SERVER_KEY;
+    const hashData = orderId + statusCode + grossAmount + serverKey;
+    const expectedSignature = crypto.createHash("sha512").update(hashData).digest("hex");
+    
+    if (signatureKey !== expectedSignature) {
+      return NextResponse.json({ error: "Invalid Signature Key" }, { status: 403 });
     }
 
-    const payload = await req.json();
-    const orderId = payload.external_id;
-    const status = payload.status; // PAID, EXPIRED, SETTLED
-
-    if (!orderId || !status) {
+    if (!orderId || !midtransStatus) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Map Midtrans Status to YMCC Order Status
+    let status = "PENDING_PAYMENT";
+    if (midtransStatus === "settlement" || midtransStatus === "capture") {
+       status = "PAID";
+    } else if (midtransStatus === "cancel" || midtransStatus === "deny" || midtransStatus === "expire") {
+       status = "EXPIRED";
+    } else {
+       // pending, refund, chargeback, etc. We just ignore or keep pending.
+       return NextResponse.json({ success: true, message: "Ignored status" });
     }
 
     // Fetch order first to get dependencies
@@ -88,7 +108,7 @@ export async function POST(req) {
 
     return NextResponse.json({ success: true, message: "Webhook processed successfully" });
   } catch (error) {
-    console.error("Xendit Webhook Error:", error);
+    console.error("Midtrans Webhook Error:", error);
     return NextResponse.json({ error: "Webhook Error", details: error.message }, { status: 500 });
   }
 }

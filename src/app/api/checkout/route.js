@@ -85,39 +85,39 @@ export async function POST(req) {
       });
     });
 
-    // Generate Xendit Invoice
-    const xenditResponse = await fetch("https://api.xendit.co/v2/invoices", {
+    // Generate Midtrans Snap Transaction
+    const authString = Buffer.from(process.env.MIDTRANS_SERVER_KEY + ":").toString("base64");
+    const midtransResponse = await fetch("https://app.midtrans.com/snap/v1/transactions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Basic " + Buffer.from(process.env.XENDIT_SECRET_KEY + ":").toString("base64")
+        "Accept": "application/json",
+        "Authorization": "Basic " + authString
       },
       body: JSON.stringify({
-        external_id: orderId,
-        amount: totalAmount,
-        payer_email: userDetails.email,
-        description: "YMCC VII Merchandise Order",
-        customer: {
-          given_names: userDetails.name,
-          email: userDetails.email,
-          mobile_number: userDetails.phone
+        transaction_details: {
+          order_id: orderId,
+          gross_amount: Math.round(totalAmount)
         },
-        success_redirect_url: process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/merch/success?order_id=${orderId}` : `http://localhost:3000/merch/success?order_id=${orderId}`,
-        failure_redirect_url: process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/merch/checkout` : `http://localhost:3000/merch/checkout`
+        customer_details: {
+          first_name: userDetails.name,
+          email: userDetails.email,
+          phone: userDetails.phone
+        }
       })
     });
 
-    const xenditData = await xenditResponse.json();
+    const midtransData = await midtransResponse.json();
 
-    if (!xenditResponse.ok) {
-      console.error("Xendit Error:", xenditData);
-      throw new Error(xenditData.message || "Failed to generate payment invoice");
+    if (!midtransResponse.ok) {
+      console.error("Midtrans Error:", midtransData);
+      throw new Error(midtransData.error_messages?.[0] || "Failed to generate payment link");
     }
 
     return NextResponse.json({ 
       success: true, 
       orderId, 
-      checkoutUrl: xenditData.invoice_url 
+      checkoutUrl: midtransData.redirect_url 
     });
 
   } catch (error) {

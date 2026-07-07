@@ -41,7 +41,7 @@ To maintain absolute academic fairness during the online selection phases (speci
 
 #### C. THIRD-PARTY API INTEGRATION COOKIES
 To deliver e-commerce, automated logistics, and payment verification, our Platform integrates third-party Application Programming Interfaces (APIs). These external partners deploy specialized cookies to execute their services securely: 
-- **Xendit API (Payment Gateway)**: Deploys encryption and fraud-detection cookies to protect your transactions (Virtual Accounts, QRIS, Credit Cards) during payment processing on their secure, PCI-DSS compliant servers. 
+- **Midtrans API (Payment Gateway)**: Deploys encryption and fraud-detection cookies to protect your transactions (Virtual Accounts, QRIS, Credit Cards) during payment processing on their secure, PCI-DSS compliant servers. 
 - **Biteship & RajaOngkir API (Logistic Engine)**: Stores transient geolocation and postal code metadata to calculate real-time, dynamic shipping rates from Sleman, Yogyakarta to your specified delivery address.
 
 ### 4. USER RIGHTS AND CONSENT MANAGEMENT
@@ -50,7 +50,7 @@ You possess the legal right to control, block, or delete cookies on your device 
 - **B. Implications of Disabling Necessary Cookies**: Because our Exam Engine and E-commerce checkout systems are full-stack, real-time applications, disabling Strictly Necessary or Telemetry cookies will cause severe structural errors. If you block these technologies: 
   - You will be unable to log into the /dashboard portal. 
   - The Exam Engine will block your access to the active exam session due to an inability to establish a secure proctoring environment. 
-  - The Merch Shop checkout page will fail to process payments via Xendit or calculate shipping rates via Biteship. 
+  - The Merch Shop checkout page will fail to process payments via Midtrans or calculate shipping rates via Biteship. 
 
 By choosing to block esential cookies, you accept full responsibility for any subsequent system failures, exam disqualifications, or transaction errors, and the Organizer shall be held entirely free from liability.
 
