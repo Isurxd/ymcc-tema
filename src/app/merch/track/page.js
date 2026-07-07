@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function TrackOrder() {
   const [trackingNumber, setTrackingNumber] = useState("");
@@ -116,7 +117,7 @@ export default function TrackOrder() {
                 <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="flex-1 text-center bg-[#25D366] text-white font-bold uppercase py-3 border-2 border-black rounded-xl hover:scale-105 transition-transform shadow-[2px_2px_0_0_#000]">
                   Chat Admin
                 </a>
-                <button onClick={() => alert("Downloading Invoice...")} className="flex-1 bg-black text-[#c1ff00] font-bold uppercase py-3 border-2 border-black rounded-xl hover:scale-105 transition-transform shadow-[2px_2px_0_0_#000]">
+                <button onClick={() => toast.info("Downloading Invoice...")} className="flex-1 bg-black text-[#c1ff00] font-bold uppercase py-3 border-2 border-black rounded-xl hover:scale-105 transition-transform shadow-[2px_2px_0_0_#000]">
                   Download Bukti Pembelian
                 </button>
               </div>

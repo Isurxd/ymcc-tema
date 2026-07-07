@@ -4,6 +4,7 @@ import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import CookieConsent from "@/components/CookieConsent";
 import PromoModal from "@/components/PromoModal";
 import { CartProvider } from "@/context/CartContext";
+import { ConfirmProvider } from "@/context/ConfirmContext";
 import { Toaster } from "sonner";
 
 const anton = Anton({
@@ -43,10 +44,33 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${anton.variable} ${poppins.variable} scroll-smooth h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans bg-[#fafafa] text-[#111] overflow-x-hidden">
-        <CartProvider>
-          <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
-          <Toaster position="top-center" toastOptions={{ style: { background: '#111', color: '#c1ff00', border: '2px solid #c1ff00', borderRadius: '8px', fontFamily: 'var(--font-poppins)', fontWeight: 'bold' } }} />
-        </CartProvider>
+        <ConfirmProvider>
+          <CartProvider>
+            <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+            <Toaster 
+            position="top-center" 
+            toastOptions={{ 
+              style: { 
+                background: '#fff', 
+                color: '#000', 
+                border: '4px solid #000', 
+                boxShadow: '4px 4px 0 0 #000',
+                borderRadius: '16px', 
+                fontFamily: 'var(--font-poppins)', 
+                fontWeight: 'bold',
+                padding: '16px',
+                fontSize: '15px'
+              },
+              success: {
+                style: { background: '#c1ff00', color: '#000', border: '4px solid #000' }
+              },
+              error: {
+                style: { background: '#ff3333', color: '#fff', border: '4px solid #000' }
+              }
+            }} 
+          />
+          </CartProvider>
+        </ConfirmProvider>
       </body>
     </html>
   );

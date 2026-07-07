@@ -28,6 +28,8 @@ export default function FadeInImage({ className = "", alt = "", fill, ...props }
         {...props}
         alt={alt}
         fill={fill}
+        unoptimized={props.src && typeof props.src === 'string' && props.src.startsWith('http')}
+        quality={100}
         className={`transition-all duration-700 ease-in-out ${loaded ? "opacity-100 blur-0" : "opacity-0 blur-sm"} ${className}`}
         onLoad={(e) => {
           setLoaded(true);

@@ -1,23 +1,30 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
 
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
-};
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app, "ymcc-vii");
+const app = initializeApp({
+  credential: cert(serviceAccount)
+});
 
-async function run() {
-  const snap = await getDocs(collection(db, "activities"));
-  const data = snap.docs.map(d => ({id: d.id, ...d.data()}));
-  console.log(JSON.stringify(data, null, 2));
+async function testDb(dbId) {
+  try {
+    const db = dbId ? getFirestore(app, dbId) : getFirestore(app);
+    console.log(`Testing database: ${dbId || '(default)'}...`);
+    // Try to list collections, which requires read access
+    const collections = await db.listCollections();
+    console.log(`✅ Success accessing database: ${dbId || '(default)'}. Collections: ${collections.length}`);
+    return true;
+  } catch (err) {
+    console.log(`❌ Failed to access database ${dbId || '(default)'}: ${err.message}`);
+    return false;
+  }
 }
-run().catch(console.error);
+
+async function runTests() {
+  console.log("Starting DB tests...");
+  await testDb(''); // Test (default)
+  await testDb('ymcc-vii'); // Test named db
+}
+
+runTests();

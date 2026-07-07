@@ -50,15 +50,6 @@ export default function Login() {
       const userDocRef = doc(db, "users", user.uid);
       const userDoc = await getDoc(userDocRef);
       
-      if (!userDoc.exists()) {
-        await setDoc(userDocRef, {
-          email: user.email,
-          fullName: user.displayName || "Unknown Participant",
-          role: "participant",
-          registrationStatus: "UNVERIFIED",
-          createdAt: serverTimestamp()
-        });
-      }
       if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
         router.push("/master");
         return;

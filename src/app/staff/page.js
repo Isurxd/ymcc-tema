@@ -32,7 +32,7 @@ export default function StaffLogin() {
     try {
       // Superadmin bypass
       if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
-        router.push("/operator");
+        router.push("/master");
         return;
       }
 
