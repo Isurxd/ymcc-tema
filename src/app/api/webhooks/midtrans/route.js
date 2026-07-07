@@ -85,16 +85,32 @@ export async function POST(req) {
 
     const isPaid = newStatus === "PAID";
 
+    // Fetch order first to get dependencies
+    const orderRef = db.collection("Orders").doc(order_id);
+    const orderDocSnap = await orderRef.get();
+    if (!orderDocSnap.exists) {
+      throw new Error(`Order not found: ${order_id}`);
+    }
+    const orderData = orderDocSnap.data();
+
+    let promoRef = null;
+    if (orderData.promoCode) {
+      const pSnap = await db.collection("promos").where("code", "==", orderData.promoCode).limit(1).get();
+      if (!pSnap.empty) {
+        promoRef = pSnap.docs[0].ref;
+      }
+    }
+
     // ── 3. Update Firestore dalam satu transaksi atomik ───────────────────────
     await db.runTransaction(async (transaction) => {
-      const orderRef = db.collection("Orders").doc(order_id);
+      // Re-read order inside transaction for safety
       const orderDoc = await transaction.get(orderRef);
-
       if (!orderDoc.exists) {
-        throw new Error(`Order not found: ${order_id}`);
+        throw new Error(`Order not found in transaction: ${order_id}`);
       }
 
-      const currentStatus = orderDoc.data()?.status;
+      const data = orderDoc.data();
+      const currentStatus = data?.status;
 
       // Idempotency: jangan proses ulang jika sudah PAID
       if (currentStatus === "PAID" && isPaid) {
@@ -109,13 +125,13 @@ export async function POST(req) {
         midtransTransactionId: transaction_id || null,
         midtransTransactionTime: transaction_time || null,
         ...(isPaid && { paidAt: FieldValue.serverTimestamp() }),
-        ...(["EXPIRED", "CANCELLED"].includes(newStatus) && {
+        ...(["EXPIRED", "CANCELLED", "DENIED"].includes(newStatus) && {
           expiredAt: FieldValue.serverTimestamp(),
         }),
         updatedAt: FieldValue.serverTimestamp(),
       });
 
-      // Hapus semua inventory locks untuk order ini
+      // Hapus semua inventory locks untuk order ini (jika ada)
       const locksSnapshot = await db
         .collection("Inventory_Locks")
         .where("orderId", "==", order_id)
@@ -125,18 +141,32 @@ export async function POST(req) {
         transaction.delete(lockDoc.ref);
       });
 
-      // Jika PAID: kurangi stok permanen
-      if (isPaid) {
-        const orderData = orderDoc.data();
-        if (orderData && Array.isArray(orderData.items)) {
-          orderData.items.forEach((item) => {
+      // Jika EXPIRED, CANCELLED, atau DENIED: kembalikan stok & kurangi frozen balance
+      if (["EXPIRED", "CANCELLED", "DENIED"].includes(newStatus)) {
+        if (Array.isArray(data.items)) {
+          data.items.forEach((item) => {
             const productId = item.productId || item.id;
             if (productId) {
               const merchRef = db.collection("merchandise").doc(productId);
               transaction.update(merchRef, {
-                stockAmount: FieldValue.increment(-item.quantity),
+                stockAmount: FieldValue.increment(item.quantity),
               });
             }
+          });
+        }
+
+        // Hapus frozen balance affiliate
+        if (promoRef && data.commissionFrozen) {
+          transaction.update(promoRef, {
+            frozenBalance: FieldValue.increment(-data.commissionFrozen),
+          });
+        }
+      } else if (isPaid) {
+        // Jika PAID: pindahkan frozen balance ke available balance
+        if (promoRef && data.commissionFrozen) {
+          transaction.update(promoRef, {
+            frozenBalance: FieldValue.increment(-data.commissionFrozen),
+            availableBalance: FieldValue.increment(data.commissionFrozen),
           });
         }
       }
@@ -150,7 +180,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("❌ Midtrans Webhook Error:", error.message);
-    // Tetap return 200 untuk status "order not found" agar Midtrans tidak retry berulang
     if (error.message?.includes("Order not found")) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
