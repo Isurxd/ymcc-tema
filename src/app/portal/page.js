@@ -231,8 +231,8 @@ export default function Portal() {
       });
       const data = await res.json();
       
-      if (data.success && data.checkoutUrl) {
-        router.push(data.checkoutUrl);
+      if (data.success && (data.redirectUrl || data.checkoutUrl)) {
+        router.push(data.redirectUrl || data.checkoutUrl);
       } else {
         toast.error("Checkout failed: " + (data.error || "Unknown error"));
       }
@@ -897,8 +897,8 @@ export default function Portal() {
                                 </p>
                             </div>
                             <div className="flex gap-2">
-                                {order.status === 'PENDING_PAYMENT' && order.checkoutUrl && (
-                                    <a href={order.checkoutUrl} className="bg-black text-[#c1ff00] text-sm font-bold px-4 py-2 rounded-xl uppercase hover:bg-gray-800 border-2 border-transparent">
+                                {order.status === 'PENDING_PAYMENT' && (order.snapRedirectUrl || order.checkoutUrl) && (
+                                    <a href={order.snapRedirectUrl || order.checkoutUrl} className="bg-black text-[#c1ff00] text-sm font-bold px-4 py-2 rounded-xl uppercase hover:bg-gray-800 border-2 border-transparent">
                                         Pay Now
                                     </a>
                                 )}
