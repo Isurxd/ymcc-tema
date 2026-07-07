@@ -72,11 +72,19 @@ export default function MerchShop() {
     }
   }, [selectedProduct]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const filteredProducts = activeCategory === "ALL GEAR" 
     ? products 
     : products.filter(p => p.category === activeCategory);
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
+  const searchedProducts = filteredProducts.filter(p => 
+    (p.name || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (p.tagline || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (p.description || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedProducts = [...searchedProducts].sort((a, b) => {
     if (sortBy === "LOWEST_PRICE") return a.priceNumber - b.priceNumber;
     if (sortBy === "HIGHEST_PRICE") return b.priceNumber - a.priceNumber;
     return 0; // Default order for POPULAR
@@ -342,6 +350,8 @@ export default function MerchShop() {
             <input
               type="text"
               placeholder="Search Products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full border-2 border-black rounded-full py-3 pl-12 pr-6 font-poppins text-[#111] focus:outline-none focus:ring-2 focus:ring-[var(--color-grass)]"
             />
           </div>

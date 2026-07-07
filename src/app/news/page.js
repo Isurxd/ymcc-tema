@@ -11,6 +11,7 @@ export default function NewsArticles() {
   const [activeFilter, setActiveFilter] = useState("ALL UPDATES");
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const filters = ["ALL UPDATES", "ANNOUNCEMENTS", "TECHNICAL", "PRESS RELEASES"];
 
@@ -55,6 +56,11 @@ export default function NewsArticles() {
   const filteredArticles = activeFilter === "ALL UPDATES" 
     ? otherArticles 
     : otherArticles.filter(a => (a.category || "").toUpperCase().includes(activeFilter.replace(/S$/, "")));
+
+  const searchedArticles = filteredArticles.filter(a => 
+    (a.title || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (a.desc || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-white text-black font-sans pb-24">
@@ -124,6 +130,8 @@ export default function NewsArticles() {
           <input 
             type="text" 
             placeholder="Search Updates..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border-2 border-black rounded-full py-4 pl-16 pr-6 text-lg outline-none focus:bg-gray-50 transition-colors"
           />
         </div>
@@ -154,8 +162,8 @@ export default function NewsArticles() {
               <div key={i} className="h-96 border-2 border-black rounded-3xl bg-gray-100 animate-pulse shadow-[4px_4px_0_0_#000]"></div>
             ))}
           </>
-        ) : filteredArticles.length > 0 ? (
-          filteredArticles.map((article) => (
+        ) : searchedArticles.length > 0 ? (
+          searchedArticles.map((article) => (
             <div key={article.id} className="border-2 border-black rounded-3xl overflow-hidden bg-white shadow-[4px_4px_0_0_#000] flex flex-col">
               <div className="h-56 relative border-b-[3px] border-black">
                 {article.imageUrl && (

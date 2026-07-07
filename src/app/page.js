@@ -137,9 +137,11 @@ export default function Home() {
                 REGISTER ACCOUNT
               </button>
             </Link>
-            <button className="bg-transparent text-white font-poppins font-bold text-[13px] px-8 py-3.5 rounded-full uppercase tracking-wider border-2 border-white hover:bg-white hover:text-[#111] transition-colors w-full sm:w-auto">
-              DOWNLOAD GUIDEBOOK
-            </button>
+            <Link href="/events" className="w-full sm:w-auto">
+              <button className="bg-transparent text-white font-poppins font-bold text-[13px] px-8 py-3.5 rounded-full uppercase tracking-wider border-2 border-white hover:bg-white hover:text-[#111] transition-colors w-full sm:w-auto">
+                DOWNLOAD GUIDEBOOK
+              </button>
+            </Link>
           </div>
         </div>
 
