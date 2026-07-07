@@ -267,10 +267,7 @@ export default function MerchShop() {
             OFFICIAL FIELD GEAR
           </h1>
           <p className="font-poppins text-gray-600 max-w-3xl mx-auto text-sm md:text-base leading-relaxed">
-            Equip yourself with the official, premium-grade apparel of YMCC VII. Built for the modern
-            earth science professional, our exclusive jackets and vests are designed to withstand
-            rugged outdoor exploration while elevating your presence in the field. Join the global
-            coalition of delegates and wear the standard of excellence.
+            Equip yourself with the official, premium-quality apparel of YMCC VII. Combining comfort, durability, and functionality, our exclusive jackets and vests are made to support every journey. Wear it with pride and become part of the YMCC VII community.
           </p>
         </div>
 
@@ -344,7 +341,7 @@ export default function MerchShop() {
             </div>
             <input
               type="text"
-              placeholder="Search product..."
+              placeholder="Search Products..."
               className="w-full border-2 border-black rounded-full py-3 pl-12 pr-6 font-poppins text-[#111] focus:outline-none focus:ring-2 focus:ring-[var(--color-grass)]"
             />
           </div>
@@ -355,9 +352,9 @@ export default function MerchShop() {
                 onChange={(e) => setSortBy(e.target.value)}
                 className="appearance-none w-full border-2 border-black rounded-full px-6 py-3 pr-12 font-poppins font-bold text-sm bg-white hover:bg-gray-50 transition-colors cursor-pointer outline-none uppercase"
               >
-                <option value="POPULAR">SHORT : POPULAR</option>
-                <option value="LOWEST_PRICE">SHORT : LOWEST PRICE</option>
-                <option value="HIGHEST_PRICE">SHORT : HIGHEST PRICE</option>
+                <option value="POPULAR">SORT : POPULAR</option>
+                <option value="LOWEST_PRICE">SORT : LOWEST PRICE</option>
+                <option value="HIGHEST_PRICE">SORT : HIGHEST PRICE</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-black">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>

@@ -125,7 +125,7 @@ export default function Home() {
             className="reveal text-xs sm:text-sm md:text-base font-medium text-gray-200 max-w-2xl leading-relaxed mb-8 md:mb-10 drop-shadow-md px-2 lg:px-0"
             style={{ transitionDelay: "200ms" }}
           >
-            Guided by &quot;The Green Compass,&quot; YMCC VII unites ASEAN, China, and Australia&apos;s brightest engineering talents. We exist to drive sustainable innovation, technical precision, and future-ready energy solutions in the global mineral resources sector.
+            Guided by &quot;The Green Compass,&quot; YMCC VII brings together the brightest engineering talents from ASEAN, China, and Australia. YMCC VII aims to promote sustainable innovation, technical excellence, and future-ready solutions for the global mineral resources sector.
           </p>
 
           <div
@@ -159,7 +159,7 @@ export default function Home() {
           <span className="font-poppins font-bold text-xs text-[#111] mr-2">20+ Regional delegations</span>
         </div>
       </header>
-
+ 
       {/* INTRO SECTION */}
       <section className="max-w-6xl mx-auto px-6 py-24 relative z-20">
         <div className="flex flex-col lg:flex-row items-start gap-16">
@@ -177,7 +177,7 @@ export default function Home() {
               DECODE THE ARCHITECTURE &rarr;
             </Link>
           </div>
-
+ 
           <div
             className="lg:w-2/3 bg-white border-2 rounded-3xl p-6 md:p-14 shadow-brutal-lg w-full reveal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 ease-out cursor-default"
             style={{ transitionDelay: "100ms" }}
@@ -186,7 +186,7 @@ export default function Home() {
               Established by the Student Association of Mining Engineering (HMTA) at Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta, the Youth Mining Camp Competition (YMCC) has evolved from a local competition into the premier biennial summit for global mining engineering.
             </p>
             <p className="text-[#111] font-poppins font-bold text-sm md:text-base leading-relaxed">
-              As the industry undergoes a monumental energy transition, YMCC VII acts as a structural anchor. We do not just test academic capacity; we forge elite pioneers who will manage the extraction of critical minerals ethically, sustainably, and with absolute engineering precision.
+              As the mining industry undergoes a major energy transition, YMCC VII serves as a platform for developing future engineering leaders. We do not merely assess academic competence; we cultivate future industry leaders who will manage the extraction of critical minerals ethically, sustainably, and with absolute engineering precision.
             </p>
           </div>
         </div>

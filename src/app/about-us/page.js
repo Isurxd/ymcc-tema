@@ -118,7 +118,7 @@ export default function AboutUs() {
                 The Youth Mining Camp Competition (YMCC) is the flagship biennial event organized by the Student Association of Mining Engineering (Himpunan Mahasiswa Teknik Pertambangan - HMTA) of Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta.
               </p>
               <p>
-                Founded as a platform to test national engineering capabilities, YMCC has expanded into a prestigious multinational summit, serving as a critical nexus where future mining executives, global researchers, and energy corporations meet to solve real-world industrial and ecological challenges.
+                Founded as a platform to showcase national engineering talent, YMCC has evolved into a prestigious multinational summit, serving as a critical nexus where future mining leaders, researchers, and energy industry representatives collaborate to address real-world industrial and environmental challenges.
               </p>
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function AboutUs() {
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
               <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
-                <div className="inline-block bg-[#a855f7] text-[#111] font-anton text-[10px] uppercase px-3 py-1 rounded-sm border-2 border-[#111] mb-4 shadow-brutal-hover">
+                <div className="inline-block bg-[#a855f7] text-white font-anton text-xs md:text-sm uppercase px-4 py-2 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
                   THE FOUNDATION ERA
                 </div>
                 <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC I - IV</h3>
@@ -154,7 +154,7 @@ export default function AboutUs() {
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
               <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
-                <div className="inline-block bg-[#f97316] text-[#111] font-anton text-[10px] uppercase px-3 py-1 rounded-sm border-2 border-[#111] mb-4 shadow-brutal-hover">
+                <div className="inline-block bg-[#f97316] text-white font-anton text-xs md:text-sm uppercase px-4 py-2 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
                   THE REGIONAL EXPANSION
                 </div>
                 <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC V - VI</h3>
@@ -168,7 +168,7 @@ export default function AboutUs() {
             <div className="flex items-center gap-6 md:gap-12 reveal">
               <div className="w-8 h-8 rounded-full border-2 border-[#111] bg-grass z-10 shrink-0 shadow-sm relative left-[-24px] md:left-10"></div>
               <div className="bg-white border-2 border-[#111] rounded-[2rem] p-6 md:p-10 shadow-brutal hover:translate-x-1.5 hover:translate-y-1.5 hover:shadow-none transition-all duration-500 w-full ml-0 md:ml-12 cursor-default">
-                <div className="inline-block bg-[#22c55e] text-[#111] font-anton text-[10px] uppercase px-3 py-1 rounded-sm border-2 border-[#111] mb-4 shadow-brutal-hover">
+                <div className="inline-block bg-[#22c55e] text-white font-anton text-xs md:text-sm uppercase px-4 py-2 rounded-md border-2 border-[#111] mb-4 shadow-brutal hover:shadow-none transition-all duration-300">
                   THE SOVEREIGN TRANSITION
                 </div>
                 <h3 className="text-2xl md:text-3xl font-anton text-[#111] uppercase tracking-wide mb-3">YMCC VII</h3>
@@ -198,7 +198,7 @@ export default function AboutUs() {
               THE STUDENT ASSOCIATION OF MINING ENGINEERING
             </h2>
             <p className="font-poppins text-[#111] text-sm md:text-base leading-relaxed">
-              HMTA UPN &quot;Veteran&quot; Yogyakarta is one of the most prominent, active, and long-standing student engineering associations in Indonesia. Governed by principles of discipline, technical mastery, and strong fraternal bonds, HMTA serves as the incubator for student engineers. Every operational detail of YMCC VII is planned, managed, and executed by our dedicated student officers—collectively known as the Strategic Force—under strict academic and professional supervision.
+              HMTA UPN &quot;Veteran&quot; Yogyakarta is one of Indonesia's most prominent, active, and long-established student engineering associations. Guided by the principles of discipline, technical excellence, and strong camaraderie, HMTA serves as an incubator for future mining engineers. Every aspect of YMCC VII is planned, managed, and executed by our dedicated student committee members—collectively known as the Strategic Force—under close academic and professional supervision.
             </p>
           </div>
         </div>
@@ -294,7 +294,7 @@ export default function AboutUs() {
                 <Image src="/ABOUT_US/LOGO ANATOMY BREAKDOWN/MINING (M).png" alt="MINE" width={100} height={100} className="object-contain h-full" />
               </div>
               <div className="bg-grass text-[#111] font-anton text-sm uppercase px-6 py-1 rounded-full border-2 border-[#111] mb-4 shadow-brutal-hover">
-                MINE
+                MINING
               </div>
               <p className="font-poppins text-xs text-[#111] leading-relaxed text-center">
                 Represents the physical depth of resource extraction and the intellectual depth of earth sciences.
@@ -310,7 +310,7 @@ export default function AboutUs() {
                 CAMP
               </div>
               <p className="font-poppins text-xs text-[#111] leading-relaxed text-center">
-                Represents environmental responsibility and the core commitment to sustainability.
+                Represents environmental responsibility and a deep commitment to sustainability.
               </p>
             </div>
 
@@ -323,7 +323,7 @@ export default function AboutUs() {
                 COMPETITION
               </div>
               <p className="font-poppins text-xs text-[#111] leading-relaxed text-center">
-                Represents &quot;The Green Compass,&quot; our guiding instrument pointing toward technological advancement.
+                Represents the highest level of intelligence, skill, and sportsmanship in the Youth Mining Camp Competition.
               </p>
             </div>
           </div>
@@ -337,7 +337,7 @@ export default function AboutUs() {
               VII
             </div>
             <p className="font-poppins text-sm text-[#111] leading-relaxed text-center">
-              Represents copper as a critical energy-transition metal, symbolizing precision and technological transition.
+              Represents copper as a critical energy-transition metal, symbolizing precision and technological advancement.
             </p>
           </div>
         </div>
@@ -357,7 +357,7 @@ export default function AboutUs() {
               YOTTA
             </h2>
             <p className="font-poppins text-sm md:text-base text-[#111] leading-relaxed">
-              Yotta is represented by a clean, geometric compass indicator layered with a tactical, rugged visor. This mascot serves as a symbol of clarity under pressure, guiding delegates through complex mining parameters toward ethical, data-driven solutions.
+              Yotta is depicted as a sleek geometric compass, complemented by a rugged tactical visor. The mascot embodies clarity under pressure, guiding delegates through complex mining challenges with ethical judgment and data-driven decision-making.
             </p>
           </div>
         </div>

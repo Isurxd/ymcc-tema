@@ -36,7 +36,7 @@ export default function TrackOrder() {
               Logistics
             </span>
             <span className="text-gray-500 font-bold uppercase tracking-widest text-sm">
-              SLA Monitored
+              Real-time tracking
             </span>
           </div>
 
@@ -44,7 +44,7 @@ export default function TrackOrder() {
             TRACK YOUR GEAR
           </h1>
           <p className="font-poppins text-gray-600 mb-8 leading-relaxed">
-            Enter your Waybill / Airway Bill (AWB) number below to track the real-time location of your official merchandise. Our asynchronous tracking system pulls updates directly from the expedition API.
+            Enter your Air Waybill (AWB) number below to track the delivery status of your official merchandise. Tracking information is updated automatically through our shipping partner.
           </p>
 
           <form onSubmit={handleTrack} className="flex flex-col md:flex-row gap-4 mb-12">

@@ -45,7 +45,7 @@ export async function seedDatabase() {
     const faqs = [
       {
         q: "Can high school students from any region register for the Intellectual Challenge?",
-        a: "Yes. The High School tier of the Intellectual Challenge is open nationally across Indonesia. Registrants must submit active Kartu Pelajar (Student ID) for validation."
+        a: "Yes. The High School tier of the Intellectual Challenge is open nationally across Indonesia. Registrants must submit active Student ID for validation."
       },
       {
         q: "Does the Web Exam Engine require a webcam or additional software installations?",
@@ -53,7 +53,7 @@ export async function seedDatabase() {
       },
       {
         q: "What payment methods are supported by the YMCC VII Platform?",
-        a: "Our integration with the Xendit Payment Gateway supports a wide variety of secure payment methods, including Virtual Accounts (VA) from major national banks, QRIS (automatic scanning), and major e-wallets."
+        a: "Our integration with the Midtrans Payment Gateway supports a wide variety of secure payment methods, including Virtual Accounts (VA) from major national banks, QRIS (automatic scanning), and major e-wallets."
       },
       {
         q: "How long does the administrative verification process take?",

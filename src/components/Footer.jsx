@@ -21,7 +21,7 @@ export default function Footer() {
             </div>
             <div className="font-poppins font-bold text-sm mb-4">NAVIGATE THE FUTURE.</div>
             <p className="text-gray-400 font-poppins text-xs leading-relaxed">
-              The premier international student engineering assembly led by the Student Association of Mining Engineering (HMTA) at Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta.
+              The premier international student engineering forum organized by the Student Association of Mining Engineering (HMTA), Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta.
             </p>
 
             <div className="flex items-center gap-4 mt-6">
@@ -60,7 +60,7 @@ export default function Footer() {
 
           {/* Column 4 */}
           <div>
-            <h4 className="font-poppins font-bold text-white mb-6 text-sm uppercase tracking-widest">COORDINATION CENTER</h4>
+            <h4 className="font-poppins font-bold text-white mb-6 text-sm uppercase tracking-widest">CONTACT & COORDINATION CENTER</h4>
             <div className="flex flex-col gap-4 text-sm font-poppins text-gray-300 mb-8">
               <a href="mailto:contact@ymccvii.com" className="hover:text-white transition-colors">contact@ymccvii.com</a>
               <p>+62 882-0050-08443</p>

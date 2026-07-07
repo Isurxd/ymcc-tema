@@ -14,7 +14,7 @@ export default function About() {
               Decoding The Coalition
             </h1>
             <p className="text-sm leading-relaxed text-gray-700">
-              The Youth Mining Camp Competition (YMCC) is the flagship biennial event organized by the Student Association of Mining Engineering (Himpunan Mahasiswa Teknik Pertambangan - HMTA) of Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta. Founded as a platform to test national engineering capabilities, YMCC has expanded into a prestigious multinational summit, serving as a critical nexus where future mining executives, global researchers, and energy corporations meet to solve real-world industrial and ecological challenges.
+              The Youth Mining Camp Competition (YMCC) is the flagship biennial event organized by the Student Association of Mining Engineering (Himpunan Mahasiswa Teknik Pertambangan - HMTA) of Universitas Pembangunan Nasional &quot;Veteran&quot; Yogyakarta. Founded as a platform to showcase national engineering talent, YMCC has evolved into a prestigious multinational summit, serving as a critical nexus where future mining leaders, researchers, and energy industry representatives collaborate to address real-world industrial and environmental challenges.
             </p>
           </div>
         </div>
@@ -61,7 +61,7 @@ export default function About() {
             The Student Association<br/>Of Mining Engineering
           </h2>
           <p className="text-sm leading-relaxed font-medium">
-            HMTA UPN &quot;Veteran&quot; Yogyakarta is one of the most prominent, active, and long-standing student engineering associations in Indonesia. Governed by principles of discipline, technical mastery, and strong fraternal bonds, HMTA serves as the incubator for student engineers. Every operational detail of YMCC VII is planned, managed, and executed by our dedicated student officers—collectively known as the Strategic Force—under strict academic and professional supervision.
+            HMTA UPN &quot;Veteran&quot; Yogyakarta is one of Indonesia's most prominent, active, and long-established student engineering associations. Guided by the principles of discipline, technical excellence, and strong camaraderie, HMTA serves as an incubator for future mining engineers. Every aspect of YMCC VII is planned, managed, and executed by our dedicated student committee members—collectively known as the Strategic Force—under close academic and professional supervision.
           </p>
         </div>
       </section>
