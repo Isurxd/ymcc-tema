@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import FadeInImage from "@/components/FadeInImage";
 import dynamic from "next/dynamic";
+import Script from "next/script";
 
 const MapPicker = dynamic(() => import("@/components/MapPicker"), { ssr: false });
 
@@ -171,9 +172,33 @@ export default function CheckoutPage() {
 
       const data = await response.json();
 
-      if (data.success && data.checkoutUrl) {
+      if (data.success && data.token) {
         clearCart(); 
-        router.push(data.checkoutUrl); 
+        if (window.snap) {
+          window.snap.pay(data.token, {
+            onSuccess: function (result) {
+              router.push(`/merch/track?orderId=${data.orderId}`);
+            },
+            onPending: function (result) {
+              router.push(`/merch/track?orderId=${data.orderId}`);
+            },
+            onError: function (result) {
+              alert("Payment failed!");
+              setIsLoading(false);
+            },
+            onClose: function () {
+              alert("You closed the payment popup.");
+              setIsLoading(false);
+            }
+          });
+        } else {
+          // Fallback if snap is not loaded yet
+          if (data.redirectUrl) {
+            router.push(data.redirectUrl);
+          } else {
+            alert("Midtrans payment SDK not loaded yet. Please try again.");
+          }
+        }
       } else {
         alert(data.error || "Checkout failed");
       }
@@ -407,12 +432,20 @@ export default function CheckoutPage() {
 
             <div className="mt-8 flex items-center justify-center gap-2 text-xs font-bold text-gray-400">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-              SECURE CHECKOUT BY XENDIT
+              SECURE CHECKOUT BY MIDTRANS
             </div>
           </div>
         </div>
 
       </div>
+      <Script 
+        src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true" 
+          ? "https://app.midtrans.com/snap/snap.js" 
+          : "https://app.sandbox.midtrans.com/snap/snap.js"
+        }
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="lazyOnload"
+      />
     </div>
   );
 }

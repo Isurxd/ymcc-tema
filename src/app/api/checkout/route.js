@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
+import midtransClient from "midtrans-client";
+
+const snap = new midtransClient.Snap({
+  isProduction: process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true",
+  serverKey: process.env.MIDTRANS_SERVER_KEY,
+  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY,
+});
+
 
 export async function POST(req) {
   try {
@@ -71,39 +79,49 @@ export async function POST(req) {
       });
     });
 
-    // Generate Xendit Invoice
-    const xenditResponse = await fetch("https://api.xendit.co/v2/invoices", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Basic " + Buffer.from(process.env.XENDIT_SECRET_KEY + ":").toString("base64")
+    // Generate Midtrans Snap Token
+    const parameter = {
+      transaction_details: {
+        order_id: orderId,
+        gross_amount: totalAmount,
       },
-      body: JSON.stringify({
-        external_id: orderId,
-        amount: totalAmount,
-        payer_email: userDetails.email,
-        description: "YMCC VII Merchandise Order",
-        customer: {
-          given_names: userDetails.name,
-          email: userDetails.email,
-          mobile_number: userDetails.phone
-        },
-        success_redirect_url: process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/merch/success?order_id=${orderId}` : `http://localhost:3000/merch/success?order_id=${orderId}`,
-        failure_redirect_url: process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/merch/checkout` : `http://localhost:3000/merch/checkout`
-      })
-    });
+      item_details: orderItems.map(item => ({
+        id: item.productId,
+        price: item.price,
+        quantity: item.quantity,
+        name: item.name.length > 50 ? item.name.substring(0, 47) + "..." : item.name,
+      })),
+      customer_details: {
+        first_name: userDetails.name.split(" ")[0] || "Guest",
+        last_name: userDetails.name.split(" ").slice(1).join(" ") || "",
+        email: userDetails.email,
+        phone: userDetails.phone,
+      }
+    };
 
-    const xenditData = await xenditResponse.json();
-
-    if (!xenditResponse.ok) {
-      console.error("Xendit Error:", xenditData);
-      throw new Error(xenditData.message || "Failed to generate payment invoice");
+    // Add shipping cost if delivery method is shipping
+    if (deliveryMethod === "shipping" && shippingCost > 0) {
+      parameter.item_details.push({
+        id: "shipping-fee",
+        price: shippingCost,
+        quantity: 1,
+        name: "Shipping Fee"
+      });
     }
+
+    const transaction = await snap.createTransaction(parameter);
+
+    // Save token and redirect url to Firestore Order
+    await db.collection('Orders').doc(orderId).update({
+      snapToken: transaction.token,
+      snapRedirectUrl: transaction.redirect_url
+    });
 
     return NextResponse.json({ 
       success: true, 
       orderId, 
-      checkoutUrl: xenditData.invoice_url 
+      token: transaction.token,
+      redirectUrl: transaction.redirect_url
     });
 
   } catch (error) {
