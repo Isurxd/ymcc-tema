@@ -9,7 +9,7 @@ export async function POST(req) {
     }
 
     const { items, userDetails, shippingDetails, deliveryMethod, shippingCost, promo } = await req.json();
-    const SERVER_PLATFORM_FEE = 5000;
+    const SERVER_PLATFORM_FEE = 2000;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
