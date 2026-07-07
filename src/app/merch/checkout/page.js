@@ -23,7 +23,7 @@ export default function CheckoutPage() {
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoError, setPromoError] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
-  const PLATFORM_FEE = 5000;
+  const PLATFORM_FEE = 2000;
 
   const [formData, setFormData] = useState({
     firstName: "",

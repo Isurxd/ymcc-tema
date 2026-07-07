@@ -37,16 +37,17 @@ export async function POST(req) {
         }
 
         // Direct Row-level Locking: Decrement stock immediately
-        transaction.update(docSnap.ref, { stockAmount: FieldValue.increment(-item.quantity) });
+        transaction.update(docSnap.ref, { stockAmount: FieldValue.increment(-Number(item.quantity || 1)) });
 
-        const dbPrice = docSnap.data().price || 0;
-        totalAmount += dbPrice * item.quantity;
-        totalItems += item.quantity;
+        const dbPrice = Number(docSnap.data().price) || 0;
+        const qty = Number(item.quantity) || 1;
+        totalAmount += dbPrice * qty;
+        totalItems += qty;
         orderItems.push({
           productId: item.id,
           name: docSnap.data().name || item.name,
           size: item.size || null,
-          quantity: item.quantity,
+          quantity: qty,
           price: dbPrice
         });
       });
@@ -67,9 +68,9 @@ export async function POST(req) {
             validPromoCode = promoData.code;
             
             if (promoData.discountType === "PERCENT") {
-               discountAmount = totalAmount * (Number(promoData.discount) / 100);
+               discountAmount = totalAmount * (Number(promoData.discount || 0) / 100);
             } else {
-               discountAmount = Number(promoData.discount);
+               discountAmount = Number(promoData.discount || 0);
             }
             if (discountAmount > totalAmount) discountAmount = totalAmount; // Max discount is subtotal
 
@@ -84,7 +85,7 @@ export async function POST(req) {
       }
 
       // Prevent negative shipping costs
-      const secureShippingCost = Math.max(0, shippingCost || 0);
+      const secureShippingCost = Math.max(0, Number(shippingCost) || 0);
 
       // 3. Final Calculation
       totalAmount = totalAmount - discountAmount + secureShippingCost + SERVER_PLATFORM_FEE;
