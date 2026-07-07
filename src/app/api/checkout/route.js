@@ -87,7 +87,7 @@ export async function POST(req) {
 
     // Generate Midtrans Snap Transaction
     const authString = Buffer.from(process.env.MIDTRANS_SERVER_KEY + ":").toString("base64");
-    const midtransResponse = await fetch("https://app.midtrans.com/snap/v1/transactions", {
+    const midtransResponse = await fetch("https://app.sandbox.midtrans.com/snap/v1/transactions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
