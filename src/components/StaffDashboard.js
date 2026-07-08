@@ -2128,6 +2128,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
         targetEmails = participants.filter(p => p.registrationStatus === "VERIFIED").map(p => p.email);
       } else if (broadcastTarget === "REVISION") {
         targetEmails = participants.filter(p => p.registrationStatus === "NEEDS REVISION").map(p => p.email);
+      } else if (broadcastTarget === "SUBSCRIBERS") {
+        targetEmails = subscribers.map(s => s.email);
       }
 
       targetEmails = targetEmails.filter(e => e); // remove undefined
@@ -3291,6 +3293,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                         <option value="ALL">All Registered Participants</option>
                         <option value="VERIFIED">Verified Participants Only</option>
                         <option value="REVISION">Participants Needs Revision Only</option>
+                        <option value="SUBSCRIBERS">Newsletter Subscribers Only</option>
                       </select>
                     </div>
                     <div>
