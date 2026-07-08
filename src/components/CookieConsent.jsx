@@ -26,24 +26,24 @@ export default function CookieConsent() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 w-full z-[100] p-4 md:p-6 pointer-events-none">
-      <div className="bg-[#18181b] border-2 border-black rounded-3xl p-6 md:p-8 max-w-4xl mx-auto shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col md:flex-row items-center gap-8 pointer-events-auto transform translate-y-0 opacity-100 transition-all duration-500 ease-out relative overflow-hidden">
+    <div className="fixed bottom-0 left-0 w-full z-[100] p-4 pointer-events-none">
+      <div className="bg-[#18181b] border-2 border-black rounded-3xl p-5 md:p-6 max-w-4xl mx-auto shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] flex flex-col md:flex-row items-center gap-6 pointer-events-auto transform translate-y-0 opacity-100 transition-all duration-500 ease-out relative overflow-hidden">
         {/* Accent Bar */}
         <div className="absolute top-0 left-0 w-2 h-full bg-[var(--color-grass)]"></div>
         
         <div className="flex-grow pl-2">
-          <h3 className="font-anton text-2xl text-white uppercase tracking-wide mb-3">
+          <h3 className="font-anton text-xl text-white uppercase tracking-wide mb-2">
             [SECURITY & TELEMETRY PROTOCOL]
           </h3>
-          <p className="font-poppins text-sm text-gray-300 leading-relaxed text-justify md:text-left">
+          <p className="font-poppins text-xs text-gray-300 leading-normal text-justify md:text-left">
             This Platform utilizes strictly functional and telemetry cookies to secure your dashboard session, prevent multi-device authentication fraud, manage local exam state caches, and execute PCI-DSS compliant transactions via Midtrans. We do not engage in advertising or third-party data monetization. By continuing to navigate the compass, you consent to our technical data parameters as detailed in our Cookie Policy.
           </p>
         </div>
 
-        <div className="flex flex-col gap-3 w-full md:w-auto shrink-0">
+        <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 w-full md:w-auto shrink-0">
           <button 
             onClick={handleAccept}
-            className="bg-[var(--color-grass)] text-[#111] font-poppins font-bold text-xs px-8 py-3.5 rounded-xl uppercase tracking-widest border border-black hover:bg-white transition-colors active:translate-y-px whitespace-nowrap shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none"
+            className="bg-[var(--color-grass)] text-[#111] font-poppins font-bold text-[10px] px-6 py-2.5 rounded-xl uppercase tracking-widest border border-black hover:bg-white transition-colors active:translate-y-px whitespace-nowrap shadow-[2px_2px_0px_0px_rgba(17,17,17,1)] hover:shadow-none"
           >
             ACCEPT ALL PROTOCOLS
           </button>

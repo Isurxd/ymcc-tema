@@ -128,6 +128,58 @@ export async function POST(req) {
       });
     });
 
+    // Map item details for Midtrans Snap breakdown
+    const itemDetails = orderItems.map(item => ({
+      id: item.productId,
+      price: item.price,
+      quantity: item.quantity,
+      name: item.name.length > 50 ? item.name.substring(0, 47) + "..." : item.name,
+    }));
+
+    const secureShippingCost = Math.max(0, Number(shippingCost) || 0);
+    if (deliveryMethod === "shipping" && secureShippingCost > 0) {
+      itemDetails.push({
+        id: "shipping-fee",
+        price: secureShippingCost,
+        quantity: 1,
+        name: "Shipping Fee"
+      });
+    }
+
+    if (SERVER_PLATFORM_FEE > 0) {
+      itemDetails.push({
+        id: "platform-fee",
+        price: SERVER_PLATFORM_FEE,
+        quantity: 1,
+        name: "Platform Fee"
+      });
+    }
+
+    // Server-calculated promo discount
+    let discountAmount = 0;
+    if (promo && promo.code) {
+       const promoSnap = await db.collection('promos').where('code', '==', promo.code).limit(1).get();
+       if (!promoSnap.empty) {
+          const promoData = promoSnap.docs[0].data();
+          const subtotal = orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+          if (promoData.discountType === "PERCENT") {
+             discountAmount = subtotal * (Number(promoData.discount || 0) / 100);
+          } else {
+             discountAmount = Number(promoData.discount || 0);
+          }
+          if (discountAmount > subtotal) discountAmount = subtotal;
+       }
+    }
+
+    if (discountAmount > 0) {
+      itemDetails.push({
+        id: "discount",
+        price: -discountAmount,
+        quantity: 1,
+        name: "Promo Discount"
+      });
+    }
+
     // Generate Midtrans Snap Transaction
     const authString = Buffer.from(process.env.MIDTRANS_SERVER_KEY + ":").toString("base64");
     const midtransResponse = await fetch("https://app.sandbox.midtrans.com/snap/v1/transactions", {
@@ -142,8 +194,14 @@ export async function POST(req) {
           order_id: orderId,
           gross_amount: Math.round(totalAmount)
         },
+        expiry: {
+          duration: 5,
+          unit: "minute"
+        },
+        item_details: itemDetails,
         customer_details: {
-          first_name: userDetails.name,
+          first_name: userDetails.name.split(" ")[0] || "Guest",
+          last_name: userDetails.name.split(" ").slice(1).join(" ") || "",
           email: userDetails.email,
           phone: userDetails.phone
         }
@@ -156,11 +214,12 @@ export async function POST(req) {
       console.error("Midtrans Error:", midtransData);
       throw new Error(midtransData.error_messages?.[0] || "Failed to generate payment link");
     }
-
     // Update the order in Firestore with the generated Midtrans link & token
     await db.collection("merch_orders").doc(orderId).update({
       checkoutUrl: midtransData.redirect_url,
-      token: midtransData.token
+      token: midtransData.token,
+      snapToken: midtransData.token,
+      snapRedirectUrl: midtransData.redirect_url
     });
 
     // Send Invoice Email via Nodemailer (Background task)
@@ -175,7 +234,8 @@ export async function POST(req) {
       success: true, 
       orderId, 
       checkoutUrl: midtransData.redirect_url,
-      token: midtransData.token
+      token: midtransData.token,
+      redirectUrl: midtransData.redirect_url
     });
 
   } catch (error) {

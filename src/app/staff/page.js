@@ -19,7 +19,8 @@ export default function StaffLogin() {
     setLoading(true);
     try {
       // Superadmin bypass
-      if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
+      const cleanEmail = user.email ? user.email.toLowerCase().trim() : "";
+      if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(cleanEmail)) {
         router.push("/master");
         return;
       }

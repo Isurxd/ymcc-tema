@@ -293,9 +293,13 @@ export default function AffiliateDashboard() {
                     {orders.length > 0 ? orders.map((o) => {
                       const qty = o.items ? o.items.reduce((sum, item) => sum + item.quantity, 0) : 1;
                       const maskedId = o.id.substring(0, 8) + "***" + o.id.substring(o.id.length - 2);
+                      const orderDate = o.createdAt?.toDate ? o.createdAt.toDate() : (o.createdAt ? new Date(o.createdAt) : null);
+                      const dateStr = orderDate && !isNaN(orderDate.getTime()) 
+                        ? orderDate.toLocaleDateString("id-ID", {day:'numeric', month:'short', year:'numeric'}) 
+                        : "-";
                       return (
                         <tr key={o.id} className="hover:bg-gray-50">
-                          <td className="p-4 border-b border-gray-100">{new Date(o.createdAt).toLocaleDateString("id-ID", {day:'numeric', month:'short', year:'numeric'})}</td>
+                          <td className="p-4 border-b border-gray-100">{dateStr}</td>
                           <td className="p-4 border-b border-gray-100">{maskedId}</td>
                           <td className="p-4 border-b border-gray-100 font-bold text-purple-600">{o.customerInfo?.referralCode}</td>
                           <td className="p-4 border-b border-gray-100">{qty} Items</td>

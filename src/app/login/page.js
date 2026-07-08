@@ -52,11 +52,7 @@ export default function Login() {
     try {
       const { user, error: authError } = await loginWithGoogle();
       if (authError) throw new Error(authError);
-      
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(user.email)) {
+      if (isMasterEmail(user.email)) {
         router.push("/master");
         return;
       }

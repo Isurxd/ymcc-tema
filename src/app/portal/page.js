@@ -232,14 +232,39 @@ export default function Portal() {
       });
       const data = await res.json();
       
-      if (data.success && data.checkoutUrl) {
-        router.push(data.checkoutUrl);
+      if (data.success && (data.redirectUrl || data.checkoutUrl)) {
+        router.push(data.redirectUrl || data.checkoutUrl);
       } else {
         toast.error("Checkout failed: " + (data.error || "Unknown error"));
       }
     } catch (err) {
       console.error(err);
       toast.error("Error initiating checkout.");
+    }
+  };
+
+  const handlePayNow = (snapToken, redirectUrl) => {
+    if (window.snap && snapToken) {
+      window.snap.pay(snapToken, {
+        onSuccess: function (result) {
+          toast.success("Payment successful!");
+        },
+        onPending: function (result) {
+          toast.success("Payment pending!");
+        },
+        onError: function (result) {
+          toast.error("Payment failed!");
+        },
+        onClose: function () {
+          toast.info("Payment popup closed.");
+        }
+      });
+    } else {
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        toast.error("Payment gateway is loading. Please try again.");
+      }
     }
   };
 
@@ -925,8 +950,11 @@ export default function Portal() {
                                 </p>
                             </div>
                             <div className="flex gap-2">
-                                {order.status === 'PENDING_PAYMENT' && order.checkoutUrl && (
-                                    <button onClick={() => handleResumePayment(order.token, order.checkoutUrl)} className="bg-black text-[#c1ff00] text-sm font-bold px-4 py-2 rounded-xl uppercase hover:bg-gray-800 border-2 border-transparent">
+                                {order.status === 'PENDING_PAYMENT' && (order.token || order.snapToken || order.checkoutUrl || order.snapRedirectUrl) && (
+                                    <button 
+                                        onClick={() => handleResumePayment(order.token || order.snapToken, order.checkoutUrl || order.snapRedirectUrl)} 
+                                        className="bg-black text-[#c1ff00] text-sm font-bold px-4 py-2 rounded-xl uppercase hover:bg-gray-800 border-2 border-transparent cursor-pointer"
+                                    >
                                         Pay Now
                                     </button>
                                 )}
@@ -1150,6 +1178,14 @@ export default function Portal() {
         <p className="font-anton text-3xl uppercase tracking-widest text-gray-300 mb-2">YMCC VII</p>
         <p className="font-poppins text-xs text-gray-400 font-medium uppercase tracking-wider">Participant Command Portal &copy; 2026. All Systems Operational.</p>
       </footer>
+      <Script 
+        src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true" 
+          ? "https://app.midtrans.com/snap/snap.js" 
+          : "https://app.sandbox.midtrans.com/snap/snap.js"
+        }
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="afterInteractive"
+      />
     </div>
     </>
   );

@@ -77,7 +77,6 @@ export default function CheckoutPage() {
 
     return ratePerKg * totalWeightKg;
   };
-
   useEffect(() => {
     if (deliveryMethod === "shipping" && formData.province) {
       setShippingCost(calculateLocalShipping(formData.province));
@@ -88,8 +87,6 @@ export default function CheckoutPage() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.province, deliveryMethod, cartItems]);
-
-
   const handleApplyPromo = async () => {
     setPromoError("");
     setIsApplyingPromo(true);
@@ -225,26 +222,26 @@ export default function CheckoutPage() {
             onSuccess: function () {
               clearCart();
               toast.success("Payment successful!");
-              router.push(`/order-status?id=${data.orderId}`);
+              router.push(`/merch/success`);
             },
             onPending: function () {
               clearCart();
               toast.success("Order created! Please complete payment.");
-              router.push(`/order-status?id=${data.orderId}`);
+              router.push(`/merch/success`);
             },
             onError: function () {
               toast.error("Payment failed!");
-              router.push(`/order-status?id=${data.orderId}`);
+              router.push(`/merch/success`);
             },
             onClose: function () {
               clearCart();
               toast.error("Payment cancelled. You can resume it from your order status page.");
-              router.push(`/order-status?id=${data.orderId}`);
+              router.push(`/merch/success`);
             }
           });
         } else {
-          clearCart(); 
-          router.push(data.checkoutUrl); 
+          clearCart();
+          router.push(data.checkoutUrl);
         }
       } else {
         toast.error(data.error || "Checkout failed");
@@ -511,6 +508,14 @@ export default function CheckoutPage() {
         </div>
 
       </div>
+      <Script 
+        src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true" 
+          ? "https://app.midtrans.com/snap/snap.js" 
+          : "https://app.sandbox.midtrans.com/snap/snap.js"
+        }
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="afterInteractive"
+      />
     </div>
     </>
   );

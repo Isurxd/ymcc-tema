@@ -1,5 +1,6 @@
 import { db } from "@/lib/firebaseAdmin";
 import MerchClient from "@/components/merch/MerchClient";
+import { Suspense } from "react";
 
 // 1. Generate Metadata dynamically based on searchParams
 export async function generateMetadata({ searchParams }) {
@@ -58,5 +59,13 @@ export async function generateMetadata({ searchParams }) {
 export default async function MerchShopPage({ searchParams }) {
   // We can pass the initial ID to the client if needed, or let client read URL directly
   // The client uses useSearchParams so it will read the URL automatically.
-  return <MerchClient />;
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white pt-32 pb-24 flex justify-center items-center">
+        <div className="animate-spin w-12 h-12 border-4 border-[#c1ff00] border-t-black rounded-full"></div>
+      </div>
+    }>
+      <MerchClient />
+    </Suspense>
+  );
 }

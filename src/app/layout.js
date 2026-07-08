@@ -21,12 +21,12 @@ const poppins = Poppins({
 export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || process.env.URL || 'https://trial-ymccvii.netlify.app'),
   title: "YMCC VII | Navigate The Future",
-  description: "The premier international student engineering assembly led by HMTA UPN Veteran Yogyakarta. Join global mining delegations and competitions.",
+  description: "The premier international student engineering forum organized by HMTA UPN Veteran Yogyakarta. Join global mining delegations and competitions.",
   keywords: ["YMCC", "Mining Competition", "Earth Science", "UPN Veteran Yogyakarta", "HMTA", "Mining Engineering", "Critical Minerals", "Energy Transition"],
   authors: [{ name: "HMTA UPN Veteran Yogyakarta" }],
   openGraph: {
     title: "YMCC VII | Navigate The Future",
-    description: "The premier international student engineering assembly led by HMTA UPN Veteran Yogyakarta.",
+    description: "The premier international student engineering forum organized by HMTA UPN Veteran Yogyakarta.",
     url: "https://trial-ymccvii.netlify.app",
     siteName: "YMCC VII",
     locale: "en_US",
@@ -35,7 +35,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "YMCC VII | Navigate The Future",
-    description: "The premier international student engineering assembly led by HMTA UPN Veteran Yogyakarta.",
+    description: "The premier international student engineering forum organized by HMTA UPN Veteran Yogyakarta.",
   },
 };
 

@@ -8,11 +8,12 @@ import { db } from "@/lib/firebase";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 
 export default function NewsArticles() {
-  const [activeFilter, setActiveFilter] = useState("ALL DISPATCHES");
+  const [activeFilter, setActiveFilter] = useState("ALL UPDATES");
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   
-  const filters = ["ALL DISPATCHES", "ANNOUNCEMENTS", "TECHNICAL", "PRESS RELEASES"];
+  const filters = ["ALL UPDATES", "ANNOUNCEMENTS", "TECHNICAL", "PRESS RELEASES"];
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -52,19 +53,24 @@ export default function NewsArticles() {
   const otherArticles = articles;
 
   // Filter regular articles
-  const filteredArticles = activeFilter === "ALL DISPATCHES" 
+  const filteredArticles = activeFilter === "ALL UPDATES" 
     ? otherArticles 
     : otherArticles.filter(a => (a.category || "").toUpperCase().includes(activeFilter.replace(/S$/, "")));
+
+  const searchedArticles = filteredArticles.filter(a => 
+    (a.title || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
+    (a.desc || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-white text-black font-sans pb-24">
       {/* HEADER SECTION */}
       <div className="max-w-6xl mx-auto px-6 pt-24 pb-12 text-center">
         <h1 className="font-anton text-3xl md:text-5xl lg:text-7xl uppercase tracking-wider mb-6">
-          THE LATEST OPERATIONS
+          LATEST UPDATES
         </h1>
         <p className="max-w-3xl mx-auto text-lg md:text-xl text-gray-800">
-          Get in touch with our official media and support center for immediate assistance regarding registration, technical issues, and general competition guidelines.
+          Stay updated with the latest news, event announcements, and articles from YMCC VII. Explore important updates, competition information, and insights related to mining and engineering.
         </p>
       </div>
 
@@ -112,7 +118,7 @@ export default function NewsArticles() {
           </div>
         ) : (
           <div className="h-64 w-full border-2 border-black rounded-[2rem] bg-white flex items-center justify-center shadow-[4px_4px_0_0_#000]">
-            <p className="font-poppins font-bold text-gray-500">No dispatches available.</p>
+            <p className="font-poppins font-bold text-gray-500">No updates available.</p>
           </div>
         )}
       </div>
@@ -123,7 +129,9 @@ export default function NewsArticles() {
           <svg className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
           <input 
             type="text" 
-            placeholder="Search dispatches..." 
+            placeholder="Search Updates..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full border-2 border-black rounded-full py-4 pl-16 pr-6 text-lg outline-none focus:bg-gray-50 transition-colors"
           />
         </div>
@@ -154,8 +162,8 @@ export default function NewsArticles() {
               <div key={i} className="h-96 border-2 border-black rounded-3xl bg-gray-100 animate-pulse shadow-[4px_4px_0_0_#000]"></div>
             ))}
           </>
-        ) : filteredArticles.length > 0 ? (
-          filteredArticles.map((article) => (
+        ) : searchedArticles.length > 0 ? (
+          searchedArticles.map((article) => (
             <div key={article.id} className="border-2 border-black rounded-3xl overflow-hidden bg-white shadow-[4px_4px_0_0_#000] flex flex-col">
               <div className="h-56 relative border-b-[3px] border-black">
                 {article.imageUrl && (
@@ -181,14 +189,14 @@ export default function NewsArticles() {
                   {article.desc}
                 </p>
                 <Link href={`/news/${article.slug || article.id}`} className="font-bold uppercase tracking-wide hover:text-[#c1ff00] transition-colors flex items-center gap-2">
-                  READ DISPATCH <span className="text-xl">→</span>
+                  READ ARTICLE <span className="text-xl">→</span>
                 </Link>
               </div>
             </div>
           ))
         ) : !loading && (
           <div className="col-span-full text-center py-12">
-            <p className="font-poppins text-xl text-gray-500">No dispatches match the selected filter.</p>
+            <p className="font-poppins text-xl text-gray-500">No updates match the selected filter.</p>
           </div>
         )}
       </div>
@@ -201,10 +209,10 @@ export default function NewsArticles() {
               STAY INFORMED
             </span>
             <h2 className="font-anton text-3xl md:text-5xl lg:text-7xl uppercase leading-none mb-6">
-              SUBSCRIBE TO THE DISPATCH
+              SUBSCRIBE FOR UPDATES
             </h2>
             <p className="text-xl font-medium">
-              Get the latest intelligence on competition guidelines, rulebook updates, and earth science engineering trends delivered directly to your inbox.
+              Receive the latest updates on competition guidelines, rulebook updates, and trends in mining and earth science, delivered directly to your inbox.
             </p>
           </div>
           <div className="md:w-1/2 w-full flex flex-col items-end justify-center">

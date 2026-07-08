@@ -32,13 +32,13 @@ export async function generateMetadata({ params }) {
 
   if (!article) {
     return {
-      title: "Dispatch Not Found | YMCC VII",
-      description: "The requested dispatch or article could not be found.",
+      title: "Article Not Found | YMCC VII",
+      description: "The requested article could not be found.",
     };
   }
 
-  const articleTitle = `${article.title} | YMCC VII Dispatches`;
-  const articleDesc = article.desc || article.content?.substring(0, 160) || "Read the latest updates and dispatches from YMCC VII.";
+  const articleTitle = `${article.title} | YMCC VII Updates`;
+  const articleDesc = article.desc || article.content?.substring(0, 160) || "Read the latest updates from YMCC VII.";
 
   return {
     title: articleTitle,
@@ -93,7 +93,7 @@ export default async function NewsArticleDetail({ params }) {
   if (!article) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#fafafa]">
-        <h1 className="font-anton text-4xl md:text-6xl mb-4 text-center">404 - DISPATCH NOT FOUND</h1>
+        <h1 className="font-anton text-4xl md:text-6xl mb-4 text-center">404 - ARTICLE NOT FOUND</h1>
         <p className="font-poppins mb-8 text-gray-500">The article you are looking for has been archived or does not exist.</p>
         <Link href="/news">
           <button className="border-2 border-black px-8 py-3 bg-[#c1ff00] font-bold uppercase shadow-[4px_4px_0_0_#000] hover:translate-y-1 hover:shadow-none transition-all">
@@ -109,7 +109,7 @@ export default async function NewsArticleDetail({ params }) {
       <div className="max-w-4xl mx-auto px-6">
         
         <Link href="/news" className="inline-flex items-center gap-2 font-bold uppercase mb-12 hover:text-[#c1ff00] transition-colors border-2 border-black px-4 py-2 rounded-full shadow-[2px_2px_0_0_#000]">
-          ← BACK TO DISPATCHES
+          ← BACK TO UPDATES
         </Link>
 
         <div className="mb-8">
