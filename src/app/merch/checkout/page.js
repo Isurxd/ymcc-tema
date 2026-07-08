@@ -23,7 +23,7 @@ export default function CheckoutPage() {
   const [appliedPromo, setAppliedPromo] = useState(null);
   const [promoError, setPromoError] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
-  const PLATFORM_FEE = 5000;
+  const PLATFORM_FEE = 2000;
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -85,14 +85,12 @@ export default function CheckoutPage() {
       setIsFetchingRates(false);
     }
   };
-
   useEffect(() => {
     if (formData.postalCode.length >= 5 && deliveryMethod === "shipping") {
       setTimeout(() => { fetchRates(); }, 0);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.postalCode]);
-
   const handleApplyPromo = async () => {
     setPromoError("");
     setIsApplyingPromo(true);
@@ -273,8 +271,14 @@ export default function CheckoutPage() {
   const finalTotal = cartTotal - discountAmount + (deliveryMethod === "shipping" ? shippingCost : 0) + PLATFORM_FEE;
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pt-32 pb-24 px-6 md:px-12 font-sans">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <>
+      <Script 
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="Mid-client-EWKZ34tGlzjdynzr"
+        strategy="lazyOnload"
+      />
+      <div className="min-h-screen bg-[#fafafa] pt-32 pb-24 px-6 md:px-12 font-sans">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         
         {/* Left Col: Form */}
         <div>
@@ -535,6 +539,7 @@ export default function CheckoutPage() {
         strategy="afterInteractive"
       />
     </div>
+    </>
   );
 }
 

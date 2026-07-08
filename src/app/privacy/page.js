@@ -43,7 +43,7 @@ This Agreement applies to all Users, classified into the following specific lega
 
 #### 2.4 FOR BUYERS: LOGISTICS, BILLING METADATA, & TRANSACTIONAL RETENTION
 - **Third-Party API Processing**: Buyers consent to the transmission of necessary transaction metadata (full name, delivery address, phone number, and parcel specifications) to integrated API systems:
-  1. **Xendit API**: For PCI-DSS compliant payment processing (VA, QRIS, Credit Card).
+  1. **Midtrans API**: For PCI-DSS compliant payment processing (VA, QRIS, Credit Card).
   2. **Biteship / RajaOngkir API**: For dynamic shipping calculations and automated waybill generation. 
 - **Data Retention**: Transactional data is securely archived in the Organizer's database to facilitate order tracking, customer service, and historical financial reporting. 
 - **Platform Fee Consent**: Buyers agree that all transactional processing fees charged by third-party APIs are integrated into the "Platform Fee" paid by the Buyer at checkout.

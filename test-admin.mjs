@@ -1,31 +1,17 @@
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const serviceAccount = require('./firebase-admin-key.json');
 
-const app = initializeApp({
-  credential: cert(serviceAccount)
-});
-
-async function run() {
+async function test() {
   try {
-    const defaultDb = getFirestore();
-    console.log("Trying (default)...");
-    await defaultDb.collection("test").doc("ping").set({ time: Date.now() });
-    console.log("(default) Success!");
-  } catch(e) {
-    console.error("(default) Failed:", e.message);
-  }
-
-  try {
-    const namedDb = getFirestore(app, "ymcc-vii");
-    console.log("Trying ymcc-vii...");
-    await namedDb.collection("test").doc("ping").set({ time: Date.now() });
-    console.log("ymcc-vii Success!");
-  } catch(e) {
-    console.error("ymcc-vii Failed:", e.message);
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+    const app = initializeApp({
+      credential: cert(serviceAccount)
+    });
+    const db = getFirestore(app, "ymcc-vii");
+    const snap = await db.collection('Orders').limit(1).get();
+    console.log("Success! Found documents:", snap.docs.length);
+  } catch (err) {
+    console.error("Test failed:", err);
   }
 }
-
-run();
+test();

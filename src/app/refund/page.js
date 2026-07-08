@@ -27,7 +27,7 @@ All payments, fees, and transactions processed through the Platform are strictly
 
 ### 3. PRE-ORDER CANCELLATION, INVENTORY BOUNDARIES, AND TIMEOUTS
 To protect the cash-flow integrity of the YMCC VII Merch Shop, the system enforces automated operational timelines: 
-- **A. Automated Payment Window (24-Hour Timeout)**: Upon confirming a checkout session, the Platform secures and reserves the requested stock (such as Safety Jackets/Wearpacks and Vests) in the database for a maximum duration of twenty-four (24) hours. If full payment validation is not received and confirmed by the payment gateway (Xendit webhook) within this strict window: 
+- **A. Automated Payment Window (24-Hour Timeout)**: Upon confirming a checkout session, the Platform secures and reserves the requested stock (such as Safety Jackets/Wearpacks and Vests) in the database for a maximum duration of twenty-four (24) hours. If full payment validation is not received and confirmed by the payment gateway (Midtrans webhook) within this strict window: 
   - The transaction is automatically declared cancelled by the system. 
   - The reserved inventory is immediately returned to the public stock database (+1). 
   - The transaction cannot be reinstated, and the Buyer must initiate a new checkout session under active stock conditions. 
@@ -44,7 +44,7 @@ The production of high-performance field safety gear requires strict conformity 
   3. **Pristine State Requirement**: The defective item must remain completely unused, unwashed, and in its original packaging with all tags attached. If the item shows signs of wear, field usage, washing, or manual alteration, the exchange request is immediately nullified.
 
 ### 5. CHARGEBACK PREVENTION AND WAIVER OF CLASS ACTION
-- **A. Explicit Waiver of Dispute Rights**: The User agrees that by completing a transaction, they waive any right to file a dispute, chargeback, or transaction reversal with their issuing bank, credit card company, e-wallet operator, or payment gateway processor (Xendit). 
+- **A. Explicit Waiver of Dispute Rights**: The User agrees that by completing a transaction, they waive any right to file a dispute, chargeback, or transaction reversal with their issuing bank, credit card company, e-wallet operator, or payment gateway processor (Midtrans). 
 - **B. Liquidated Costs for Unauthorized Disputes**: In the event that the User violates this clause and initiates an unauthorized chargeback dispute, the User agrees to pay the Organizer all associated dispute resolution fees, administrative costs, and legal representation expenses incurred to defend the transaction, with a minimum liquidated fee of IDR 1,500,000 per disputed invoice.
 
 ### 6. EXCLUSION OF ARTICLE 1266 OF THE INDONESIAN CIVIL CODE

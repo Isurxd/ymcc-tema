@@ -36,7 +36,7 @@ To preserve strict competitive integrity, the online selection system (specifica
 All merchandise sales, including the Pre-Order (PO) of YMCC VII Safety Jackets/Wearpacks and Vests, are governed by the following transactional rules:
 1. **Sizing Chart Responsibility**: Sizing charts and measurements are provided explicitly on the Platform. The Buyer bears 100% of the responsibility to select the correct size. The Organizer will not accommodate any requests for returns, exchanges, or refunds due to sizing errors made by the Buyer.
 2. **Payment Validation & Inventory Lock**: Upon checkout, the system reserves the requested stock for a maximum of 24 hours. If full payment is not verified within this window, the transaction is automatically cancelled, the stock is released, and any partial deposit is forfeited.
-3. **Platform and Gateway Fees**: All transactions are processed via secure third-party APIs (Xendit for payment gateways and Biteship/RajaOngkir for shipping calculations). Users agree that any transactional processing fees or dynamic courier costs are automatically calculated and added to the "Platform Fee" paid by the Buyer at checkout. 
+3. **Platform and Gateway Fees**: All transactions are processed via secure third-party APIs (Midtrans for payment gateways and Biteship/RajaOngkir for shipping calculations). Users agree that any transactional processing fees or dynamic courier costs are automatically calculated and added to the "Platform Fee" paid by the Buyer at checkout. 
 
 ### SECTION 4: AUTOMATIC INTELLECTUAL PROPERTY TRANSFER (FOR COMMITTEE/PANITIA)
 To secure the digital and brand equity of YMCC VII against internal disputes, the following copyright clauses apply to all Committee members:

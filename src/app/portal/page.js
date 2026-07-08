@@ -693,8 +693,35 @@ export default function Portal() {
     );
   }
 
+  const handleResumePayment = (token, checkoutUrl) => {
+    if (window.snap && token) {
+      window.snap.pay(token, {
+        onSuccess: function () {
+          toast.success("Payment successful!");
+        },
+        onPending: function () {
+          toast.success("Please complete payment instructions.");
+        },
+        onError: function () {
+          toast.error("Payment failed!");
+        },
+        onClose: function () {
+          toast.error("Payment window closed.");
+        }
+      });
+    } else {
+      window.location.href = checkoutUrl;
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col">
+    <>
+      <Script 
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key="Mid-client-EWKZ34tGlzjdynzr"
+        strategy="lazyOnload"
+      />
+      <div className="min-h-screen bg-[#fafafa] flex flex-col">
       {/* CUSTOM PORTAL HEADER */}
       <nav className="bg-black text-white px-6 py-4 flex justify-between items-center border-b-4 border-[#c1ff00] sticky top-0 z-50 shadow-lg">
         <div className="flex items-center gap-4">
@@ -923,9 +950,9 @@ export default function Portal() {
                                 </p>
                             </div>
                             <div className="flex gap-2">
-                                {order.status === 'PENDING_PAYMENT' && (order.snapToken || order.snapRedirectUrl || order.checkoutUrl) && (
+                                {order.status === 'PENDING_PAYMENT' && (order.token || order.snapToken || order.checkoutUrl || order.snapRedirectUrl) && (
                                     <button 
-                                        onClick={() => handlePayNow(order.snapToken, order.snapRedirectUrl || order.checkoutUrl)} 
+                                        onClick={() => handleResumePayment(order.token || order.snapToken, order.checkoutUrl || order.snapRedirectUrl)} 
                                         className="bg-black text-[#c1ff00] text-sm font-bold px-4 py-2 rounded-xl uppercase hover:bg-gray-800 border-2 border-transparent cursor-pointer"
                                     >
                                         Pay Now
@@ -1160,5 +1187,6 @@ export default function Portal() {
         strategy="afterInteractive"
       />
     </div>
+    </>
   );
 }

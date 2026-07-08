@@ -1710,6 +1710,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
         </div>
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {/* Dashboard is visible to all */}
+          <button onClick={() => { setActiveTab("dashboard"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "dashboard" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+            <FaChartBar /> Dashboard
+          </button>
           {/* Operator CMS Tabs */}
           {(userRole === "Operator" || userRole === "Superadmin") && (
             <div className="mt-4">

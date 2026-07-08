@@ -15,13 +15,17 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read, write: if isStaff();
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if (request.auth != null && request.auth.uid == userId) || isStaff();
     }
 
     match /staff_applications/{emailId} {
-      allow read, write: if request.auth != null && request.auth.token.email == emailId;
-      allow read, write: if isStaff();
+      // Users can only read their own application
+      allow read: if request.auth != null && request.auth.token.email == emailId;
+      // FIX 1 (SANGAT KRITIS): Prevent "God-Mode" exploit.
+      // Users can only CREATE an application with status PENDING. They cannot UPDATE it to APPROVED.
+      allow create: if request.auth != null && request.auth.token.email == emailId && request.resource.data.status == "PENDING";
+      allow read, update, delete: if isStaff();
     }
 
     match /activities/{document=**} {
@@ -60,28 +64,34 @@ service cloud.firestore {
     }
 
     match /Orders/{orderId} {
+      // FIX 2 (KRITIS): Prevent Payment Bypass.
+      // Users can read their own orders, but CANNOT write/update their orders directly!
+      // All order creation and status updates MUST go through the secure backend (Xendit webhook).
       allow read: if isStaff() || (request.auth != null && resource.data.userDetails.email == request.auth.token.email);
-      allow write: if isStaff() || (request.auth != null && request.resource.data.userDetails.email == request.auth.token.email);
+      allow write: if isStaff();
     }
 
     match /Inventory_Locks/{document=**} {
       allow read: if true;
-      allow write: if request.auth != null || isStaff();
+      allow write: if isStaff();
     }
 
     match /subscribers/{document=**} {
       allow read: if isStaff();
-      allow write: if true;
+      allow create: if true;
+      allow update, delete: if isStaff();
     }
 
     match /newsFeedback/{document=**} {
       allow read: if isStaff();
-      allow write: if true;
+      allow create: if true;
+      allow update, delete: if isStaff();
     }
 
     match /activityClicks/{document=**} {
       allow read: if isStaff();
-      allow write: if true;
+      allow create, update: if true;
+      allow delete: if isStaff();
     }
 
     match /merch_banners/{document=**} {
@@ -94,7 +104,11 @@ service cloud.firestore {
     }
 
     match /support_tickets/{document=**} {
-      allow read, write: if isStaff() || request.auth != null;
+      // FIX 3: Prevent Data Tampering.
+      // Users can only read and create their own tickets. They cannot read or delete others.
+      allow read: if isStaff() || (request.auth != null && resource.data.email == request.auth.token.email);
+      allow create: if request.auth != null && request.resource.data.email == request.auth.token.email;
+      allow update, delete: if isStaff();
     }
 
     match /audit_logs/{document=**} {
@@ -108,7 +122,10 @@ service cloud.firestore {
 
     match /affiliate_applications/{document=**} {
       allow read: if isStaff();
-      allow write: if true;
+      // FIX 4: Prevent Data Destruction.
+      // Anyone can submit (create) an application, but they cannot update or delete existing applications!
+      allow create: if true;
+      allow update, delete: if isStaff();
     }
 
     // Default deny

@@ -50,16 +50,6 @@ export async function POST(req) {
     }
 
     // ── 2. Tentukan status order berdasarkan notifikasi Midtrans ─────────────
-    //
-    // Midtrans transaction_status:
-    //   capture   → kartu kredit berhasil (cek fraud_status)
-    //   settlement → transfer/VA/e-wallet sukses diselesaikan
-    //   pending   → menunggu pembayaran user
-    //   deny      → ditolak (kartu/fraud)
-    //   expire    → waktu pembayaran habis
-    //   cancel    → dibatalkan
-    //   refund    → dikembalikan
-    //
     let newStatus = null;
 
     if (transaction_status === "capture") {
