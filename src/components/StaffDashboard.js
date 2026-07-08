@@ -80,6 +80,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [loadingData, setLoadingData] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isBackingUp, setIsBackingUp] = useState(false);
 
   const [dateFilter, setDateFilter] = useState("all");
   const [editingId, setEditingId] = useState(null);
@@ -216,6 +217,38 @@ export default function StaffDashboard({ portalType = "operator" }) {
       });
     } catch (e) {
       console.error("Failed to write audit log:", e);
+    }
+  };
+
+  const handleBackup = async () => {
+    if (isBackingUp) return;
+    if (!window.confirm("Apakah Anda yakin ingin memicu pencadangan database manual? Seluruh koleksi penting akan diekspor sebagai CSV dan dikirimkan sebagai lampiran email ke alamat Superadmin.")) return;
+    
+    setIsBackingUp(true);
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("Pengguna tidak terautentikasi.");
+      const token = await currentUser.getIdToken();
+      
+      const res = await fetch("/api/backup", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+      
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(data.message);
+      } else {
+        throw new Error(data.error || "Gagal membuat cadangan database.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message);
+    } finally {
+      setIsBackingUp(false);
     }
   };
 
@@ -2702,11 +2735,19 @@ export default function StaffDashboard({ portalType = "operator" }) {
             </div>
           )}
 
-          {/* AUDIT LOGS TAB */}
           {!loadingData && activeTab === "audit_logs" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "suryatripatih2003@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
             <div className="max-w-6xl mx-auto space-y-6 animate-fade-in-up">
               <div className="bg-white p-8 rounded-3xl shadow-sm border-2 border-black">
-                <h3 className="font-anton text-2xl uppercase mb-6">System Audit Trail</h3>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-6 border-b-2 border-dashed border-gray-200 gap-4">
+                  <h3 className="font-anton text-2xl uppercase">System Audit Trail</h3>
+                  <button 
+                    onClick={handleBackup}
+                    disabled={isBackingUp}
+                    className="bg-[#c1ff00] text-black border-2 border-black px-6 py-3 rounded-xl font-anton uppercase text-sm hover:bg-black hover:text-[#c1ff00] transition-all shadow-[4px_4px_0_0_#000] hover:shadow-none active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {isBackingUp ? "MEMBUAT CADANGAN..." : "Backup Database ke Email"}
+                  </button>
+                </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead>
