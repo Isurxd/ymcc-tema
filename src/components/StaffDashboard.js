@@ -19,6 +19,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeMenuGroup, setActiveMenuGroup] = useState(null);
+  const confirmAction = useConfirm();
 
   // QR Scanner States
   const [scannedUser, setScannedUser] = useState(null);
@@ -36,7 +37,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   // Modern Promise-based confirmation modal
   const [confirmState, setConfirmState] = useState({ isOpen: false, message: "", resolve: null });
 
-  const confirmAction = (message) => {
+  const confirmActionModal = (message) => {
     return new Promise((resolve) => {
       setConfirmState({ isOpen: true, message, resolve });
     });
@@ -223,7 +224,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   const handleBackup = async () => {
     if (isBackingUp) return;
-    if (!window.confirm("Apakah Anda yakin ingin memicu pencadangan database manual? Seluruh koleksi penting akan diekspor sebagai CSV dan dikirimkan sebagai lampiran email ke alamat Superadmin.")) return;
+    if (!(await confirmAction("Apakah Anda yakin ingin memicu pencadangan database manual? Seluruh koleksi penting akan diekspor sebagai CSV dan dikirimkan sebagai lampiran email ke alamat Superadmin."))) return;
     
     setIsBackingUp(true);
     try {
@@ -326,7 +327,31 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   // Recruitment Settings & Status
   const [recruitmentSettings, setRecruitmentSettings] = useState("OPEN");
-  const [recruitmentStatusModal, setRecruitmentStatusModal] = useState({ isOpen: false, docId: null, newStatus: "", applicant: null, acceptedDivision: "" });
+  const [recruitmentStatusModal, setRecruitmentStatusModal] = useState({ isOpen: false, docId: null, newStatus: "", applicant: null, acceptedDivision: "", showCustomDivision: false });
+
+  const divisionsList = [
+    "Board of Directors - Secretary II",
+    "Competition Department - Intellectual Challenges",
+    "Competition Department - Mining Games",
+    "Competition Department - Mining Strategy & Innovation Competition",
+    "Competition Department - Paper Competition",
+    "Event Department - Minexplo",
+    "Event Department - Mining Camp",
+    "Event Department - Opening & Closing",
+    "Event Department - Seminar Nasional",
+    "Event Department - Society Project",
+    "Event Department - Studium General",
+    "Fundraising Department - Entrepreneurship",
+    "Fundraising Department - Sponsorship",
+    "Media Department - Branding & Public Relation",
+    "Media Department - Creative Production",
+    "Media Department - Secretariat",
+    "Operational Department - Consumption",
+    "Operational Department - General Affair",
+    "Operational Department - Liaison Officer",
+    "Operational Department - Logistic",
+    "Operational Department - Safety, Security, Health, and Care"
+  ];
 
   const router = useRouter();
 
@@ -511,7 +536,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   }, [dbSelectedActivity, dbSearchQuery, dbStatusFilter]);
 
   const updateRecruitmentSettings = async (status) => {
-    if (confirm(`Change recruitment status to ${status}?`)) {
+    if (await confirmAction(`Change recruitment status to ${status}?`)) {
       try {
         await setDoc(doc(db, "site_settings", "recruitment"), { status }, { merge: true });
         toast.success(`Recruitment is now ${status}`);
@@ -4656,52 +4681,50 @@ export default function StaffDashboard({ portalType = "operator" }) {
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-2xl w-full max-w-sm border-2 border-black shadow-[4px_4px_0_0_#000] text-center">
             <h3 className="font-anton text-2xl uppercase mb-2">Update Status</h3>
-            <p className="text-sm font-medium text-gray-600 mb-6">Ubah status <strong>{recruitmentStatusModal.applicant?.fullName}</strong> menjadi <strong className="text-black">{recruitmentStatusModal.newStatus}</strong>?</p>
+            <p className="text-sm font-medium text-gray-600 mb-6">Change status for <strong>{recruitmentStatusModal.applicant?.fullName}</strong> to <strong className="text-black">{recruitmentStatusModal.newStatus}</strong>?</p>
             
             {recruitmentStatusModal.newStatus === "ACCEPTED" && (
               <div className="mb-6 text-left">
-                <label className="block text-xs font-bold uppercase text-gray-700 mb-2">Diterima di Divisi:</label>
+                <label className="block text-xs font-bold uppercase text-gray-700 mb-2">Accepted into Division:</label>
                 <select 
-                  value={
-                    recruitmentStatusModal.acceptedDivision === recruitmentStatusModal.applicant?.division1 || recruitmentStatusModal.acceptedDivision === recruitmentStatusModal.applicant?.division2 || recruitmentStatusModal.acceptedDivision === "" 
-                    ? recruitmentStatusModal.acceptedDivision 
-                    : "KONDISIONAL"
-                  }
+                  value={recruitmentStatusModal.showCustomDivision ? "KONDISIONAL" : (recruitmentStatusModal.acceptedDivision === recruitmentStatusModal.applicant?.division1 ? recruitmentStatusModal.applicant?.division1 : recruitmentStatusModal.applicant?.division2)}
                   onChange={(e) => {
                     if (e.target.value === "KONDISIONAL") {
-                      setRecruitmentStatusModal({ ...recruitmentStatusModal, acceptedDivision: "Divisi Lainnya..." });
+                      setRecruitmentStatusModal({ ...recruitmentStatusModal, showCustomDivision: true, acceptedDivision: divisionsList[0] });
                     } else {
-                      setRecruitmentStatusModal({ ...recruitmentStatusModal, acceptedDivision: e.target.value });
+                      setRecruitmentStatusModal({ ...recruitmentStatusModal, showCustomDivision: false, acceptedDivision: e.target.value });
                     }
                   }}
                   className="w-full bg-gray-50 border-2 border-black rounded-lg px-3 py-2 text-sm font-semibold focus:ring-[#c1ff00] cursor-pointer mb-2"
                 >
-                  <option value={recruitmentStatusModal.applicant?.division1}>Pilihan 1: {recruitmentStatusModal.applicant?.division1}</option>
-                  <option value={recruitmentStatusModal.applicant?.division2}>Pilihan 2: {recruitmentStatusModal.applicant?.division2}</option>
-                  <option value="KONDISIONAL">Kondisional (Input Manual)</option>
+                  <option value={recruitmentStatusModal.applicant?.division1}>Option 1: {recruitmentStatusModal.applicant?.division1}</option>
+                  <option value={recruitmentStatusModal.applicant?.division2}>Option 2: {recruitmentStatusModal.applicant?.division2}</option>
+                  <option value="KONDISIONAL">Conditional (Other Division)</option>
                 </select>
                 
-                {recruitmentStatusModal.acceptedDivision !== recruitmentStatusModal.applicant?.division1 && recruitmentStatusModal.acceptedDivision !== recruitmentStatusModal.applicant?.division2 && (
-                  <input 
-                    type="text" 
-                    value={recruitmentStatusModal.acceptedDivision === "Divisi Lainnya..." ? "" : recruitmentStatusModal.acceptedDivision}
+                {recruitmentStatusModal.showCustomDivision && (
+                  <select 
+                    value={recruitmentStatusModal.acceptedDivision}
                     onChange={(e) => setRecruitmentStatusModal({ ...recruitmentStatusModal, acceptedDivision: e.target.value })}
-                    placeholder="Ketik nama divisi yang disepakati..."
                     className="w-full bg-gray-50 border-2 border-black rounded-lg px-3 py-2 text-sm focus:ring-[#c1ff00]"
-                  />
+                  >
+                    {divisionsList.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
                 )}
               </div>
             )}
             
             <div className="space-y-3">
               <button onClick={() => submitRecruitmentStatus(true)} className="w-full bg-[#c1ff00] text-black border-2 border-black px-4 py-3 rounded-xl font-bold uppercase shadow-[2px_2px_0_0_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
-                Ya & Kirim Email
+                Yes & Send Email
               </button>
               <button onClick={() => submitRecruitmentStatus(false)} className="w-full bg-white text-black border-2 border-black px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-100 transition-colors">
-                Ya (Tanpa Email)
+                Yes (Without Email)
               </button>
-              <button onClick={() => setRecruitmentStatusModal({ isOpen: false, docId: null, newStatus: "", applicant: null, acceptedDivision: "" })} className="w-full bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-300 transition-colors">
-                Batal
+              <button onClick={() => setRecruitmentStatusModal({ isOpen: false, docId: null, newStatus: "", applicant: null, acceptedDivision: "", showCustomDivision: false })} className="w-full bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-300 transition-colors">
+                Cancel
               </button>
             </div>
           </div>

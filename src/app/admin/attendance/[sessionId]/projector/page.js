@@ -23,7 +23,7 @@ export default function ProjectorPage(props) {
       if (snap.exists()) {
         const data = snap.data();
         if (data.method !== "SELF_SERVICE" || data.status !== "OPEN") {
-          alert("This session is not open for self-service attendance.");
+          toast.error("This session is not open for self-service attendance.");
           router.push("/admin");
         } else {
           setSessionData(data);

@@ -8,10 +8,12 @@ import { onAuthStateChanged } from "firebase/auth";
 import { toast } from "sonner";
 import { FaArrowLeft, FaFileCsv, FaTrash, FaCheck, FaSearch } from "react-icons/fa";
 import Link from "next/link";
+import { useConfirm } from "@/context/ConfirmContext";
 
 export default function SessionDetailPage(props) {
   const params = use(props.params);
   const router = useRouter();
+  const confirmAction = useConfirm();
   const [sessionData, setSessionData] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +126,7 @@ export default function SessionDetailPage(props) {
   };
 
   const handleDeleteLog = async (logId) => {
-    if(!window.confirm("Delete this attendance log?")) return;
+    if(!(await confirmAction("Delete this attendance log?"))) return;
     try {
       await deleteDoc(doc(db, "attendance_logs", logId));
       toast.success("Log deleted");

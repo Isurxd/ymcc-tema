@@ -60,46 +60,53 @@ export async function POST(req) {
         },
       });
 
+      let emailSubject = "YMCC VII - Recruitment Status Update";
       let emailHtml = "";
-      let subject = "";
 
-      if (newStatus === "INTERVIEW") {
-        subject = "Pengumuman: Lolos Tahap Wawancara - YMCC VII";
+      if (newStatus === "PENDING_REVIEW") {
+        emailSubject = "YMCC VII - Application Received";
         emailHtml = `
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: #111; margin: 0; font-size: 24px;">TAHAP WAWANCARA</h2>
-            <p style="color: #666; font-size: 14px;">YMCC VII 2027 | The Green Compass</p>
+          <div style="font-family: Arial, sans-serif; color: #111; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+          <h2 style="color: #000; border-bottom: 2px solid #c1ff00; padding-bottom: 10px;">Application Received</h2>
+          <p>Hello <strong>${fullName}</strong>,</p>
+          <p>Thank you for submitting your application for the YMCC VII 2027 Committee Batch 2.</p>
+          <p>We have successfully received your application. It is currently under review by our team.</p>
+          <p>Please join the prospective committee WhatsApp group for further updates:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="https://chat.whatsapp.com/H4txE9KTit33amyJFsryks" style="background-color: #25D366; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">Join WhatsApp Group</a>
           </div>
-          
-          <p>Halo <strong>${fullName}</strong>,</p>
-          <p>Selamat! Kami sampaikan bahwa Anda <strong>LOLOS</strong> ke tahap Wawancara pada seleksi Calon Panitia Batch 2 YMCC VII 2027.</p>
-          <p>Jadwal dan mekanisme wawancara akan diinformasikan lebih lanjut melalui Grup WhatsApp Calon Panitia. Pastikan Anda terus memantau informasi di grup tersebut.</p>
-          <p>Persiapkan diri Anda sebaik mungkin. Kami tunggu performa terbaik Anda!</p>
-          <br/>
-          <p style="font-size: 12px; color: #888;">Salam hormat,<br/>Panitia YMCC VII 2027</p>
+          <p>Best regards,<br/><strong>YMCC VII 2027 Committee</strong></p>
+          </div>
         `;
-      } 
-      else if (newStatus === "ACCEPTED" || newStatus === "REJECTED") {
-        subject = "Pengumuman Hasil Akhir Seleksi Panitia - YMCC VII";
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://trial-ymccvii.netlify.app";
+      } else if (newStatus === "INTERVIEW") {
+        emailSubject = "YMCC VII - Invitation to Interview";
         emailHtml = `
-          <div style="text-align: center; margin-bottom: 20px;">
-            <h2 style="color: #111; margin: 0; font-size: 24px;">PENGUMUMAN HASIL AKHIR</h2>
-            <p style="color: #666; font-size: 14px;">YMCC VII 2027 | The Green Compass</p>
+          <div style="font-family: Arial, sans-serif; color: #111; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+          <h2 style="color: #000; border-bottom: 2px solid #c1ff00; padding-bottom: 10px;">Congratulations! You've Passed to the Interview Stage</h2>
+          <p>Hello <strong>${fullName}</strong>,</p>
+          <p>We are pleased to inform you that you have advanced to the Interview Stage for the YMCC VII 2027 Committee Batch 2.</p>
+          <p>Please check the recruitment portal for your status update and await further information regarding the interview schedule in the WhatsApp group.</p>
+          <p>Best regards,<br/><strong>YMCC VII 2027 Committee</strong></p>
           </div>
+        `;
+      } else {
+        emailSubject = "YMCC VII - Final Recruitment Result Announcement";
+        emailHtml = `
+          <div style="font-family: Arial, sans-serif; color: #111; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
           
-          <p>Halo <strong>${fullName}</strong>,</p>
-          <p>Pengumuman Hasil Akhir seleksi Calon Panitia Batch 2 YMCC VII 2027 telah resmi dirilis.</p>
-          ${newStatus === "ACCEPTED" && acceptedDivision ? `<p>Selamat! Anda ditempatkan pada divisi <strong>${acceptedDivision}</strong>.</p>` : ''}
-          <p>Silakan periksa hasil kelulusan Anda secara mandiri melalui portal resmi kami:</p>
+          <h2 style="color: #000; border-bottom: 2px solid #c1ff00; padding-bottom: 10px;">Final Selection Announcement</h2>
+          
+          <p>Hello <strong>${fullName}</strong>,</p>
+          <p>The final result for the YMCC VII 2027 Committee Batch 2 recruitment has been officially released.</p>
+          ${newStatus === "ACCEPTED" && acceptedDivision ? `<p>Congratulations! You have been accepted into the <strong>${acceptedDivision}</strong> division.</p>` : ''}
+          <p>Please check your final result independently through our official portal:</p>
           
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${siteUrl}/recruitment/status" style="background-color: #111; color: #c1ff00; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">CEK KELULUSAN SAYA</a>
+            <a href="https://ymccvii.com/recruitment/status" style="background-color: #000; color: #c1ff00; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">Check Result Portal</a>
           </div>
           
-          <p>Terima kasih atas partisipasi dan antusiasme Anda. Apapun hasilnya, tetap semangat dan terus berkarya!</p>
-          <br/>
-          <p style="font-size: 12px; color: #888;">Salam hormat,<br/>Panitia YMCC VII 2027</p>
+          <p>Best regards,<br/><strong>YMCC VII 2027 Committee</strong></p>
+          </div>
         `;
       }
 
