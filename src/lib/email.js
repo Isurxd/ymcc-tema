@@ -57,6 +57,8 @@ export const generateEmailTemplate = (subject, emailContent) => `
     </html>
   `;
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://ymccvii.com";
+
 export const sendOrderCreatedEmail = async (toEmail, orderData) => {
   const subject = `Action Required: Pay Your YMCC Order [${orderData.id}]`;
   const emailContent = `
@@ -72,7 +74,7 @@ export const sendOrderCreatedEmail = async (toEmail, orderData) => {
     <p>Please complete your payment so we can process your gear. You can resume your payment or track your order status anytime by clicking the link below:</p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="http://localhost:3000/order-status?id=${orderData.id}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
+      <a href="${SITE_URL}/order-status?id=${orderData.id}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
         PAY / VIEW MY ORDER
       </a>
     </div>
@@ -112,7 +114,7 @@ export const sendPaymentReceivedEmail = async (toEmail, orderData) => {
     <p>Your order is now being processed by our team. You can track your shipment and order status anytime by clicking the link below:</p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="http://localhost:3000/order-status?id=${orderData.id}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
+      <a href="${SITE_URL}/order-status?id=${orderData.id}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
         TRACK MY ORDER
       </a>
     </div>

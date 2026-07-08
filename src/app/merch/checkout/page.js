@@ -151,12 +151,8 @@ export default function CheckoutPage() {
     } else if (name === "village") {
       setFormData({ ...formData, village: value });
     } else if (name === "courier") {
-      // Find the selected rate to set the cost
-      const selectedRate = availableRates.find(r => `${r.courier} - ${r.service}` === value);
-      if (selectedRate) {
-        setShippingCost(selectedRate.price);
-        setFormData({ ...formData, courier: value });
-      }
+      // Courier is managed via province-based local calculator, no external rates
+      setFormData({ ...formData, courier: value });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -268,11 +264,6 @@ export default function CheckoutPage() {
 
   return (
     <>
-      <Script 
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key="Mid-client-EWKZ34tGlzjdynzr"
-        strategy="lazyOnload"
-      />
       <div className="min-h-screen bg-[#fafafa] pt-32 pb-24 px-6 md:px-12 font-sans">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
         

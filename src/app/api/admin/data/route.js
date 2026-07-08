@@ -6,7 +6,6 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
     
-    console.log("SA KEY EXISTS:", !!process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
     const email = searchParams.get("email");
 
     if (type === "affiliate_data") {
