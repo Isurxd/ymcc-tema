@@ -1,5 +1,4 @@
-import { getFirestore } from "firebase-admin/firestore";
-import { app } from "@/lib/firebaseAdmin";
+import { db } from "@/lib/firebaseAdmin";
 import MerchClient from "@/components/merch/MerchClient";
 
 // 1. Generate Metadata dynamically based on searchParams
@@ -19,7 +18,6 @@ export async function generateMetadata({ searchParams }) {
   }
 
   try {
-    const db = getFirestore(app, "ymcc-vii");
     const docRef = db.collection("merchandise").doc(id);
     const docSnap = await docRef.get();
 
