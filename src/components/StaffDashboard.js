@@ -1371,12 +1371,14 @@ export default function StaffDashboard({ portalType = "operator" }) {
       }
       
       const slug = generateSlug(newsForm.title);
+      const generatedDesc = (newsForm.content || "").replace(/[#_*\[\]`>]/g, '').replace(/\n/g, ' ').substring(0, 150).trim() + "...";
       // Ensure no undefined values are passed to Firestore
       const payload = { 
         ...newsForm, 
         imageUrl: imageUrl || "", 
         slug: slug || "",
-        content: newsForm.content || ""
+        content: newsForm.content || "",
+        desc: newsForm.desc || generatedDesc
       };
       
       if (editingId) {
@@ -1393,7 +1395,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
             const htmlMessage = `<p>A new article has been published on YMCC VII!</p><h2 style="text-transform: uppercase;">${payload.title}</h2><p>${payload.content.substring(0, 150)}...</p><br><br><a href="${newsLink}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase;">READ MORE</a>`;
             try {
               const token = await auth.currentUser.getIdToken();
-              fetch("/api/send-email", {
+              console.log("Sending email to subscribers:", targetEmails.length);
+              await fetch("/api/send-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify({
@@ -1402,6 +1405,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   html: htmlMessage
                 })
               });
+              console.log("Email sent to subscribers successfully.");
             } catch (e) { console.error("Failed to notify subscribers", e); }
           }
         }
