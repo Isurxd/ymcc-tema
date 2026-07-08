@@ -29,7 +29,8 @@ export async function POST(req) {
       result: {
         fullName: data.fullName,
         nim: data.nim,
-        status: data.status || "PENDING_REVIEW"
+        status: data.status || "PENDING_REVIEW",
+        acceptedDivision: data.acceptedDivision || ""
       }
     });
 

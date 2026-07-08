@@ -326,7 +326,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   // Recruitment Settings & Status
   const [recruitmentSettings, setRecruitmentSettings] = useState("OPEN");
-  const [recruitmentStatusModal, setRecruitmentStatusModal] = useState({ isOpen: false, docId: null, newStatus: "", applicant: null });
+  const [recruitmentStatusModal, setRecruitmentStatusModal] = useState({ isOpen: false, docId: null, newStatus: "", applicant: null, acceptedDivision: "" });
 
   const router = useRouter();
 
@@ -522,7 +522,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const submitRecruitmentStatus = async (sendEmail) => {
-    const { docId, newStatus, applicant } = recruitmentStatusModal;
+    const { docId, newStatus, applicant, acceptedDivision } = recruitmentStatusModal;
     setRecruitmentStatusModal({ ...recruitmentStatusModal, isOpen: false });
     const toastId = toast.loading("Updating status...");
     
@@ -539,7 +539,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
           newStatus,
           email: applicant.email,
           fullName: applicant.fullName,
-          sendEmail
+          sendEmail,
+          acceptedDivision: newStatus === "ACCEPTED" ? acceptedDivision : ""
         })
       });
       
@@ -4592,7 +4593,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                           <td className="p-4">
                             <select 
                               value={req.status || "PENDING_REVIEW"}
-                              onChange={(e) => setRecruitmentStatusModal({ isOpen: true, docId: req.id, newStatus: e.target.value, applicant: req })}
+                              onChange={(e) => setRecruitmentStatusModal({ isOpen: true, docId: req.id, newStatus: e.target.value, applicant: req, acceptedDivision: e.target.value === "ACCEPTED" ? req.division1 : "" })}
                               className="px-2 py-1 text-xs font-bold uppercase rounded border border-gray-300 bg-white cursor-pointer outline-none focus:border-black"
                             >
                               <option value="PENDING_REVIEW">PENDING REVIEW</option>
@@ -4657,14 +4658,49 @@ export default function StaffDashboard({ portalType = "operator" }) {
             <h3 className="font-anton text-2xl uppercase mb-2">Update Status</h3>
             <p className="text-sm font-medium text-gray-600 mb-6">Ubah status <strong>{recruitmentStatusModal.applicant?.fullName}</strong> menjadi <strong className="text-black">{recruitmentStatusModal.newStatus}</strong>?</p>
             
+            {recruitmentStatusModal.newStatus === "ACCEPTED" && (
+              <div className="mb-6 text-left">
+                <label className="block text-xs font-bold uppercase text-gray-700 mb-2">Diterima di Divisi:</label>
+                <select 
+                  value={
+                    recruitmentStatusModal.acceptedDivision === recruitmentStatusModal.applicant?.division1 || recruitmentStatusModal.acceptedDivision === recruitmentStatusModal.applicant?.division2 || recruitmentStatusModal.acceptedDivision === "" 
+                    ? recruitmentStatusModal.acceptedDivision 
+                    : "KONDISIONAL"
+                  }
+                  onChange={(e) => {
+                    if (e.target.value === "KONDISIONAL") {
+                      setRecruitmentStatusModal({ ...recruitmentStatusModal, acceptedDivision: "Divisi Lainnya..." });
+                    } else {
+                      setRecruitmentStatusModal({ ...recruitmentStatusModal, acceptedDivision: e.target.value });
+                    }
+                  }}
+                  className="w-full bg-gray-50 border-2 border-black rounded-lg px-3 py-2 text-sm font-semibold focus:ring-[#c1ff00] cursor-pointer mb-2"
+                >
+                  <option value={recruitmentStatusModal.applicant?.division1}>Pilihan 1: {recruitmentStatusModal.applicant?.division1}</option>
+                  <option value={recruitmentStatusModal.applicant?.division2}>Pilihan 2: {recruitmentStatusModal.applicant?.division2}</option>
+                  <option value="KONDISIONAL">Kondisional (Input Manual)</option>
+                </select>
+                
+                {recruitmentStatusModal.acceptedDivision !== recruitmentStatusModal.applicant?.division1 && recruitmentStatusModal.acceptedDivision !== recruitmentStatusModal.applicant?.division2 && (
+                  <input 
+                    type="text" 
+                    value={recruitmentStatusModal.acceptedDivision === "Divisi Lainnya..." ? "" : recruitmentStatusModal.acceptedDivision}
+                    onChange={(e) => setRecruitmentStatusModal({ ...recruitmentStatusModal, acceptedDivision: e.target.value })}
+                    placeholder="Ketik nama divisi yang disepakati..."
+                    className="w-full bg-gray-50 border-2 border-black rounded-lg px-3 py-2 text-sm focus:ring-[#c1ff00]"
+                  />
+                )}
+              </div>
+            )}
+            
             <div className="space-y-3">
               <button onClick={() => submitRecruitmentStatus(true)} className="w-full bg-[#c1ff00] text-black border-2 border-black px-4 py-3 rounded-xl font-bold uppercase shadow-[2px_2px_0_0_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
-                Ya & Kirim Email Notifikasi
+                Ya & Kirim Email
               </button>
               <button onClick={() => submitRecruitmentStatus(false)} className="w-full bg-white text-black border-2 border-black px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-100 transition-colors">
                 Ya (Tanpa Email)
               </button>
-              <button onClick={() => setRecruitmentStatusModal({ isOpen: false, docId: null, newStatus: "", applicant: null })} className="w-full bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-300 transition-colors">
+              <button onClick={() => setRecruitmentStatusModal({ isOpen: false, docId: null, newStatus: "", applicant: null, acceptedDivision: "" })} className="w-full bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-300 transition-colors">
                 Batal
               </button>
             </div>

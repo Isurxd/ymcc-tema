@@ -45,27 +45,34 @@ export default function RecruitmentStatus() {
   if (result) {
     if (result.status === "ACCEPTED") {
       return (
-        <div className="min-h-screen bg-[#0066cc] text-white flex flex-col items-center justify-center p-6 animate-fade-in-up">
-          <div className="max-w-2xl w-full bg-white text-black p-8 md:p-12 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-center relative overflow-hidden">
+        <div className="min-h-screen bg-[#fafafa] text-black flex flex-col items-center justify-center p-6 animate-fade-in-up">
+          <div className="max-w-2xl w-full bg-white p-8 md:p-12 rounded-3xl border-2 border-black shadow-[4px_4px_0_0_#000] text-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-4 bg-[#c1ff00]"></div>
-            <FaCheckCircle className="text-7xl text-[#0066cc] mx-auto mb-6" />
+            <FaCheckCircle className="text-7xl text-[#c1ff00] drop-shadow-sm mx-auto mb-6" />
             <p className="font-poppins text-sm md:text-base font-bold text-gray-500 mb-2">PENGUMUMAN SELEKSI PANITIA BATCH 2</p>
-            <h1 className="font-anton text-4xl md:text-5xl uppercase tracking-wide text-[#0066cc] mb-6">SELAMAT! ANDA DINYATAKAN LULUS</h1>
+            <h1 className="font-anton text-4xl md:text-5xl uppercase tracking-wide text-[#111] mb-6">SELAMAT! ANDA DINYATAKAN LULUS</h1>
             
-            <div className="bg-gray-100 p-6 rounded-xl border border-gray-300 text-left mb-8">
+            <div className="bg-gray-50 p-6 rounded-xl border-2 border-black text-left mb-8">
               <p className="font-poppins text-xs font-bold text-gray-500 uppercase">Nama Lengkap</p>
               <p className="font-bold text-xl mb-4">{result.fullName}</p>
               <p className="font-poppins text-xs font-bold text-gray-500 uppercase">Nomor Induk Mahasiswa (NIM)</p>
-              <p className="font-bold text-xl">{result.nim}</p>
+              <p className="font-bold text-xl mb-4">{result.nim}</p>
+              
+              {result.acceptedDivision && (
+                <>
+                  <p className="font-poppins text-xs font-bold text-gray-500 uppercase">Diterima di Divisi</p>
+                  <p className="font-bold text-xl text-[#85b300] bg-[#eeffcc] inline-block px-3 py-1 border border-[#c1ff00] rounded mt-1">{result.acceptedDivision}</p>
+                </>
+              )}
             </div>
 
             <p className="font-poppins text-sm md:text-base mb-6 font-medium">Selamat bergabung sebagai bagian dari The Green Compass YMCC VII 2027! Silakan bergabung ke grup WhatsApp resmi melalui tautan di bawah ini.</p>
             
-            <a href="https://chat.whatsapp.com/H4txE9KTit33amyJFsryks" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white px-8 py-4 rounded-xl font-bold uppercase hover:bg-[#128C7E] transition-colors shadow-lg w-full md:w-auto">
+            <a href="https://chat.whatsapp.com/H4txE9KTit33amyJFsryks" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-[#25D366] text-white border-2 border-black px-8 py-4 rounded-xl font-bold uppercase hover:bg-[#128C7E] transition-all shadow-[2px_2px_0_0_#000] w-full md:w-auto">
               <FaWhatsapp className="text-2xl" /> Gabung Grup WhatsApp Resmi
             </a>
           </div>
-          <button onClick={handleBack} className="mt-8 text-white/80 hover:text-white font-bold flex items-center gap-2">
+          <button onClick={handleBack} className="mt-8 text-black/60 hover:text-black font-bold flex items-center gap-2">
             <FaChevronLeft /> Kembali ke Pencarian
           </button>
         </div>

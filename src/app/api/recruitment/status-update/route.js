@@ -29,18 +29,24 @@ export async function POST(req) {
       }
     }
 
-    const { docId, newStatus, email, fullName, sendEmail } = await req.json();
+    const { docId, newStatus, email, fullName, sendEmail, acceptedDivision } = await req.json();
 
     if (!docId || !newStatus) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     // Update Firestore
-    await db.collection("recruitment_submissions").doc(docId).update({
+    const updateData = {
       status: newStatus,
       updatedAt: new Date(),
       updatedBy: adminEmail
-    });
+    };
+
+    if (newStatus === "ACCEPTED" && acceptedDivision) {
+      updateData.acceptedDivision = acceptedDivision;
+    }
+
+    await db.collection("recruitment_submissions").doc(docId).update(updateData);
 
     // Handle Optional Email Notification
     if (sendEmail && email && fullName) {
@@ -84,6 +90,7 @@ export async function POST(req) {
           
           <p>Halo <strong>${fullName}</strong>,</p>
           <p>Pengumuman Hasil Akhir seleksi Calon Panitia Batch 2 YMCC VII 2027 telah resmi dirilis.</p>
+          ${newStatus === "ACCEPTED" && acceptedDivision ? `<p>Selamat! Anda ditempatkan pada divisi <strong>${acceptedDivision}</strong>.</p>` : ''}
           <p>Silakan periksa hasil kelulusan Anda secara mandiri melalui portal resmi kami:</p>
           
           <div style="text-align: center; margin: 30px 0;">
