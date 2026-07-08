@@ -153,9 +153,14 @@ export default function StaffRegister() {
       });
 
       try {
+        const idToken = await auth.currentUser?.getIdToken();
+        const headers = { 'Content-Type': 'application/json' };
+        if (idToken) {
+          headers['Authorization'] = `Bearer ${idToken}`;
+        }
         await fetch('/api/send-email', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: headers,
           body: JSON.stringify({
             to: email,
             subject: 'Pendaftaran Staf YMCC VII Diterima',

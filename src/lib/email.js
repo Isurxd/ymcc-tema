@@ -81,12 +81,21 @@ export const sendOrderCreatedEmail = async (toEmail, orderData) => {
   `;
 
   const htmlContent = generateEmailTemplate(subject, emailContent);
+  const textContent = `Halo ${orderData.customerName},\n\nTerima kasih telah melakukan pemesanan di YMCC VII. Pesanan Anda telah tercatat dengan ID: ${orderData.id}.\n\nTotal Pembayaran: Rp ${orderData.totalAmount.toLocaleString('id-ID')}\nStatus: ${orderData.status}\n\nSilakan selesaikan pembayaran Anda melalui tautan berikut:\n${SITE_URL}/order-status?id=${orderData.id}\n\nSalam hangat,\nTim YMCC VII`;
 
   const mailOptions = {
     from: `"YMCC VII Store" <${process.env.EMAIL_USER}>`,
     to: toEmail,
+    replyTo: process.env.EMAIL_USER,
     subject: subject,
     html: htmlContent,
+    text: textContent,
+    headers: {
+      "X-Priority": "3",
+      "X-MSMail-Priority": "Normal",
+      "X-Mailer": "Nodemailer (YMCC-VII)",
+      "Importance": "Normal"
+    }
   };
 
   try {
@@ -121,12 +130,21 @@ export const sendPaymentReceivedEmail = async (toEmail, orderData) => {
   `;
 
   const htmlContent = generateEmailTemplate(subject, emailContent);
+  const textContent = `Halo ${orderData.customerName},\n\nPembayaran Anda untuk order ID: ${orderData.id} telah kami terima dengan sukses.\n\nTotal Terbayar: Rp ${orderData.totalAmount.toLocaleString('id-ID')}\nStatus: PAID\n\nPesanan Anda sedang diproses oleh tim kami. Anda dapat melacak status pesanan Anda melalui tautan berikut:\n${SITE_URL}/order-status?id=${orderData.id}\n\nSalam hangat,\nTim YMCC VII`;
 
   const mailOptions = {
     from: `"YMCC VII Store" <${process.env.EMAIL_USER}>`,
     to: toEmail,
+    replyTo: process.env.EMAIL_USER,
     subject: subject,
     html: htmlContent,
+    text: textContent,
+    headers: {
+      "X-Priority": "3",
+      "X-MSMail-Priority": "Normal",
+      "X-Mailer": "Nodemailer (YMCC-VII)",
+      "Importance": "Normal"
+    }
   };
 
   try {

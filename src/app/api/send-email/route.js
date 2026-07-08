@@ -9,30 +9,34 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const token = authHeader.split("Bearer ")[1];
-    if (auth) {
-      try {
-        const decoded = await auth.verifyIdToken(token);
-        const email = decoded.email;
-        const masterAdmins = ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"];
-        
-        if (!masterAdmins.includes(email)) {
-          // Check if they are approved staff
-          const { getFirestore } = require("firebase-admin/firestore");
-          const db = getFirestore();
-          const staffDoc = await db.collection("staff_applications").doc(email).get();
-          if (!staffDoc.exists || staffDoc.data().status !== "APPROVED") {
-            return NextResponse.json({ error: "Forbidden: Not an admin/staff" }, { status: 403 });
-          }
-        }
-      } catch (e) {
-        return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
-      }
-    }
 
     const { to, bcc, subject, html, text } = await req.json();
 
     if ((!to && !bcc) || !subject || (!text && !html)) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    if (auth) {
+      try {
+        const decoded = await auth.verifyIdToken(token);
+        const email = decoded.email ? decoded.email.toLowerCase().trim() : "";
+        const masterAdmins = ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"];
+        
+        if (!masterAdmins.includes(email)) {
+          const cleanTo = (to || "").toLowerCase().trim();
+          if (cleanTo !== email) {
+            // Check if they are approved staff
+            const { getFirestore } = require("firebase-admin/firestore");
+            const db = getFirestore();
+            const staffDoc = await db.collection("staff_applications").doc(email).get();
+            if (!staffDoc.exists || staffDoc.data().status !== "APPROVED") {
+              return NextResponse.json({ error: "Forbidden: Not an admin/staff" }, { status: 403 });
+            }
+          }
+        }
+      } catch (e) {
+        return NextResponse.json({ error: "Invalid or expired token" }, { status: 401 });
+      }
     }
 
     const transporter = nodemailer.createTransport({

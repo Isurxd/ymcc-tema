@@ -1732,19 +1732,36 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const exportParticipantsToExcel = () => {
-    const headers = ["ID,Full Name,Email,Phone,Institution,Registration Status,Role,Attendance,Created At"];
-    const csvData = participants.filter(p => p.role === "participant").map(p => {
+    const headers = ["ID", "Full Name", "Email", "Phone", "Institution", "Registration Status", "Role", "Attendance", "Created At"];
+    const aoaData = [headers];
+
+    participants.filter(p => p.role === "participant").forEach(p => {
       let tVal = p.createdAt || p.timestamp || p.created_at;
       if (tVal && tVal.seconds) tVal = tVal.seconds * 1000;
       const date = tVal ? new Date(tVal).toLocaleString() : "";
-      return `"${p.id}","${p.fullName}","${p.email}","${p.phone || ""}","${p.institution || ""}","${p.registrationStatus || "UNVERIFIED"}","${p.role}","${p.attendance ? "Present" : "Absent"}","${date}"`;
+      aoaData.push([
+        p.id || "",
+        p.fullName || "",
+        p.email || "",
+        p.phone || "",
+        p.institution || "",
+        p.registrationStatus || "UNVERIFIED",
+        p.role || "",
+        p.attendance ? "Present" : "Absent",
+        date
+      ]);
     });
-    
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Participants");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = "ymcc_participants.csv";
+    a.download = `ymcc_participants_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
@@ -1868,71 +1885,136 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const exportAffiliatesToExcel = () => {
-    const headers = ["ID,Full Name,Email,Institution,Bank Name,Account Number,Account Name,Status,Created At"];
-    const csvData = affiliateApps.map(p => {
+    const headers = ["ID", "Full Name", "Email", "Institution", "Bank Name", "Account Number", "Account Name", "Status", "Created At"];
+    const aoaData = [headers];
+
+    affiliateApps.forEach(p => {
       let tVal = p.createdAt;
       if (tVal && tVal.seconds) tVal = tVal.seconds * 1000;
       const date = tVal ? new Date(tVal).toLocaleString() : "";
-      return `"${p.id}","${p.fullName}","${p.email}","${p.institution || ""}","${p.bankName || ""}","${p.accountNumber || ""}","${p.accountName || ""}","${p.status}","${date}"`;
+      aoaData.push([
+        p.id || "",
+        p.fullName || "",
+        p.email || "",
+        p.institution || "",
+        p.bankName || "",
+        String(p.accountNumber || ""),
+        p.accountName || "",
+        p.status || "",
+        date
+      ]);
     });
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Affiliates");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = "ymcc_affiliates.csv";
+    a.download = `ymcc_affiliates_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
   const exportPayoutsToExcel = () => {
-    const headers = ["ID,Email,Amount,Status,Created At"];
-    const csvData = payoutRequests.map(p => {
+    const headers = ["ID", "Email", "Amount", "Status", "Created At"];
+    const aoaData = [headers];
+
+    payoutRequests.forEach(p => {
       let tVal = p.createdAt;
       if (tVal && tVal.seconds) tVal = tVal.seconds * 1000;
       const date = tVal ? new Date(tVal).toLocaleString() : "";
-      return `"${p.id}","${p.email}","${p.amount}","${p.status}","${date}"`;
+      aoaData.push([
+        p.id || "",
+        p.email || "",
+        Number(p.amount) || 0,
+        p.status || "",
+        date
+      ]);
     });
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Payouts");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = "ymcc_payouts.csv";
+    a.download = `ymcc_payouts_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
   const exportMerchOrdersToExcel = () => {
-    const headers = ["Order ID,User Email,Total,Payment Status,Order Status,Resi,Created At"];
-    const csvData = merchOrders.map(m => {
+    const headers = ["Order ID", "User Email", "Total", "Payment Status", "Order Status", "Resi", "Created At"];
+    const aoaData = [headers];
+
+    merchOrders.forEach(m => {
       let tVal = m.createdAt || m.created_at;
       if (tVal && tVal.seconds) tVal = tVal.seconds * 1000;
       const date = tVal ? new Date(tVal).toLocaleString() : "";
-      return `"${m.id}","${m.userEmail}","${m.total}","${m.paymentStatus}","${m.status}","${m.shippingTracking || ""}","${date}"`;
+      aoaData.push([
+        m.id || "",
+        m.userEmail || "",
+        Number(m.total) || 0,
+        m.paymentStatus || "",
+        m.status || "",
+        m.shippingTracking || "",
+        date
+      ]);
     });
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Merch Orders");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = "ymcc_merch_orders.csv";
+    a.download = `ymcc_merch_orders_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
   const exportSubmissionsToExcel = () => {
-    const headers = ["ID,Full Name,Email,Student ID,Submitted At,Score,Status"];
-    const csvData = submissions.map(s => {
+    const headers = ["ID", "Full Name", "Email", "Student ID", "Submitted At", "Score", "Status"];
+    const aoaData = [headers];
+
+    submissions.forEach(s => {
       const date = s.submittedAt ? new Date(s.submittedAt).toLocaleString() : "";
-      return `"${s.id}","${s.fullName}","${s.email}","${s.studentId || ""}","${date}","${s.score || ""}","${s.status || ""}"`;
+      aoaData.push([
+        s.id || "",
+        s.fullName || "",
+        s.email || "",
+        s.studentId || "",
+        date,
+        s.score || "",
+        s.status || ""
+      ]);
     });
-    
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Submissions");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `submissions_export_${new Date().getTime()}.csv`;
+    a.download = `submissions_export_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
   const exportOrdersToExcel = () => {
-    const headers = ["Order ID,Customer Name,Customer Email,Customer WhatsApp,Referral Code,Items,Delivery Method,Waybill (Resi),Total Amount,Payment Status,Order Status,Created At"];
-    const csvData = orders.map(o => {
+    const headers = ["Order ID", "Customer Name", "Customer Email", "Customer WhatsApp", "Referral Code", "Items", "Delivery Method", "Waybill (Resi)", "Total Amount", "Payment Status", "Order Status", "Created At"];
+    const aoaData = [headers];
+
+    orders.forEach(o => {
       let tVal = o.createdAt || o.timestamp || o.created_at;
       if (tVal && tVal.seconds) tVal = tVal.seconds * 1000;
       const date = tVal ? new Date(tVal).toLocaleString() : "";
@@ -1943,25 +2025,59 @@ export default function StaffDashboard({ portalType = "operator" }) {
       const whatsapp = cust.phone || cust.whatsapp || "";
       const referralCode = cust.referralCode || "";
       const waybill = o.waybillId || "";
-      return `"${o.id}","${fullName}","${email}","${whatsapp}","${referralCode}","${itemsStr}","${o.deliveryMethod}","${waybill}","${o.totalAmount}","${o.paymentStatus}","${o.orderStatus}","${date}"`;
+      aoaData.push([
+        o.id || "",
+        fullName,
+        email,
+        String(whatsapp),
+        referralCode,
+        itemsStr,
+        o.deliveryMethod || "",
+        waybill,
+        Number(o.totalAmount) || 0,
+        o.paymentStatus || "",
+        o.orderStatus || "",
+        date
+      ]);
     });
-    
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `orders_export_${new Date().getTime()}.csv`;
+    a.download = `orders_export_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
   const exportRecruitmentToExcel = () => {
-    const headers = ["ID,Full Name,NIM,Email,WhatsApp,Domicile,Division 1,Division 2,Submitted At,Status"];
-    const csvData = recruitmentSubmissions.map(r => {
+    const headers = ["ID", "Full Name", "NIM", "Email", "WhatsApp", "Domicile", "Division 1", "Division 2", "Submitted At", "Status"];
+    const aoaData = [headers];
+
+    recruitmentSubmissions.forEach(r => {
       const date = r.submittedAt ? new Date(r.submittedAt.seconds * 1000).toLocaleString() : "";
-      return `"${r.id}","${r.fullName || ""}","${r.nim || ""}","${r.email || ""}","${r.whatsapp || ""}","${r.domicile || ""}","${r.division1 || ""}","${r.division2 || ""}","${date}","${r.status || ""}"`;
+      aoaData.push([
+        r.id || "",
+        r.fullName || "",
+        String(r.nim || ""),
+        r.email || "",
+        String(r.whatsapp || ""),
+        r.domicile || "",
+        r.division1 || "",
+        r.division2 || "",
+        date,
+        r.status || ""
+      ]);
     });
-    const csvString = headers.join("\n") + "\n" + csvData.join("\n");
-    const workbook = XLSX.read(csvString, { type: "string" });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Recruitment");
+
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
     const url = URL.createObjectURL(blob);

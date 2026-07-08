@@ -6,9 +6,10 @@ import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, collection, query, where, onSnapshot, getDocs, addDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { toast } from "sonner";
-import { FaArrowLeft, FaFileCsv, FaTrash, FaCheck, FaSearch } from "react-icons/fa";
+import { FaArrowLeft, FaFileExcel, FaTrash, FaCheck, FaSearch } from "react-icons/fa";
 import Link from "next/link";
 import { useConfirm } from "@/context/ConfirmContext";
+import * as XLSX from 'xlsx';
 
 export default function SessionDetailPage(props) {
   const params = use(props.params);
@@ -169,19 +170,33 @@ export default function SessionDetailPage(props) {
     }
   };
 
-  const exportCSV = () => {
-    let csv = "Name,Email,Institution,Type,Scanned At,Scanned By\n";
+  const exportExcel = () => {
+    const headers = ["Name", "Email", "Institution", "Type", "Scanned At", "Scanned By"];
+    const aoaData = [headers];
+
     logs.forEach(l => {
       const date = l.scannedAt ? new Date(l.scannedAt.seconds * 1000).toLocaleString() : "";
       const type = l.isGuest ? "Guest" : "Registered";
-      csv += `"${l.displayName}","${l.displayEmail}","${l.displayInstansi}","${type}","${date}","${l.scannedBy}"\n`;
+      aoaData.push([
+        l.displayName || "",
+        l.displayEmail || "",
+        l.displayInstansi || "",
+        type,
+        date,
+        l.scannedBy || ""
+      ]);
     });
-    
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.setAttribute("href", url);
-    a.setAttribute("download", `attendance_${sessionData?.name || 'session'}.csv`);
+    a.href = url;
+    a.download = `attendance_${sessionData?.name || 'session'}_export_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
@@ -215,8 +230,8 @@ export default function SessionDetailPage(props) {
             <p className="font-bold text-gray-700 tracking-wider">Method: {sessionData.method} | Status: {sessionData.status}</p>
           </div>
           <div className="flex gap-4">
-            <button onClick={exportCSV} className="bg-white text-black font-bold uppercase px-6 py-3 rounded-xl border-2 border-black shadow-[4px_4px_0_0_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] transition-all flex items-center gap-2">
-              <FaFileCsv /> Export CSV
+            <button onClick={exportExcel} className="bg-white text-black font-bold uppercase px-6 py-3 rounded-xl border-2 border-black shadow-[4px_4px_0_0_#000] hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] transition-all flex items-center gap-2">
+              <FaFileExcel /> Export Excel
             </button>
             {sessionData.method === "SELF_SERVICE" && sessionData.status === "OPEN" && (
               <Link href={`/admin/attendance/${sessionId}/projector`} target="_blank">
