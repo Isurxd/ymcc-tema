@@ -21,6 +21,10 @@ export default function SessionDetailPage(props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [logSearchQuery, setLogSearchQuery] = useState("");
   const [userEmail, setUserEmail] = useState("");
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [guestName, setGuestName] = useState("");
+  const [guestInstansi, setGuestInstansi] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
 
   const { sessionId } = params;
 
@@ -126,6 +130,34 @@ export default function SessionDetailPage(props) {
     }
   };
 
+  const handleManualGuestCheckIn = async (e) => {
+    e.preventDefault();
+    if (!guestName || !guestInstansi) {
+      toast.error("Nama dan Instansi tamu wajib diisi.");
+      return;
+    }
+    try {
+      await addDoc(collection(db, "attendance_logs"), {
+        sessionId: sessionId,
+        guestData: {
+          name: guestName.toUpperCase(),
+          instansi: guestInstansi.toUpperCase(),
+          email: guestEmail.toLowerCase()
+        },
+        scannedAt: serverTimestamp(),
+        scannedBy: userEmail
+      });
+      toast.success("Guest checked in manually!");
+      setGuestName("");
+      setGuestInstansi("");
+      setGuestEmail("");
+      setShowGuestForm(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to check in guest");
+    }
+  };
+
   const handleDeleteLog = async (logId) => {
     if(!(await confirmAction("Delete this attendance log?"))) return;
     try {
@@ -216,41 +248,106 @@ export default function SessionDetailPage(props) {
               </div>
             </div>
 
-            {(sessionData.method === "MANUAL" || sessionData.method === "QR_ADMIN") && (
-              <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000]">
-                <h3 className="font-anton text-xl uppercase mb-4">Manual Check-In</h3>
-                <div className="relative">
-                  <FaSearch className="absolute left-4 top-4 text-gray-400" />
-                  <input 
-                    type="text" 
-                    placeholder="Search by name or email..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-black rounded-xl font-bold focus:ring-4 focus:ring-[#c1ff00]"
-                  />
-                </div>
-                {filteredUsers.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    {filteredUsers.map(u => {
-                      const isPresent = logs.some(l => l.participantId === u.id);
-                      return (
-                        <div key={u.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200">
-                          <div>
-                            <p className="font-bold text-sm">{u.fullName}</p>
-                            <p className="text-xs text-gray-500">{u.email}</p>
-                          </div>
-                          {isPresent ? (
-                            <span className="text-green-500 text-sm font-bold"><FaCheck /></span>
-                          ) : (
-                            <button onClick={() => handleManualCheckIn(u.id)} className="px-3 py-1 bg-black text-[#c1ff00] text-xs font-bold uppercase rounded-lg">Check In</button>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
+            <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000]">
+              <h3 className="font-anton text-xl uppercase mb-4">Manual Check-In</h3>
+              
+              {/* Tab Selector */}
+              <div className="flex border-b-2 border-black mb-4 gap-2 text-xs font-bold uppercase">
+                <button 
+                  type="button"
+                  onClick={() => setShowGuestForm(false)}
+                  className={`pb-2 px-2 transition-all ${!showGuestForm ? "border-b-4 border-[#c1ff00] text-black" : "text-gray-400"}`}
+                >
+                  Peserta
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setShowGuestForm(true)}
+                  className={`pb-2 px-2 transition-all ${showGuestForm ? "border-b-4 border-[#c1ff00] text-black" : "text-gray-400"}`}
+                >
+                  Tamu / Guest
+                </button>
               </div>
-            )}
+
+              {!showGuestForm ? (
+                <>
+                  <div className="relative">
+                    <FaSearch className="absolute left-4 top-4 text-gray-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Search by name or email..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-black rounded-xl font-bold focus:ring-4 focus:ring-[#c1ff00]"
+                    />
+                  </div>
+                  {filteredUsers.length > 0 && (
+                    <div className="mt-4 space-y-2 max-h-60 overflow-y-auto pr-1">
+                      {filteredUsers.map(u => {
+                        const isPresent = logs.some(l => l.participantId === u.id);
+                        return (
+                          <div key={u.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="min-w-0 flex-1 mr-2">
+                              <p className="font-bold text-xs truncate">{u.fullName}</p>
+                              <p className="text-[10px] text-gray-500 truncate">{u.email}</p>
+                            </div>
+                            {isPresent ? (
+                              <span className="text-green-500 text-sm font-bold shrink-0"><FaCheck /></span>
+                            ) : (
+                              <button onClick={() => handleManualCheckIn(u.id)} className="px-2.5 py-1 bg-black text-[#c1ff00] text-[10px] font-bold uppercase rounded-lg shrink-0">Check In</button>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {searchQuery && filteredUsers.length === 0 && (
+                    <p className="text-xs text-gray-400 mt-2 font-semibold">Peserta tidak ditemukan.</p>
+                  )}
+                </>
+              ) : (
+                <form onSubmit={handleManualGuestCheckIn} className="space-y-3">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase mb-1">Nama Tamu</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={guestName}
+                      onChange={e => setGuestName(e.target.value)}
+                      placeholder="NAMA LENGKAP"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#c1ff00] uppercase"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase mb-1">Instansi / Organisasi</label>
+                    <input 
+                      type="text" 
+                      required 
+                      value={guestInstansi}
+                      onChange={e => setGuestInstansi(e.target.value)}
+                      placeholder="UPN / INSTITUSI"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#c1ff00] uppercase"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase mb-1">Email (Opsional)</label>
+                    <input 
+                      type="email" 
+                      value={guestEmail}
+                      onChange={e => setGuestEmail(e.target.value)}
+                      placeholder="email@tamu.com"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#c1ff00] lowercase"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    className="w-full bg-black text-[#c1ff00] font-bold uppercase py-2.5 rounded-lg text-xs border border-black hover:bg-[#c1ff00] hover:text-black transition-colors"
+                  >
+                    Check In Tamu
+                  </button>
+                </form>
+              )}
+            </div>
           </div>
 
           <div className="lg:col-span-2">
