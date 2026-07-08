@@ -2412,7 +2412,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
             <FaChartBar /> Dashboard
           </button>
           {/* Operator CMS Tabs */}
-          {(userRole === "Operator" || userRole === "Superadmin") && (
+          {(portalType === "operator" || portalType === "master") && (userRole === "Operator" || userRole === "Superadmin") && (
             <div className="mt-4">
               <button 
                 onClick={() => setActiveMenuGroup(activeMenuGroup === 'operator' ? null : 'operator')}
@@ -2445,7 +2445,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* E-Commerce Tabs */}
-          {(userRole === "Fundraising" || userRole === "Superadmin") && (
+          {(portalType === "fundraising" || portalType === "master") && (userRole === "Fundraising" || userRole === "Superadmin") && (
             <div className="mt-4">
               <button 
                 onClick={() => setActiveMenuGroup(activeMenuGroup === 'ecommerce' ? null : 'ecommerce')}
@@ -2477,7 +2477,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* Admin Hub Tabs */}
-          {(userRole === "Admin" || userRole === "Superadmin") && (
+          {(portalType === "admin" || portalType === "master") && (userRole === "Admin" || userRole === "Superadmin") && (
             <div className="mt-4">
               <button 
                 onClick={() => setActiveMenuGroup(activeMenuGroup === 'admin' ? null : 'admin')}
