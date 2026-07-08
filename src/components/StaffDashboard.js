@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import imageCompression from 'browser-image-compression';
 import { auth, db, storage, secondaryAuth } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword, updateEmail } from "firebase/auth";
-import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint, FaCalendarCheck } from "react-icons/fa";
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend, LabelList } from "recharts";
 import { useRouter } from "next/navigation";
@@ -90,6 +90,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [sponsors, setSponsors] = useState([]);
   const [activities, setActivities] = useState([]);
   const [broadcasts, setBroadcasts] = useState([]);
+  const [attendanceSessions, setAttendanceSessions] = useState([]);
   const [staffApps, setStaffApps] = useState([]);
   const [subscribers, setSubscribers] = useState([]);
   const [newsFeedback, setNewsFeedback] = useState([]);
@@ -125,6 +126,55 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [submissions, setSubmissions] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [tickets, setTickets] = useState([]);
+  
+  // Attendance States
+  const [attendanceForm, setAttendanceForm] = useState({
+    activityId: "",
+    name: "",
+    method: "QR_ADMIN",
+    status: "OPEN"
+  });
+  const [scannerSessionId, setScannerSessionId] = useState("");
+  const [scannerMode, setScannerMode] = useState("CAMERA"); // CAMERA, HARDWARE
+  
+  // Hardware Scanner Global Listener Ref
+  const lastKeyTimeRef = useRef(Date.now());
+  const hardwareBufferRef = useRef("");
+  const latestHandleQrScan = useRef(null);
+
+  useEffect(() => {
+    // Keep reference to latest handleQrScan to avoid stale closures
+    latestHandleQrScan.current = handleQrScan;
+  });
+
+  useEffect(() => {
+    if (activeTab !== "attendance" || scannerMode !== "HARDWARE") return;
+
+    const handleKeyDown = (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") {
+        return;
+      }
+
+      const currentTime = Date.now();
+      if (currentTime - lastKeyTimeRef.current > 60) {
+        hardwareBufferRef.current = "";
+      }
+      lastKeyTimeRef.current = currentTime;
+
+      if (e.key === "Enter") {
+        if (hardwareBufferRef.current.length > 5 && latestHandleQrScan.current) {
+          latestHandleQrScan.current([{ rawValue: hardwareBufferRef.current }]);
+        }
+        hardwareBufferRef.current = "";
+      } else if (e.key.length === 1) {
+        hardwareBufferRef.current += e.key;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeTab, scannerMode]);
+
   
   // Helper: Audit Logger
   
@@ -378,6 +428,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
     const unsubActivities = onSnapshot(collection(db, "activities"), (snap) => {
       setActivities(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
+    const unsubAttendanceSessions = onSnapshot(collection(db, "attendance_sessions"), (snap) => {
+      setAttendanceSessions(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
     unsubTickets = onSnapshot(query(collection(db, "tickets"), orderBy("createdAt", "desc")), (snap) => {
       setTickets(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     });
@@ -389,7 +442,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
       unsubUsers(); unsubMerch(); unsubOrders(); unsubBanners();
       unsubStaffApps(); unsubSubscribers(); unsubFeedback(); unsubClicks();
       unsubNews(); unsubFaqs(); unsubSponsors(); unsubActivities(); unsubBroadcasts();
-      unsubSubmissions(); unsubAudit(); unsubTickets(); unsubPromos(); unsubAffiliateApps();
+      unsubSubmissions(); unsubAudit(); unsubTickets(); unsubPromos(); unsubAffiliateApps(); unsubAttendanceSessions();
     };
   }, [isAuthenticated, portalType, userEmail]);
 
@@ -1025,6 +1078,45 @@ export default function StaffDashboard({ portalType = "operator" }) {
     } catch (error) {
       console.error(error);
       toast.error("Error rejecting affiliate");
+    }
+    setActionLoading(false);
+  };
+
+  // --- ATTENDANCE SESSIONS ---
+  const handleSaveAttendanceSession = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      const selectedActivity = activities.find(a => a.id === attendanceForm.activityId);
+      const payload = { 
+        ...attendanceForm, 
+        activityName: selectedActivity ? selectedActivity.title : "General",
+        createdBy: userEmail
+      };
+      
+      if (editingId) {
+        await updateDoc(doc(db, "attendance_sessions", editingId), payload);
+      } else {
+        await addDoc(collection(db, "attendance_sessions"), { ...payload, createdAt: serverTimestamp() });
+      }
+      resetForm();
+      toast.success("Attendance session saved.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error saving session.");
+    }
+    setActionLoading(false);
+  };
+
+  const handleDeleteAttendanceSession = async (id) => {
+    if (!(await confirmAction("Delete this attendance session?"))) return;
+    setActionLoading(true);
+    try {
+      await deleteDoc(doc(db, "attendance_sessions", id));
+      toast.success("Session deleted.");
+    } catch (err) {
+      console.error(err);
+      toast.error("Error deleting session.");
     }
     setActionLoading(false);
   };
@@ -1734,7 +1826,11 @@ export default function StaffDashboard({ portalType = "operator" }) {
     }
   };
 
-    const handleQrScan = (detectedCodes) => {
+  async function handleQrScan(detectedCodes) {
+    if (!scannerSessionId) {
+      toast.error("Please select an active Attendance Session first!");
+      return;
+    }
     if (detectedCodes && detectedCodes.length > 0) {
       let scannedUid = detectedCodes[0].rawValue;
       if (scannedUid && scannedUid.includes("verify?id=")) {
@@ -1747,29 +1843,48 @@ export default function StaffDashboard({ portalType = "operator" }) {
       const foundUser = participants.find(u => u.id === scannedUid);
       if (foundUser) {
         setScannedUser(foundUser);
-        if (foundUser.attendance) {
-          playBeep('error');
-          setScanMessage("⚠️ ALREADY SCANNED: Participant has already checked in.");
-        } else {
-          playBeep('success');
-          setScanMessage("");
+        
+        // Check if already scanned in attendance_logs
+        try {
+          const q = query(
+            collection(db, "attendance_logs"), 
+            orderBy("scannedAt", "desc") // just a basic query
+          );
+          // Actually, we can just fetch and filter client-side for simplicity if we don't have composite index
+          const logsSnap = await getDocs(collection(db, "attendance_logs"));
+          const alreadyScanned = logsSnap.docs.some(d => d.data().sessionId === scannerSessionId && d.data().participantId === scannedUid);
+          
+          if (alreadyScanned) {
+            playBeep('error');
+            setScanMessage("❌ ALREADY SCANNED: Participant has already checked in to this session.");
+          } else {
+            playBeep('success');
+            setScanMessage("");
+          }
+        } catch(err) {
+          console.error(err);
         }
       } else {
         setScannedUser(null);
         playBeep('error');
         setScanMessage("❌ Invalid QR Code: Participant not found in database.");
-        // Resume scanner after 3 seconds
         setTimeout(() => setScannerActive(true), 3000);
       }
     }
-  };
+  }
 
   const markAttendance = async (userId) => {
+    if (!scannerSessionId) {
+      toast.error("Please select an active Attendance Session first!");
+      return;
+    }
     try {
       setActionLoading(true);
-      await updateDoc(doc(db, "users", userId), {
-        attendance: true,
-        checkedInAt: serverTimestamp()
+      await addDoc(collection(db, "attendance_logs"), {
+        sessionId: scannerSessionId,
+        participantId: userId,
+        scannedAt: serverTimestamp(),
+        scannedBy: userEmail
       });
       toast.success("Participant checked in successfully!");
       setScannedUser(null);
@@ -2002,6 +2117,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   </button>
                   <button onClick={() => { setActiveTab("submissions"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "submissions" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaFileAlt /> Submission Locker
+                  </button>
+                  <button onClick={() => { setActiveTab("attendance"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "attendance" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                    <FaCalendarCheck /> Attendance
                   </button>
                   <button onClick={() => { setActiveTab("qr_scanner"); resetForm(); setScannerActive(true); setScannedUser(null); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "qr_scanner" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaQrcode /> QR Scanner
@@ -2511,6 +2629,27 @@ export default function StaffDashboard({ portalType = "operator" }) {
                 <p className="font-poppins text-sm font-medium">Point your camera at the participant&apos;s Event Pass QR Code to view their profile, presentation documents, and mark attendance.</p>
               </div>
 
+              <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000] mb-8">
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                  <div className="flex-1 w-full">
+                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Select Attendance Session</label>
+                    <select className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl font-bold" value={scannerSessionId} onChange={e => {setScannerSessionId(e.target.value); setScannedUser(null); setScanMessage("");}}>
+                      <option value="">-- Choose an active session --</option>
+                      {attendanceSessions.filter(s => s.status === 'OPEN').map(s => (
+                        <option key={s.id} value={s.id}>{s.name} ({s.activityName}) - {s.method}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="w-full md:w-auto">
+                    <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Scanner Mode</label>
+                    <div className="flex bg-gray-100 p-1 rounded-xl">
+                      <button onClick={() => setScannerMode("CAMERA")} className={`flex-1 px-4 py-3 font-bold text-xs uppercase rounded-lg transition-all ${scannerMode === "CAMERA" ? "bg-white shadow-sm border border-gray-200" : "text-gray-500 hover:text-black"}`}>Camera</button>
+                      <button onClick={() => setScannerMode("HARDWARE")} className={`flex-1 px-4 py-3 font-bold text-xs uppercase rounded-lg transition-all ${scannerMode === "HARDWARE" ? "bg-white shadow-sm border border-gray-200" : "text-gray-500 hover:text-black"}`}>Hardware</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Scanner Section */}
                 <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000] flex flex-col">
@@ -2523,12 +2662,28 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     )}
                   </div>
                   <div className="bg-black w-full rounded-xl overflow-hidden relative" style={{ aspectRatio: '1/1' }}>
-                    {scannerActive ? (
-                      <Scanner onScan={handleQrScan} onError={(e) => console.log(e)} components={{ finder: false, zoom: true }} />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white bg-gray-900 font-bold uppercase">
-                        {scannedUser ? "QR Captured!" : "Scanner Paused"}
+                    {scannerMode === "HARDWARE" ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-8 bg-gray-900 text-white">
+                        <FaQrcode className="text-6xl mb-4 text-[#c1ff00]" />
+                        <h4 className="font-anton text-2xl uppercase mb-2">Hardware Scanner Active</h4>
+                        <p className="text-sm text-gray-400 text-center mb-6">
+                          No need to click anything. Just scan the QR code with your USB barcode scanner!
+                        </p>
+                        
+                        <div className="w-full h-32 flex items-center justify-center border-4 border-dashed border-[#c1ff00] rounded-2xl bg-[#c1ff00]/10 animate-pulse">
+                          <span className="font-mono text-xl text-[#c1ff00] font-bold tracking-widest uppercase">
+                            READY TO SCAN
+                          </span>
+                        </div>
                       </div>
+                    ) : (
+                      scannerActive ? (
+                        <Scanner onScan={handleQrScan} onError={(e) => console.log(e)} components={{ finder: false, zoom: true }} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white bg-gray-900 font-bold uppercase">
+                          {scannedUser ? "QR Captured!" : "Scanner Paused"}
+                        </div>
+                      )
                     )}
                   </div>
                   {scanMessage && <p className="mt-4 text-red-600 font-bold text-center bg-red-100 p-2 rounded-xl">{scanMessage}</p>}
@@ -2685,6 +2840,95 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       ))
                     )}
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ATTENDANCE TAB */}
+          {!loadingData && activeTab === "attendance" && (
+            <div className="max-w-5xl mx-auto space-y-8">
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div className="flex justify-between items-center mb-6 border-b pb-4">
+                  <h2 className="font-anton text-2xl uppercase">{editingId ? "Edit Attendance Session" : "Create Session"}</h2>
+                  {editingId && <button onClick={resetForm} className="text-sm font-bold text-gray-500 hover:text-black">CANCEL EDIT</button>}
+                </div>
+                <form onSubmit={handleSaveAttendanceSession} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Activity (Parent)</label>
+                      <select required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={attendanceForm.activityId} onChange={e => setAttendanceForm({...attendanceForm, activityId: e.target.value})}>
+                        <option value="">-- Select Activity --</option>
+                        {activities.map(a => (
+                          <option key={a.id} value={a.id}>{a.title} ({a.type})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Session Name</label>
+                      <input type="text" placeholder="e.g., Opening Ceremony" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={attendanceForm.name} onChange={e => setAttendanceForm({...attendanceForm, name: e.target.value})} />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Attendance Method</label>
+                      <select required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={attendanceForm.method} onChange={e => setAttendanceForm({...attendanceForm, method: e.target.value})}>
+                        <option value="QR_ADMIN">Admin QR Scanner (For Registered)</option>
+                        <option value="MANUAL">Manual Check (Admin Ticking)</option>
+                        <option value="SELF_SERVICE">Self-Service QR (For Public/Guests)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Status</label>
+                      <select required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={attendanceForm.status} onChange={e => setAttendanceForm({...attendanceForm, status: e.target.value})}>
+                        <option value="UPCOMING">UPCOMING</option>
+                        <option value="OPEN">OPEN (Active)</option>
+                        <option value="CLOSED">CLOSED</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button type="submit" disabled={actionLoading} className="w-full bg-[#c1ff00] text-black font-bold uppercase py-3 rounded-xl shadow-[4px_4px_0_0_#000] border-2 border-black hover:bg-white hover:-translate-y-1 hover:shadow-[6px_6px_0_0_#000] transition-all disabled:opacity-50">
+                    {actionLoading ? "SAVING..." : "SAVE SESSION"}
+                  </button>
+                </form>
+              </div>
+
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h2 className="font-anton text-2xl uppercase mb-6 border-b pb-4">Manage Sessions</h2>
+                <div className="space-y-4">
+                  {attendanceSessions.map(s => (
+                    <div key={s.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-200 rounded-xl hover:shadow-md transition-shadow gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${s.status === 'OPEN' ? 'bg-green-100 text-green-700' : s.status === 'UPCOMING' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}`}>{s.status}</span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-purple-100 text-purple-700">{s.method}</span>
+                        </div>
+                        <h4 className="font-bold text-lg">{s.name}</h4>
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{s.activityName}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        {s.method === "SELF_SERVICE" && s.status === "OPEN" && (
+                          <Link href={`/admin/attendance/${s.id}/projector`} target="_blank">
+                            <button className="px-3 py-1.5 bg-black text-[#c1ff00] text-xs font-bold uppercase rounded-lg hover:bg-gray-800">
+                              Show Projector
+                            </button>
+                          </Link>
+                        )}
+                        <Link href={`/admin/attendance/${s.id}`}>
+                          <button className="px-3 py-1.5 bg-blue-50 text-blue-600 text-xs font-bold uppercase rounded-lg hover:bg-blue-100">
+                            View Logs
+                          </button>
+                        </Link>
+                        <button onClick={() => { setAttendanceForm({ activityId: s.activityId, name: s.name, method: s.method, status: s.status }); setEditingId(s.id); window.scrollTo(0,0); }} className="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-bold uppercase rounded-lg hover:bg-gray-200">
+                          Edit
+                        </button>
+                        <button onClick={() => handleDeleteAttendanceSession(s.id)} className="px-3 py-1.5 bg-red-50 text-red-600 text-xs font-bold uppercase rounded-lg hover:bg-red-100">
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {attendanceSessions.length === 0 && (
+                    <div className="text-center py-8 text-gray-400">No attendance sessions found.</div>
+                  )}
                 </div>
               </div>
             </div>

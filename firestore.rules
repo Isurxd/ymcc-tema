@@ -148,6 +148,17 @@ service cloud.firestore {
       allow read, write: if isStaff();
     }
 
+    match /attendance_sessions/{document=**} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /attendance_logs/{document=**} {
+      allow read: if isStaff();
+      allow create: if true; // Allows self-service check-in
+      allow update, delete: if isStaff();
+    }
+
     // Default deny
     match /{document=**} {
       allow read, write: if false;
