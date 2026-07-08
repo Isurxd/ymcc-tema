@@ -1365,13 +1365,19 @@ export default function StaffDashboard({ portalType = "operator" }) {
     e.preventDefault();
     setActionLoading(true);
     try {
-      let imageUrl = newsForm.imageUrl;
+      let imageUrl = newsForm.imageUrl || "";
       if (uploadFile) {
         imageUrl = await handleFileUpload(uploadFile, "news") || imageUrl;
       }
       
       const slug = generateSlug(newsForm.title);
-      const payload = { ...newsForm, imageUrl, slug };
+      // Ensure no undefined values are passed to Firestore
+      const payload = { 
+        ...newsForm, 
+        imageUrl: imageUrl || "", 
+        slug: slug || "",
+        content: newsForm.content || ""
+      };
       
       if (editingId) {
         await updateDoc(doc(db, "news", editingId), payload);
