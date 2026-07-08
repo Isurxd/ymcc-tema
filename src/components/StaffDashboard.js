@@ -6,7 +6,7 @@ import { auth, db, storage, secondaryAuth } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword, updateEmail } from "firebase/auth";
-import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint, FaCalendarCheck, FaDatabase } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint, FaCalendarCheck, FaDatabase, FaEye } from "react-icons/fa";
 import QRCode from "react-qr-code";
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend, LabelList } from "recharts";
