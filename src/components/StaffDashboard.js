@@ -1761,7 +1761,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
     
     const csvString = headers.join("\n") + "\n" + csvData.join("\n");
     const workbook = XLSX.read(csvString, { type: "string" });
-    XLSX.writeFile(workbook, `database_export_${new Date().getTime()}.xlsx`);
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `database_export_${new Date().getTime()}.xlsx`;
+    a.click();
   };
 
   const downloadQR = (participantId, participantName) => {
@@ -1887,7 +1893,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
     });
     const csvString = headers.join("\n") + "\n" + csvData.join("\n");
     const workbook = XLSX.read(csvString, { type: "string" });
-    XLSX.writeFile(workbook, `recruitment_export_${new Date().getTime()}.xlsx`);
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `recruitment_export_${new Date().getTime()}.xlsx`;
+    a.click();
   };
 
   // Helper for safe timestamp extraction for sorting
