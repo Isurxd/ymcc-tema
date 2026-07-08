@@ -19,6 +19,7 @@ export default function SessionDetailPage(props) {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [logSearchQuery, setLogSearchQuery] = useState("");
   const [userEmail, setUserEmail] = useState("");
 
   const { sessionId } = params;
@@ -158,6 +159,16 @@ export default function SessionDetailPage(props) {
 
   const filteredUsers = searchQuery ? users.filter(u => u.fullName?.toLowerCase().includes(searchQuery.toLowerCase()) || u.email?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5) : [];
 
+  const filteredLogs = logs.filter(l => {
+    if (!logSearchQuery) return true;
+    const q = logSearchQuery.toLowerCase();
+    return (
+      l.displayName?.toLowerCase().includes(q) ||
+      l.displayEmail?.toLowerCase().includes(q) ||
+      l.displayInstansi?.toLowerCase().includes(q)
+    );
+  });
+
   return (
     <div className="min-h-screen bg-[#fafafa] font-poppins">
       <div className="max-w-6xl mx-auto p-6 md:p-10">
@@ -244,7 +255,19 @@ export default function SessionDetailPage(props) {
 
           <div className="lg:col-span-2">
             <div className="bg-white p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000]">
-              <h3 className="font-anton text-xl uppercase mb-6">Attendance Logs</h3>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h3 className="font-anton text-xl uppercase">Attendance Logs</h3>
+                <div className="relative w-full sm:w-64">
+                  <FaSearch className="absolute left-3 top-3 text-gray-400 text-xs" />
+                  <input 
+                    type="text" 
+                    placeholder="Cari logs kehadiran..."
+                    value={logSearchQuery}
+                    onChange={(e) => setLogSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#c1ff00]"
+                  />
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
                   <thead className="text-xs text-gray-500 uppercase bg-gray-100 border-y border-gray-200">
@@ -257,7 +280,7 @@ export default function SessionDetailPage(props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {logs.map((log) => (
+                    {filteredLogs.map((log) => (
                       <tr key={log.id} className="bg-white border-b hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <p className="font-bold">{log.displayName}</p>
@@ -279,9 +302,11 @@ export default function SessionDetailPage(props) {
                         </td>
                       </tr>
                     ))}
-                    {logs.length === 0 && (
+                    {filteredLogs.length === 0 && (
                       <tr>
-                        <td colSpan="5" className="px-6 py-8 text-center text-gray-400 font-bold">No attendance recorded yet.</td>
+                        <td colSpan="5" className="px-6 py-8 text-center text-gray-400 font-bold">
+                          {logSearchQuery ? "Tidak ada logs yang cocok dengan kata kunci." : "No attendance recorded yet."}
+                        </td>
                       </tr>
                     )}
                   </tbody>
