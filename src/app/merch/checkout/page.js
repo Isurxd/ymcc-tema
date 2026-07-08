@@ -218,21 +218,21 @@ export default function CheckoutPage() {
             onSuccess: function () {
               clearCart();
               toast.success("Payment successful!");
-              router.push(`/merch/success`);
+              router.push(`/merch/success?order_id=${data.orderId}`);
             },
             onPending: function () {
               clearCart();
               toast.success("Order created! Please complete payment.");
-              router.push(`/merch/success`);
+              router.push(`/order-status?id=${data.orderId}`);
             },
             onError: function () {
               toast.error("Payment failed!");
-              router.push(`/merch/success`);
+              router.push(`/order-status?id=${data.orderId}`);
             },
             onClose: function () {
               clearCart();
               toast.error("Payment cancelled. You can resume it from your order status page.");
-              router.push(`/merch/success`);
+              router.push(`/order-status?id=${data.orderId}`);
             }
           });
         } else {
