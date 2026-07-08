@@ -3437,7 +3437,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* DATABASE PESERTA TAB */}
-          {!loadingData && activeTab === "database" && (
+          {!loadingData && activeTab === "database" && (userRole === "Superadmin" || userRole === "Admin") && (
             <div className="max-w-6xl mx-auto space-y-8">
               <div className="bg-[#c1ff00] p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000] mb-8">
                 <h3 className="font-anton text-2xl uppercase mb-2">Database Peserta</h3>
