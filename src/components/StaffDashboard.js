@@ -108,6 +108,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [dbSearchQuery, setDbSearchQuery] = useState("");
   const [dbStatusFilter, setDbStatusFilter] = useState("ALL");
   const [selectedQrParticipant, setSelectedQrParticipant] = useState(null);
+  const [dbCurrentPage, setDbCurrentPage] = useState(1);
   const [promoForm, setPromoForm] = useState({ code: "", type: "VOUCHER", discount: "", discountType: "PERCENT", maxUses: "", commission: "", affiliateEmail: "" });
   
   // NEW FILTERS & SEARCH STATES
@@ -456,6 +457,10 @@ export default function StaffDashboard({ portalType = "operator" }) {
       unsubTicketOrders();
     };
   }, [isAuthenticated, portalType, userEmail]);
+
+  useEffect(() => {
+    setDbCurrentPage(1);
+  }, [dbSelectedActivity, dbSearchQuery, dbStatusFilter]);
 
   const filteredData = useMemo(() => {
     const filterByDate = (items) => {
@@ -3507,78 +3512,120 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       </tr>
                     </thead>
                     <tbody className="text-sm font-medium">
-                      {getFilteredDatabasePeserta().map(p => {
-                        const paidComps = getUserPaidCompetitions(p.email);
-                        return (
-                          <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-black">
-                            <td className="p-4">
-                              <div className="font-bold text-gray-900">{p.fullName || "No Name"}</div>
-                              <div className="text-xs text-gray-500 font-mono">UID: {p.id}</div>
-                            </td>
-                            <td className="p-4">
-                              <div className="text-xs font-semibold text-gray-700">{p.email}</div>
-                              {p.whatsapp && (
-                                <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                                  <FaWhatsapp className="text-green-500" /> {p.whatsapp}
-                                </div>
-                              )}
-                            </td>
-                            <td className="p-4">
-                              <div className="font-semibold text-gray-800">{p.institution || "-"}</div>
-                              <div className="text-xs text-gray-500">NPM/NIM: {p.studentId || "-"}</div>
-                            </td>
-                            <td className="p-4">
-                              <div className="flex flex-wrap gap-1 max-w-xs">
-                                {paidComps.length > 0 ? (
-                                  paidComps.map((c, i) => (
-                                    <span key={i} className="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] px-2 py-0.5 rounded font-bold uppercase">
-                                      {c.name}
-                                    </span>
-                                  ))
-                                ) : (
-                                  <span className="text-gray-400 text-xs italic">Belum mendaftar</span>
+                      {(() => {
+                        const filtered = getFilteredDatabasePeserta();
+                        const ITEMS_PER_PAGE = 15;
+                        const startIndex = (dbCurrentPage - 1) * ITEMS_PER_PAGE;
+                        const paginated = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+                        
+                        if (paginated.length === 0) {
+                          return (
+                            <tr>
+                              <td colSpan={7} className="text-center py-12 text-gray-400 font-bold">
+                                Tidak ada data peserta ditemukan.
+                              </td>
+                            </tr>
+                          );
+                        }
+
+                        return paginated.map(p => {
+                          const paidComps = getUserPaidCompetitions(p.email);
+                          return (
+                            <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-black">
+                              <td className="p-4">
+                                <div className="font-bold text-gray-900">{p.fullName || "No Name"}</div>
+                                <div className="text-xs text-gray-500 font-mono">UID: {p.id}</div>
+                              </td>
+                              <td className="p-4">
+                                <div className="text-xs font-semibold text-gray-700">{p.email}</div>
+                                {p.whatsapp && (
+                                  <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                    <FaWhatsapp className="text-green-500" /> {p.whatsapp}
+                                  </div>
                                 )}
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <span className={`px-2 py-0.5 text-xs font-bold uppercase rounded border ${
-                                p.registrationStatus === 'VERIFIED' 
-                                  ? 'bg-[#eefcf0] border-green-500 text-green-700' 
-                                  : p.registrationStatus === 'NEEDS REVISION'
-                                    ? 'bg-amber-50 border-amber-500 text-amber-700'
-                                    : 'bg-red-50 border-red-500 text-red-700'
-                              }`}>
-                                {p.registrationStatus || "UNVERIFIED"}
-                              </span>
-                            </td>
-                            <td className="p-4">
-                              {p.attendance ? (
-                                <span className="text-green-600 font-bold bg-green-50 border border-green-200 px-2.5 py-0.5 rounded text-xs uppercase">Hadir</span>
-                              ) : (
-                                <span className="text-gray-400 font-medium bg-gray-50 border border-gray-200 px-2.5 py-0.5 rounded text-xs uppercase">Absen</span>
-                              )}
-                            </td>
-                            <td className="p-4 text-right">
-                              <button 
-                                onClick={() => setSelectedQrParticipant(p)}
-                                className="bg-white hover:bg-gray-100 border-2 border-black text-black font-anton text-xs uppercase px-3 py-1.5 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px"
-                              >
-                                <FaQrcode /> View QR
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                      {getFilteredDatabasePeserta().length === 0 && (
-                        <tr>
-                          <td colSpan={7} className="text-center py-12 text-gray-400 font-bold">
-                            Tidak ada data peserta ditemukan.
-                          </td>
-                        </tr>
-                      )}
+                              </td>
+                              <td className="p-4">
+                                <div className="font-semibold text-gray-800">{p.institution || "-"}</div>
+                                <div className="text-xs text-gray-500">NPM/NIM: {p.studentId || "-"}</div>
+                              </td>
+                              <td className="p-4">
+                                <div className="flex flex-wrap gap-1 max-w-xs">
+                                  {paidComps.length > 0 ? (
+                                    paidComps.map((c, i) => (
+                                      <span key={i} className="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                                        {c.name}
+                                      </span>
+                                    ))
+                                  ) : (
+                                    <span className="text-gray-400 text-xs italic">Belum mendaftar</span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="p-4">
+                                <span className={`px-2 py-0.5 text-xs font-bold uppercase rounded border ${
+                                  p.registrationStatus === 'VERIFIED' 
+                                    ? 'bg-[#eefcf0] border-green-500 text-green-700' 
+                                    : p.registrationStatus === 'NEEDS REVISION'
+                                      ? 'bg-amber-50 border-amber-500 text-amber-700'
+                                      : 'bg-red-50 border-red-500 text-red-700'
+                                }`}>
+                                  {p.registrationStatus || "UNVERIFIED"}
+                                </span>
+                              </td>
+                              <td className="p-4">
+                                {p.attendance ? (
+                                  <span className="text-green-600 font-bold bg-green-50 border border-green-200 px-2.5 py-0.5 rounded text-xs uppercase">Hadir</span>
+                                ) : (
+                                  <span className="text-gray-400 font-medium bg-gray-50 border border-gray-200 px-2.5 py-0.5 rounded text-xs uppercase">Absen</span>
+                                )}
+                              </td>
+                              <td className="p-4 text-right">
+                                <button 
+                                  onClick={() => setSelectedQrParticipant(p)}
+                                  className="bg-white hover:bg-gray-100 border-2 border-black text-black font-anton text-xs uppercase px-3 py-1.5 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px"
+                                >
+                                  <FaQrcode /> View QR
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        });
+                      })()}
                     </tbody>
                   </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {(() => {
+                  const filtered = getFilteredDatabasePeserta();
+                  const ITEMS_PER_PAGE = 15;
+                  const totalItems = filtered.length;
+                  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+                  if (totalPages <= 1) return null;
+                  return (
+                    <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-6 border-t-2 border-dashed border-gray-200 gap-4">
+                      <p className="font-poppins text-xs font-bold text-gray-400 uppercase tracking-widest text-center sm:text-left">
+                        Menampilkan {(dbCurrentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(dbCurrentPage * ITEMS_PER_PAGE, totalItems)} Dari {totalItems} Peserta
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setDbCurrentPage(prev => Math.max(1, prev - 1))}
+                          disabled={dbCurrentPage === 1}
+                          className="bg-white hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-white border-2 border-black px-4 py-2 rounded-xl text-xs font-anton uppercase transition-all shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px text-black cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          Prev
+                        </button>
+                        <button
+                          onClick={() => setDbCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                          disabled={dbCurrentPage === totalPages}
+                          className="bg-[#c1ff00] text-black hover:bg-black hover:text-[#c1ff00] disabled:opacity-50 disabled:hover:bg-[#c1ff00] disabled:hover:text-black border-2 border-black px-4 py-2 rounded-xl text-xs font-anton uppercase transition-all shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px cursor-pointer disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           )}
