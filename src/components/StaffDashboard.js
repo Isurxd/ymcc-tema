@@ -1,12 +1,13 @@
 "use client";
 
+import * as XLSX from 'xlsx';
 import { useState, useEffect, useMemo, useRef } from "react";
 import imageCompression from 'browser-image-compression';
 import { auth, db, storage, secondaryAuth } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword, updateEmail } from "firebase/auth";
-import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint, FaCalendarCheck, FaDatabase } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint, FaCalendarCheck, FaDatabase, FaEye } from "react-icons/fa";
 import QRCode from "react-qr-code";
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend, LabelList } from "recharts";
@@ -44,6 +45,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeMenuGroup, setActiveMenuGroup] = useState(null);
+  const confirmAction = useConfirm();
 
   // QR Scanner States
   const [scannedUser, setScannedUser] = useState(null);
@@ -61,7 +63,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   // Modern Promise-based confirmation modal
   const [confirmState, setConfirmState] = useState({ isOpen: false, message: "", resolve: null });
 
-  const confirmAction = (message) => {
+  const confirmActionModal = (message) => {
     return new Promise((resolve) => {
       setConfirmState({ isOpen: true, message, resolve });
     });
@@ -128,6 +130,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [merchOrders, setMerchOrders] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [recruitmentSubmissions, setRecruitmentSubmissions] = useState([]);
   const [promos, setPromos] = useState([]);
   const [ticketOrders, setTicketOrders] = useState([]);
   const [dbSelectedActivity, setDbSelectedActivity] = useState("ALL");
@@ -247,7 +250,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   const handleBackup = async () => {
     if (isBackingUp) return;
-    if (!window.confirm("Apakah Anda yakin ingin memicu pencadangan database manual? Seluruh koleksi penting akan diekspor sebagai CSV dan dikirimkan sebagai lampiran email ke alamat Superadmin.")) return;
+    if (!(await confirmAction("Apakah Anda yakin ingin memicu pencadangan database manual? Seluruh koleksi penting akan diekspor sebagai CSV dan dikirimkan sebagai lampiran email ke alamat Superadmin."))) return;
     
     setIsBackingUp(true);
     try {
@@ -348,6 +351,34 @@ export default function StaffDashboard({ portalType = "operator" }) {
   // Helpdesk
   const [ticketModal, setTicketModal] = useState({ isOpen: false, ticketId: null, reply: "" });
 
+  // Recruitment Settings & Status
+  const [recruitmentSettings, setRecruitmentSettings] = useState("OPEN");
+  const [recruitmentStatusModal, setRecruitmentStatusModal] = useState({ isOpen: false, docId: null, newStatus: "", applicant: null, acceptedDivision: "", showCustomDivision: false });
+
+  const divisionsList = [
+    "Board of Directors - Secretary II",
+    "Competition Department - Intellectual Challenges",
+    "Competition Department - Mining Games",
+    "Competition Department - Mining Strategy & Innovation Competition",
+    "Competition Department - Paper Competition",
+    "Event Department - Minexplo",
+    "Event Department - Mining Camp",
+    "Event Department - Opening & Closing",
+    "Event Department - Seminar Nasional",
+    "Event Department - Society Project",
+    "Event Department - Studium General",
+    "Fundraising Department - Entrepreneurship",
+    "Fundraising Department - Sponsorship",
+    "Media Department - Branding & Public Relation",
+    "Media Department - Creative Production",
+    "Media Department - Secretariat",
+    "Operational Department - Consumption",
+    "Operational Department - General Affair",
+    "Operational Department - Liaison Officer",
+    "Operational Department - Logistic",
+    "Operational Department - Safety, Security, Health, and Care"
+  ];
+
   const router = useRouter();
 
   useEffect(() => {
@@ -416,11 +447,14 @@ export default function StaffDashboard({ portalType = "operator" }) {
     let unsubBanners = () => {};
     let unsubBroadcasts = () => {};
     let unsubSubmissions = () => {};
+    let unsubRecruitment = () => {};
     let unsubAudit = () => {};
     let unsubTickets = () => {};
     let unsubPromos = () => {};
     let unsubAffiliateApps = () => {};
     let unsubTicketOrders = () => {};
+
+    let unsubRecruitmentSettings = () => {};
 
     if (portalType === "admin" || portalType === "master") {
       unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
@@ -450,6 +484,12 @@ export default function StaffDashboard({ portalType = "operator" }) {
             }
           });
         }
+      });
+      unsubRecruitment = onSnapshot(query(collection(db, "recruitment_submissions"), orderBy("submittedAt", "desc")), (snap) => {
+        setRecruitmentSubmissions(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      });
+      unsubRecruitmentSettings = onSnapshot(doc(db, "site_settings", "recruitment"), (snap) => {
+        if (snap.exists()) setRecruitmentSettings(snap.data().status || "OPEN");
       });
       unsubBroadcasts = onSnapshot(query(collection(db, "broadcasts"), orderBy("sentAt", "desc")), (snap) => {
         setBroadcasts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -555,14 +595,58 @@ export default function StaffDashboard({ portalType = "operator" }) {
       unsubUsers(); unsubMerch(); unsubOrders(); unsubBanners();
       unsubStaffApps(); unsubSubscribers(); unsubFeedback(); unsubClicks();
       unsubNews(); unsubFaqs(); unsubSponsors(); unsubActivities(); unsubBroadcasts();
-      unsubSubmissions(); unsubAudit(); unsubTickets(); unsubPromos(); unsubAffiliateApps(); unsubAttendanceSessions();
+      unsubSubmissions(); unsubAudit(); unsubTickets(); unsubPromos(); unsubAffiliateApps(); unsubAttendanceSessions(); unsubRecruitment();
       unsubTicketOrders();
+      unsubRecruitmentSettings();
     };
   }, [isAuthenticated, portalType, userEmail]);
 
   useEffect(() => {
     setDbCurrentPage(1);
   }, [dbSelectedActivity, dbSearchQuery, dbStatusFilter]);
+
+  const updateRecruitmentSettings = async (status) => {
+    if (await confirmAction(`Change recruitment status to ${status}?`)) {
+      try {
+        await setDoc(doc(db, "site_settings", "recruitment"), { status }, { merge: true });
+        toast.success(`Recruitment is now ${status}`);
+      } catch (err) {
+        toast.error("Failed to update status");
+      }
+    }
+  };
+
+  const submitRecruitmentStatus = async (sendEmail) => {
+    const { docId, newStatus, applicant, acceptedDivision } = recruitmentStatusModal;
+    setRecruitmentStatusModal({ ...recruitmentStatusModal, isOpen: false });
+    const toastId = toast.loading("Updating status...");
+    
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch("/api/recruitment/status-update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          docId,
+          newStatus,
+          email: applicant.email,
+          fullName: applicant.fullName,
+          sendEmail,
+          acceptedDivision: newStatus === "ACCEPTED" ? acceptedDivision : ""
+        })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      toast.success("Applicant status updated successfully!", { id: toastId });
+    } catch (err) {
+      toast.error(err.message, { id: toastId });
+    }
+  };
 
   const filteredData = useMemo(() => {
     const filterByDate = (items) => {
@@ -1647,7 +1731,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     setActionLoading(false);
   };
 
-  const exportParticipantsToCSV = () => {
+  const exportParticipantsToExcel = () => {
     const headers = ["ID,Full Name,Email,Phone,Institution,Registration Status,Role,Attendance,Created At"];
     const csvData = participants.filter(p => p.role === "participant").map(p => {
       let tVal = p.createdAt || p.timestamp || p.created_at;
@@ -1681,7 +1765,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     return comps;
   };
 
-  const getFilteredDatabasePeserta = () => {
+  const getFilteredDatabaseParticipants = () => {
     return participants.filter(p => {
       if (dbSearchQuery) {
         const queryVal = dbSearchQuery.toLowerCase();
@@ -1706,28 +1790,52 @@ export default function StaffDashboard({ portalType = "operator" }) {
     });
   };
 
-  const exportDatabaseToCSV = () => {
-    const filtered = getFilteredDatabasePeserta();
-    const headers = ["UID,Nama Lengkap,Email,WhatsApp,Asal Negara,Asal Provinsi,Institusi,NPM/NIM/NISN,Status Verifikasi,Status Presensi,Aktivitas Terdaftar"];
-    const csvData = filtered.map(p => {
+  const exportDatabaseToExcel = () => {
+    const filtered = getFilteredDatabaseParticipants();
+    const headers = ["UID", "Full Name", "Email", "WhatsApp", "Gender", "Date of Birth", "Country", "Province", "City", "District", "Village", "Full Address", "Institution", "Student ID", "Education Level", "T-Shirt Size", "Dietary Restrictions", "Medical History", "Emergency Contact", "Verification Status", "Attendance Status", "Registered Activities"];
+    
+    const aoaData = [headers];
+
+    filtered.forEach(p => {
       const paidComps = getUserPaidCompetitions(p.email);
       const compsStr = paidComps.map(c => c.name).join("; ");
-      const fullName = p.fullName || "";
-      const email = p.email || "";
-      const whatsapp = p.whatsapp || p.phone || "";
-      const country = p.country || "";
-      const province = p.province || "";
-      const institution = p.institution || "";
-      const studentId = p.studentId || "";
-      const status = p.registrationStatus || "UNVERIFIED";
-      const attendance = p.attendance ? "HADIR" : "ABSEN";
-      return `"${p.id}","${fullName}","${email}","${whatsapp}","${country}","${province}","${institution}","${studentId}","${status}","${attendance}","${compsStr}"`;
+      
+      aoaData.push([
+        p.id,
+        p.fullName || "",
+        p.email || "",
+        p.whatsapp || p.phone || "",
+        p.gender || "",
+        p.birthDate || "",
+        p.country || "",
+        p.province || "",
+        p.city || "",
+        p.district || "",
+        p.village || "",
+        p.address || "",
+        p.institution || "",
+        String(p.studentId || ""),
+        p.educationLevel || "",
+        p.tshirtSize || "",
+        p.dietary || "",
+        p.medicalHistory || "",
+        p.emergencyContact || "",
+        p.registrationStatus || "UNVERIFIED",
+        p.attendance ? "PRESENT" : "ABSENT",
+        compsStr || ""
+      ]);
     });
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Database");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `database_peserta_export_${new Date().getTime()}.csv`;
+    a.download = `database_export_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
@@ -1759,7 +1867,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     image.src = blobURL;
   };
 
-  const exportAffiliatesToCSV = () => {
+  const exportAffiliatesToExcel = () => {
     const headers = ["ID,Full Name,Email,Institution,Bank Name,Account Number,Account Name,Status,Created At"];
     const csvData = affiliateApps.map(p => {
       let tVal = p.createdAt;
@@ -1775,7 +1883,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportPayoutsToCSV = () => {
+  const exportPayoutsToExcel = () => {
     const headers = ["ID,Email,Amount,Status,Created At"];
     const csvData = payoutRequests.map(p => {
       let tVal = p.createdAt;
@@ -1791,7 +1899,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportMerchOrdersToCSV = () => {
+  const exportMerchOrdersToExcel = () => {
     const headers = ["Order ID,User Email,Total,Payment Status,Order Status,Resi,Created At"];
     const csvData = merchOrders.map(m => {
       let tVal = m.createdAt || m.created_at;
@@ -1807,7 +1915,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportSubmissionsToCSV = () => {
+  const exportSubmissionsToExcel = () => {
     const headers = ["ID,Full Name,Email,Student ID,Submitted At,Score,Status"];
     const csvData = submissions.map(s => {
       const date = s.submittedAt ? new Date(s.submittedAt).toLocaleString() : "";
@@ -1822,7 +1930,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportOrdersToCSV = () => {
+  const exportOrdersToExcel = () => {
     const headers = ["Order ID,Customer Name,Customer Email,Customer WhatsApp,Referral Code,Items,Delivery Method,Waybill (Resi),Total Amount,Payment Status,Order Status,Created At"];
     const csvData = orders.map(o => {
       let tVal = o.createdAt || o.timestamp || o.created_at;
@@ -1843,6 +1951,23 @@ export default function StaffDashboard({ portalType = "operator" }) {
     const a = document.createElement('a');
     a.href = url;
     a.download = `orders_export_${new Date().getTime()}.csv`;
+    a.click();
+  };
+
+  const exportRecruitmentToExcel = () => {
+    const headers = ["ID,Full Name,NIM,Email,WhatsApp,Domicile,Division 1,Division 2,Submitted At,Status"];
+    const csvData = recruitmentSubmissions.map(r => {
+      const date = r.submittedAt ? new Date(r.submittedAt.seconds * 1000).toLocaleString() : "";
+      return `"${r.id}","${r.fullName || ""}","${r.nim || ""}","${r.email || ""}","${r.whatsapp || ""}","${r.domicile || ""}","${r.division1 || ""}","${r.division2 || ""}","${date}","${r.status || ""}"`;
+    });
+    const csvString = headers.join("\n") + "\n" + csvData.join("\n");
+    const workbook = XLSX.read(csvString, { type: "string" });
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `recruitment_export_${new Date().getTime()}.xlsx`;
     a.click();
   };
 
@@ -2367,7 +2492,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <FaUsers /> Verification Hub
                   </button>
                   <button onClick={() => { setActiveTab("database"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "database" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
-                    <FaDatabase /> Database Peserta
+                    <FaDatabase /> Participant Database
                   </button>
                   <button onClick={() => { setActiveTab("submissions"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "submissions" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaFileAlt /> Submission Locker
@@ -2384,6 +2509,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   <button onClick={() => { setActiveTab("users"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaUserShield /> Staff Management
                     {staffApps.filter(s => s.status === "PENDING").length > 0 && <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{staffApps.filter(s => s.status === "PENDING").length}</span>}
+                  </button>
+                  <button onClick={() => { setActiveTab("recruitment"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "recruitment" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                    <FaFileAlt /> Recruitment Database
                   </button>
                 </div>
               )}
@@ -2743,8 +2871,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <option value="NEWEST">Newest First</option>
                       <option value="OLDEST">Oldest First</option>
                     </select>
-                    <button onClick={exportSubmissionsToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
-                      Export CSV
+                    <button onClick={exportSubmissionsToExcel} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
+                      Export Excel
                     </button>
                   </div>
                 </div>
@@ -3485,7 +3613,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
               <div className="bg-[#c1ff00] p-6 rounded-2xl border border-black shadow-[4px_4px_0_0_#000] mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                   <h3 className="font-anton text-2xl uppercase mb-2">Superadmin Privilege</h3>
-                  <p className="font-poppins text-sm font-medium">Anda memiliki akses eksklusif untuk mereview, menambah, dan menyunting aplikasi staff (Admin & Operator).</p>
+                  <p className="font-poppins text-sm font-medium">You have exclusive access to review, add, and edit staff applications (Admin & Operator).</p>
                 </div>
                 <button onClick={() => setAddStaffModal({ ...addStaffModal, isOpen: true })} className="bg-black text-white px-6 py-3 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shrink-0">
                   + Add Staff Manually
@@ -3555,20 +3683,20 @@ export default function StaffDashboard({ portalType = "operator" }) {
           {!loadingData && activeTab === "database" && (userRole === "Superadmin" || userRole === "Admin") && (
             <div className="max-w-6xl mx-auto space-y-8">
               <div className="bg-[#c1ff00] p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000] mb-8">
-                <h3 className="font-anton text-2xl uppercase mb-2">Database Peserta</h3>
+                <h3 className="font-anton text-2xl uppercase mb-2">Participant Database</h3>
                 <p className="font-poppins text-sm font-medium text-black">
-                  Kelola dan ekspor data peserta terdaftar serta lihat QR Code untuk proses check-in.
+                  Manage and export registered participant data, and view QR Codes for check-in process.
                 </p>
               </div>
               
               <div className="bg-white p-8 rounded-2xl shadow-sm border-2 border-black shadow-[4px_4px_0_0_#000]">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b-2 border-dashed border-gray-200 gap-4">
-                  <h2 className="font-anton text-2xl uppercase">Directory Peserta</h2>
+                  <h2 className="font-anton text-2xl uppercase">Participant Directory</h2>
                   <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     {/* Search query input */}
                     <input 
                       type="text" 
-                      placeholder="Cari nama/email/wa..." 
+                      placeholder="Search name/email/wa..." 
                       className="px-4 py-2 border-2 border-black rounded-xl text-sm font-poppins w-full sm:w-48 outline-none focus:bg-gray-50 text-black" 
                       value={dbSearchQuery} 
                       onChange={e => setDbSearchQuery(e.target.value)} 
@@ -3580,7 +3708,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       value={dbSelectedActivity} 
                       onChange={e => setDbSelectedActivity(e.target.value)}
                     >
-                      <option value="ALL">Semua Kompetisi</option>
+                      <option value="ALL">All Competitions</option>
                       {activities.filter(a => a.type === "COMPETITIONS").map(act => (
                         <option key={act.id} value={act.id}>{act.title}</option>
                       ))}
@@ -3592,7 +3720,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       value={dbStatusFilter} 
                       onChange={e => setDbStatusFilter(e.target.value)}
                     >
-                      <option value="ALL">Semua Status</option>
+                      <option value="ALL">All Statuses</option>
                       <option value="VERIFIED">Verified</option>
                       <option value="UNVERIFIED">Unverified</option>
                       <option value="NEEDS REVISION">Needs Revision</option>
@@ -3600,7 +3728,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
                     {/* Export Button */}
                     <button 
-                      onClick={exportDatabaseToCSV} 
+                      onClick={exportDatabaseToExcel} 
                       className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-anton uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm flex items-center gap-2"
                     >
                       <FaDownload /> Export Database
@@ -3612,18 +3740,18 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   <table className="w-full text-left border-collapse min-w-max">
                     <thead>
                       <tr className="border-b-2 border-black text-xs font-anton uppercase tracking-wider text-gray-500 bg-gray-50">
-                        <th className="p-4">Peserta</th>
-                        <th className="p-4">Kontak</th>
-                        <th className="p-4">Institusi</th>
-                        <th className="p-4">Kompetisi</th>
+                        <th className="p-4">Participant</th>
+                        <th className="p-4">Contact</th>
+                        <th className="p-4">Institution</th>
+                        <th className="p-4">Competition</th>
                         <th className="p-4">Status</th>
-                        <th className="p-4">Presensi</th>
-                        <th className="text-right p-4">Aksi</th>
+                        
+                        <th className="text-right p-4">Action</th>
                       </tr>
                     </thead>
                     <tbody className="text-sm font-medium">
                       {(() => {
-                        const filtered = getFilteredDatabasePeserta();
+                        const filtered = getFilteredDatabaseParticipants();
                         const ITEMS_PER_PAGE = 15;
                         const startIndex = (dbCurrentPage - 1) * ITEMS_PER_PAGE;
                         const paginated = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -3632,7 +3760,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                           return (
                             <tr>
                               <td colSpan={7} className="text-center py-12 text-gray-400 font-bold">
-                                Tidak ada data peserta ditemukan.
+                                No participant data found.
                               </td>
                             </tr>
                           );
@@ -3667,7 +3795,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                       </span>
                                     ))
                                   ) : (
-                                    <span className="text-gray-400 text-xs italic">Belum mendaftar</span>
+                                    <span className="text-gray-400 text-xs italic">Not Registered</span>
                                   )}
                                 </div>
                               </td>
@@ -3682,15 +3810,15 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                   {p.registrationStatus || "UNVERIFIED"}
                                 </span>
                               </td>
-                              <td className="p-4">
-                                {p.attendance ? (
-                                  <span className="text-green-600 font-bold bg-green-50 border border-green-200 px-2.5 py-0.5 rounded text-xs uppercase">Hadir</span>
-                                ) : (
-                                  <span className="text-gray-400 font-medium bg-gray-50 border border-gray-200 px-2.5 py-0.5 rounded text-xs uppercase">Absen</span>
-                                )}
-                              </td>
+                              
                               <td className="p-4 text-right">
                                 <button 
+          onClick={() => setParticipantModal({ isOpen: true, data: p })}
+          className="bg-[#c1ff00] hover:bg-black hover:text-[#c1ff00] border-2 border-black text-black font-anton text-xs uppercase px-3 py-1.5 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px mr-2"
+        >
+          <FaEye /> View Details
+        </button>
+        <button 
                                   onClick={() => setSelectedQrParticipant(p)}
                                   className="bg-white hover:bg-gray-100 border-2 border-black text-black font-anton text-xs uppercase px-3 py-1.5 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px"
                                 >
@@ -3707,7 +3835,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
                 {/* Pagination Controls */}
                 {(() => {
-                  const filtered = getFilteredDatabasePeserta();
+                  const filtered = getFilteredDatabaseParticipants();
                   const ITEMS_PER_PAGE = 15;
                   const totalItems = filtered.length;
                   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -3715,7 +3843,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   return (
                     <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-6 border-t-2 border-dashed border-gray-200 gap-4">
                       <p className="font-poppins text-xs font-bold text-gray-400 uppercase tracking-widest text-center sm:text-left">
-                        Menampilkan {(dbCurrentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(dbCurrentPage * ITEMS_PER_PAGE, totalItems)} Dari {totalItems} Peserta
+                        Showing {(dbCurrentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(dbCurrentPage * ITEMS_PER_PAGE, totalItems)} of {totalItems} Participants
                       </p>
                       <div className="flex gap-2">
                         <button
@@ -3763,7 +3891,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <option value="NEWEST">Newest First</option>
                       <option value="OLDEST">Oldest First</option>
                     </select>
-                    <button onClick={exportParticipantsToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
+                    <button onClick={exportParticipantsToExcel} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
                       Export Full Data (CSV)
                     </button>
                   </div>
@@ -3775,7 +3903,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                 <th className="p-4 border-b border-gray-200">Participant</th>
                                 <th className="p-4 border-b border-gray-200">Documents</th>
                                 <th className="p-4 border-b border-gray-200">Status</th>
-                                <th className="p-4 border-b border-gray-200">Attendance</th>
+                                
                                 <th className="text-right p-4 border-b border-gray-200">Action</th>
                             </tr>
                         </thead>
@@ -3807,27 +3935,11 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                         {p.registrationStatus || "UNVERIFIED"}
                                     </span>
                                 </td>
-                                <td className="p-4 border-b border-gray-100 text-xs">
-                                    {p.attendance ? (
-                                        <span className="text-green-600 font-bold bg-green-50 px-2 py-1 rounded">Checked In</span>
-                                    ) : (
-                                        <span className="text-gray-400 font-medium bg-gray-50 px-2 py-1 rounded">Absent</span>
-                                    )}
-                                </td>
+                                
                                 <td className="p-4 border-b border-gray-100 text-right">
                                     <div className="flex justify-end gap-2">
-                                        {p.attendance ? (
-                                            <button onClick={() => toggleAttendance(p.id, false)} disabled={actionLoading} className="text-orange-500 hover:text-orange-700 bg-orange-50 p-2 rounded-lg" title="Undo Check-In">
-                                                <FaTimesCircle />
-                                            </button>
-                                        ) : (
-                                            <button onClick={() => toggleAttendance(p.id, true)} disabled={actionLoading} className="text-green-500 hover:text-green-700 bg-green-50 p-2 rounded-lg" title="Manual Check-In">
-                                                <FaCheck />
-                                            </button>
-                                        )}
-                                        <button onClick={() => setParticipantModal({ isOpen: true, data: p })} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-lg">
-                                            <FaEdit />
-                                        </button>
+                                        
+                                        <button onClick={() => setParticipantModal({ isOpen: true, data: p })} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-lg flex items-center gap-1 text-xs font-bold uppercase"><FaEye size={14}/> Detail</button>
                                         <button onClick={() => handleDeleteUser(p.id)} disabled={actionLoading} className="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-lg">
                                             <FaTrash />
                                         </button>
@@ -4072,8 +4184,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <option value="NEWEST">Newest First</option>
                       <option value="OLDEST">Oldest First</option>
                     </select>
-                    <button onClick={exportOrdersToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm whitespace-nowrap">
-                      Export CSV
+                    <button onClick={exportOrdersToExcel} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm whitespace-nowrap">
+                      Export Excel
                     </button>
                     {selectedOrders.length > 0 && (
                       <button onClick={() => {
@@ -4530,8 +4642,178 @@ export default function StaffDashboard({ portalType = "operator" }) {
               </div>
             </div>
           )}
+
+          {/* RECRUITMENT TAB */}
+          {!loadingData && activeTab === "recruitment" && (portalType === "admin" || portalType === "master") && (
+            <div className="max-w-6xl mx-auto space-y-8 animate-fade-in-up">
+              <div className="bg-[#c1ff00] p-6 rounded-2xl border border-black shadow-[4px_4px_0_0_#000] mb-8">
+                <h3 className="font-anton text-2xl uppercase mb-2">Staff Recruitment Database</h3>
+                <p className="font-poppins text-sm font-medium">Review new staff applications and export their data for further processing.</p>
+                <div className="mt-4 flex flex-wrap gap-4 items-center bg-white/50 p-4 rounded-xl border border-black/10">
+                  <span className="font-bold text-sm uppercase">Registration Status:</span>
+                  <div className="flex gap-2">
+                    {["UPCOMING", "OPEN", "CLOSED"].map(s => (
+                      <button key={s} onClick={() => updateRecruitmentSettings(s)} className={`px-4 py-2 rounded-lg font-bold text-xs uppercase border-2 transition-all ${recruitmentSettings === s ? 'bg-black text-[#c1ff00] border-black shadow-[2px_2px_0_0_#000]' : 'bg-white text-gray-500 border-gray-300 hover:border-black'}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4">
+                  <h2 className="font-anton text-2xl uppercase">Applicants</h2>
+                  <div className="flex gap-3 w-full sm:w-auto">
+                    <button onClick={exportRecruitmentToExcel} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
+                      Export Excel
+                    </button>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-max">
+                    <thead>
+                      <tr className="border-b-2 border-black text-xs font-bold uppercase tracking-widest text-gray-500">
+                        <th className="p-4 border-b border-gray-200">Name & Contact</th>
+                        <th className="p-4 border-b border-gray-200">Divisions</th>
+                        <th className="p-4 border-b border-gray-200">Submitted At</th>
+                        <th className="p-4 border-b border-gray-200">Status</th>
+                        <th className="text-right p-4 border-b border-gray-200">Documents</th>
+                      </tr>
+                    </thead>
+                    {recruitmentSubmissions.map(req => (
+                      <tbody key={req.id} className="text-sm font-medium border-b border-gray-300">
+                        <tr>
+                          <td className="p-4">
+                            <div className="font-bold text-gray-900">{req.fullName}</div>
+                            <div className="text-xs text-gray-500">{req.email} | {req.whatsapp}</div>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-sm">1. {req.division1}</div>
+                            <div className="text-xs text-gray-500">2. {req.division2}</div>
+                          </td>
+                          <td className="p-4">
+                            {req.submittedAt ? new Date(req.submittedAt.seconds * 1000).toLocaleString() : "-"}
+                          </td>
+                          <td className="p-4">
+                            <select 
+                              value={req.status || "PENDING_REVIEW"}
+                              onChange={(e) => setRecruitmentStatusModal({ isOpen: true, docId: req.id, newStatus: e.target.value, applicant: req, acceptedDivision: e.target.value === "ACCEPTED" ? req.division1 : "" })}
+                              className="px-2 py-1 text-xs font-bold uppercase rounded border border-gray-300 bg-white cursor-pointer outline-none focus:border-black"
+                            >
+                              <option value="PENDING_REVIEW">PENDING REVIEW</option>
+                              <option value="INTERVIEW">INTERVIEW</option>
+                              <option value="ACCEPTED">ACCEPTED</option>
+                              <option value="REJECTED">REJECTED</option>
+                            </select>
+                          </td>
+                          <td className="text-right p-4 space-y-2">
+                            {req.ktaLink && <a href={req.ktaLink} target="_blank" className="text-blue-500 underline text-xs block hover:text-black">View KTA/KTM</a>}
+                            {req.documentLink && <a href={req.documentLink} target="_blank" className="text-blue-500 underline text-xs block hover:text-black">View Support Docs</a>}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="5" className="p-4 pt-0">
+                             <details className="text-xs group border border-gray-200 rounded-xl p-4 bg-gray-50 hover:border-black transition-colors">
+                               <summary className="font-bold cursor-pointer text-[#c1ff00] bg-black inline-block px-4 py-2 rounded-lg tracking-widest uppercase">VIEW FULL DETAILS</summary>
+                               <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700 border-t border-gray-200 pt-4">
+                                 <div>
+                                   <strong className="block text-black mb-1">NIM / Domicile</strong>
+                                   <p>{req.nim} / {req.domicile}</p>
+                                 </div>
+                                 <div>
+                                   <strong className="block text-black mb-1">Academic Commitment</strong>
+                                   <p>{req.academicCommitment}</p>
+                                 </div>
+                                 <div className="md:col-span-2">
+                                   <strong className="block text-black mb-1">Organization Experience</strong>
+                                   <p className="whitespace-pre-wrap leading-relaxed">{req.organizationExp}</p>
+                                 </div>
+                                 <div className="md:col-span-2">
+                                   <strong className="block text-black mb-1">Achievement / Challenge</strong>
+                                   <p className="whitespace-pre-wrap leading-relaxed">{req.achievementDesc}</p>
+                                 </div>
+                                 <div className="md:col-span-2">
+                                   <strong className="block text-black mb-1">Specific Contribution</strong>
+                                   <p className="whitespace-pre-wrap leading-relaxed">{req.specificContribution}</p>
+                                 </div>
+                               </div>
+                             </details>
+                          </td>
+                        </tr>
+                      </tbody>
+                    ))}
+                    {recruitmentSubmissions.length === 0 && (
+                      <tbody>
+                        <tr><td colSpan="5" className="p-8 text-center text-gray-500 font-bold">No applications found.</td></tr>
+                      </tbody>
+                    )}
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
+
+      {/* RECRUITMENT STATUS MODAL */}
+      {recruitmentStatusModal.isOpen && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-2xl w-full max-w-sm border-2 border-black shadow-[4px_4px_0_0_#000] text-center">
+            <h3 className="font-anton text-2xl uppercase mb-2">Update Status</h3>
+            <p className="text-sm font-medium text-gray-600 mb-6">Change status for <strong>{recruitmentStatusModal.applicant?.fullName}</strong> to <strong className="text-black">{recruitmentStatusModal.newStatus}</strong>?</p>
+            
+            {recruitmentStatusModal.newStatus === "ACCEPTED" && (
+              <div className="mb-6 text-left">
+                <label className="block text-xs font-bold uppercase text-gray-700 mb-2">Accepted into Division:</label>
+                <select 
+                  value={recruitmentStatusModal.showCustomDivision ? "KONDISIONAL" : (recruitmentStatusModal.acceptedDivision === recruitmentStatusModal.applicant?.division1 ? recruitmentStatusModal.applicant?.division1 : recruitmentStatusModal.applicant?.division2)}
+                  onChange={(e) => {
+                    if (e.target.value === "KONDISIONAL") {
+                      setRecruitmentStatusModal({ ...recruitmentStatusModal, showCustomDivision: true, acceptedDivision: divisionsList[0] });
+                    } else {
+                      setRecruitmentStatusModal({ ...recruitmentStatusModal, showCustomDivision: false, acceptedDivision: e.target.value });
+                    }
+                  }}
+                  className="w-full bg-gray-50 border-2 border-black rounded-lg px-3 py-2 text-sm font-semibold focus:ring-[#c1ff00] cursor-pointer mb-2"
+                >
+                  <option value={recruitmentStatusModal.applicant?.division1}>Option 1: {recruitmentStatusModal.applicant?.division1}</option>
+                  <option value={recruitmentStatusModal.applicant?.division2}>Option 2: {recruitmentStatusModal.applicant?.division2}</option>
+                  <option value="KONDISIONAL">Conditional (Other Division)</option>
+                </select>
+                
+                {recruitmentStatusModal.showCustomDivision && (
+                  <select 
+                    value={recruitmentStatusModal.acceptedDivision}
+                    onChange={(e) => setRecruitmentStatusModal({ ...recruitmentStatusModal, acceptedDivision: e.target.value })}
+                    className="w-full bg-gray-50 border-2 border-black rounded-lg px-3 py-2 text-sm focus:ring-[#c1ff00]"
+                  >
+                    {divisionsList.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
+            
+            <div className="space-y-3">
+              <button onClick={() => submitRecruitmentStatus(true)} className="w-full bg-[#c1ff00] text-black border-2 border-black px-4 py-3 rounded-xl font-bold uppercase shadow-[2px_2px_0_0_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                Yes & Send Email
+              </button>
+              <button onClick={() => submitRecruitmentStatus(false)} className="w-full bg-white text-black border-2 border-black px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-100 transition-colors">
+                Yes (Without Email)
+              </button>
+              <button onClick={() => setRecruitmentStatusModal({ isOpen: false, docId: null, newStatus: "", applicant: null, acceptedDivision: "", showCustomDivision: false })} className="w-full bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-300 transition-colors">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ... previous modals like edit staff remain untouched ... */}
+
 
       {/* EDIT STAFF MODAL */}
       {editStaffModal.isOpen && editStaffModal.data && (
@@ -4679,6 +4961,22 @@ export default function StaffDashboard({ portalType = "operator" }) {
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-2xl w-full max-w-2xl border-2 border-black shadow-[4px_4px_0_0_#000] relative max-h-[90vh] overflow-y-auto">
             <h3 className="font-anton text-2xl uppercase mb-4 border-b-2 border-gray-100 pb-2">Verify Participant</h3>
+
+            <div className="flex justify-center mb-6">
+              <div className="flex flex-col items-center">
+                <span className="text-gray-500 font-bold text-xs block uppercase mb-2">Formal Profile Photo</span>
+                {participantModal.data.photoUrl ? (
+                  <div className="w-32 h-40 bg-red-600 rounded-lg overflow-hidden border-2 border-black shadow-[4px_4px_0_0_#000]">
+                    <img src={participantModal.data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-32 h-40 bg-gray-100 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-400 text-gray-400 text-xs text-center p-2">
+                    No Photo<br/>Uploaded
+                  </div>
+                )}
+              </div>
+            </div>
+
             
             <div className="grid grid-cols-2 gap-4 text-sm mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
               <div><span className="text-gray-500 font-bold text-xs block uppercase">Full Name</span><span className="font-semibold text-gray-900">{participantModal.data.fullName}</span></div>
@@ -4810,6 +5108,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
           </div>
         </div>
       )}
+
+
 
     </div>
   );

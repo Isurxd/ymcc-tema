@@ -159,7 +159,17 @@ service cloud.firestore {
       allow update, delete: if isStaff();
     }
 
+    match /recruitment_submissions/{document=**} {
+      allow read, update, delete: if isStaff();
+      allow create: if true;
+    }
+
     // Default deny
+    match /site_settings/{document=**} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

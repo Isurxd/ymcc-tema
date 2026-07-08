@@ -28,7 +28,7 @@ export default function ShareButton({ title, text, url }) {
     const shareUrl = url || window.location.href;
     navigator.clipboard.writeText(shareUrl)
       .then(() => toast.success("Link copied to clipboard!"))
-      .catch(() => alert("Link copied to clipboard!"));
+      .catch(() => toast.error("Failed to copy link."));
   };
 
   return (
