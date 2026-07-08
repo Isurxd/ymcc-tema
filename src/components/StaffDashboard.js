@@ -888,9 +888,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   const resetForm = () => {
     setEditingId(null);
-    setActivityForm({ title: "", type: "COMPETITIONS", date: "", description: "", maxParticipants: "", currentParticipants: 0, link: "" });
-    setNewsForm({ title: "", content: "", date: "", author: "", category: "General", image: "" });
-    setFaqForm({ q: "", a: "" });
+    setActivityForm(initActivity);
+    setNewsForm({ ...initNews, status: "PUBLISHED" });
+    setFaqForm(initFaq);
     setSponsorForm({ name: "", type: "PLATINUM", logo: "" });
     setMerchForm({ name: "", tagline: "", price: "", priceNumber: 0, costPrice: 0, category: "SAFETY WEAR", description: "", image: "" });
     setUploadFile(null);
@@ -1378,7 +1378,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
         imageUrl: imageUrl || "", 
         slug: slug || "",
         content: newsForm.content || "",
-        desc: newsForm.desc || generatedDesc
+        desc: newsForm.desc || generatedDesc,
+        status: newsForm.status || "PUBLISHED"
       };
       
       if (editingId) {
