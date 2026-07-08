@@ -52,7 +52,7 @@ function SuccessContent() {
           </div>
         ) : (
           <div className="bg-gray-50 border-2 border-black rounded-2xl p-6 mb-8 text-center">
-            <p className="text-sm text-gray-500 font-semibold">Your payment has been registered. You can verify your invoice in the Participant Portal.</p>
+            <p className="text-sm text-gray-500 font-semibold">Your payment has been registered. A receipt has been sent to your email.</p>
           </div>
         )}
 
@@ -75,9 +75,9 @@ function SuccessContent() {
                 <FaShoppingBag className="inline mr-2" /> Back to Shop
               </button>
             </Link>
-            <Link href="/portal">
+            <Link href="/">
               <button className="w-full bg-black text-white font-bold uppercase text-xs py-3.5 rounded-xl border-2 border-black hover:bg-gray-900 transition-colors">
-                Go to Portal
+                Back to Home
               </button>
             </Link>
           </div>
