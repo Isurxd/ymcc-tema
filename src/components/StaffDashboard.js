@@ -1393,8 +1393,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
           if (targetEmails.length > 0) {
             const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://ymccvii.com";
             const newsLink = `${SITE_URL}/news/${slug}`;
-            const imageHtml = payload.imageUrl ? `<img src="${payload.imageUrl}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 16px;" alt="News Image" /><br/>` : '';
-            const htmlMessage = `<p>A new article has been published on YMCC VII!</p>${imageHtml}<h2 style="text-transform: uppercase;">${payload.title}</h2><p>${payload.desc}</p><br><br><a href="${newsLink}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase;">READ MORE</a>`;
+            const imageHtml = payload.imageUrl ? `<img src="${payload.imageUrl}" style="max-width: 100%; height: auto; border-radius: 12px; margin-bottom: 20px; border: 1px solid #27272a;" alt="News Image" /><br/>` : '';
+            const htmlMessage = `<p style="color: #c1ff00; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; font-size: 13px; letter-spacing: 1px;">A new article has been published on YMCC VII!</p>${imageHtml}<h2 style="text-transform: uppercase; color: #ffffff; font-size: 22px; margin-top: 0;">${payload.title}</h2><p style="color: #d1d5db; font-size: 15px; line-height: 1.8;">${payload.desc}</p><br><div style="text-align: left; margin: 15px 0;"><a href="${newsLink}" style="display: inline-block; background-color: #c1ff00; color: #000000; padding: 16px 32px; text-decoration: none; font-weight: bold; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px;">READ MORE</a></div>`;
             try {
               const token = await auth.currentUser.getIdToken();
               console.log("Sending email to subscribers:", targetEmails.length);
@@ -2190,14 +2190,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
         body: JSON.stringify({
           bcc: targetEmails.join(","),
           subject: broadcastSubject,
-          html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-                   <h2 style="color: #000; text-transform: uppercase;">YMCC VII Broadcast</h2>
-                   <hr style="border: 2px solid #c1ff00; margin-bottom: 20px;" />
-                   <div style="font-size: 14px; line-height: 1.6;">${htmlMessage}</div>
-                   <br/>
-                   <hr style="border: 1px solid #eee;" />
-                   <p style="font-size: 11px; color: #777; text-align: center;">This is an automated message from the YMCC VII System. Please do not reply.</p>
-                 </div>`,
+          html: htmlMessage
         })
       });
 

@@ -18,34 +18,38 @@ export const generateEmailTemplate = (subject, emailContent) => `
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${subject}</title>
     </head>
-    <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f4; color: #333333;">
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f4f4f4; padding: 40px 0;">
+    <body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #09090b; color: #e5e7eb;">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #09090b; padding: 40px 0;">
         <tr>
           <td align="center">
-            <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color: #18181b; border: 1px solid #27272a; border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
               <!-- Header -->
               <tr>
-                <td align="center" style="background-color: #000000; padding: 30px;">
-                  <h1 style="color: #c1ff00; margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px;">YMCC VII</h1>
-                  <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 14px; letter-spacing: 1px;">Youth Mining Camp Competition</p>
+                <td align="left" style="background-color: #000000; padding: 40px; border-bottom: 3px solid #c1ff00;">
+                  <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ymccvii.com'}/LOGO%20YMCC.png" alt="YMCC Logo" style="height: 45px; display: block; margin-bottom: 25px; filter: brightness(0) invert(1); -webkit-filter: brightness(0) invert(1);" />
+                  <h1 style="color: #ffffff; margin: 0; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; font-weight: 900;">NAVIGATE THE FUTURE.</h1>
                 </td>
               </tr>
               <!-- Body -->
               <tr>
-                <td style="padding: 40px 30px; line-height: 1.6; font-size: 16px;">
+                <td style="padding: 40px; line-height: 1.8; font-size: 15px; color: #d1d5db;">
                   ${emailContent}
                 </td>
               </tr>
               <!-- Footer -->
               <tr>
-                <td align="center" style="background-color: #f9f9f9; padding: 20px; border-top: 1px solid #eeeeee;">
-                  <p style="margin: 0; font-size: 12px; color: #888888;">
+                <td align="left" style="background-color: #111111; padding: 30px 40px; border-top: 1px solid #222222;">
+                  <div style="margin-bottom: 20px;">
+                     <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ymccvii.com'}/LOGO%20UPN.png" alt="UPN Logo" style="height: 40px; margin-right: 15px; display: inline-block;" />
+                     <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://ymccvii.com'}/LOGO%20HMTA.png" alt="HMTA Logo" style="height: 40px; display: inline-block;" />
+                  </div>
+                  <p style="margin: 0; font-size: 12px; color: #888888; line-height: 1.5;">
                     This is an automated message from the YMCC VII System.<br/>
                     Please do not reply directly to this email.<br/>
                     For support, please contact our official admin via WhatsApp.
                   </p>
-                  <p style="margin: 10px 0 0 0; font-size: 12px; color: #bbbbbb;">
-                    &copy; ${new Date().getFullYear()} YMCC VII. All rights reserved.
+                  <p style="margin: 15px 0 0 0; font-size: 11px; color: #555555; font-weight: bold;">
+                    &copy; ${new Date().getFullYear()} Organizing Committee of YMCC VII. All Rights Reserved.
                   </p>
                 </td>
               </tr>
@@ -62,19 +66,19 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://ymccvii.com";
 export const sendOrderCreatedEmail = async (toEmail, orderData) => {
   const subject = `Action Required: Pay Your YMCC Order [${orderData.id}]`;
   const emailContent = `
-    <h2 style="text-transform: uppercase; font-size: 20px; font-weight: bold; border-bottom: 2px solid #eeeeee; padding-bottom: 10px; margin-top: 0;">Order Placed - Awaiting Payment</h2>
-    <p>Hello <strong>${orderData.customerName}</strong>,</p>
-    <p>Thank you for placing an order for YMCC VII Official Merchandise. Your order has been recorded with the ID: <strong>${orderData.id}</strong>.</p>
+    <h2 style="text-transform: uppercase; font-size: 20px; font-weight: bold; border-bottom: 2px solid #27272a; padding-bottom: 15px; margin-top: 0; color: #ffffff;">ORDER PLACED - AWAITING PAYMENT</h2>
+    <p>Hello <strong style="color: #ffffff;">${orderData.customerName}</strong>,</p>
+    <p>Thank you for placing an order for YMCC VII Official Merchandise. Your order has been recorded with the ID: <strong style="color: #c1ff00;">${orderData.id}</strong>.</p>
     
-    <div style="background-color: #f9f9f9; padding: 15px; margin: 25px 0; border-radius: 8px; border: 1px solid #eeeeee;">
-      <p style="margin: 0; font-weight: bold; font-size: 16px;">Total Amount: Rp ${orderData.totalAmount.toLocaleString('id-ID')}</p>
-      <p style="margin: 10px 0 0 0; font-weight: bold;">Status: <span style="background-color: #fbbf24; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 14px;">${orderData.status}</span></p>
+    <div style="background-color: #09090b; padding: 20px; margin: 25px 0; border-radius: 12px; border: 1px solid #27272a;">
+      <p style="margin: 0; font-weight: bold; font-size: 16px; color: #ffffff;">Total Amount: Rp ${orderData.totalAmount.toLocaleString('id-ID')}</p>
+      <p style="margin: 12px 0 0 0; font-weight: bold; color: #ffffff;">Status: <span style="background-color: #fbbf24; color: #000; padding: 4px 10px; border-radius: 6px; font-size: 14px; margin-left: 5px;">${orderData.status}</span></p>
     </div>
 
     <p>Please complete your payment so we can process your gear. You can resume your payment or track your order status anytime by clicking the link below:</p>
     
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="${SITE_URL}/order-status?id=${orderData.id}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
+    <div style="text-align: left; margin: 35px 0 10px 0;">
+      <a href="${SITE_URL}/order-status?id=${orderData.id}" style="display: inline-block; background-color: #c1ff00; color: #000000; padding: 16px 32px; text-decoration: none; font-weight: bold; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px;">
         PAY / VIEW MY ORDER
       </a>
     </div>
@@ -111,19 +115,19 @@ export const sendOrderCreatedEmail = async (toEmail, orderData) => {
 export const sendPaymentReceivedEmail = async (toEmail, orderData) => {
   const subject = `Payment Received - YMCC Order [${orderData.id}]`;
   const emailContent = `
-    <h2 style="text-transform: uppercase; font-size: 20px; font-weight: bold; border-bottom: 2px solid #eeeeee; padding-bottom: 10px; margin-top: 0;">Payment Successful</h2>
-    <p>Hello <strong>${orderData.customerName}</strong>,</p>
-    <p>We have successfully received your payment for order ID: <strong>${orderData.id}</strong>.</p>
+    <h2 style="text-transform: uppercase; font-size: 20px; font-weight: bold; border-bottom: 2px solid #27272a; padding-bottom: 15px; margin-top: 0; color: #ffffff;">PAYMENT SUCCESSFUL</h2>
+    <p>Hello <strong style="color: #ffffff;">${orderData.customerName}</strong>,</p>
+    <p>We have successfully received your payment for order ID: <strong style="color: #c1ff00;">${orderData.id}</strong>.</p>
     
-    <div style="background-color: #f9f9f9; padding: 15px; margin: 25px 0; border-radius: 8px; border: 1px solid #eeeeee;">
-      <p style="margin: 0; font-weight: bold; font-size: 16px;">Total Paid: Rp ${orderData.totalAmount.toLocaleString('id-ID')}</p>
-      <p style="margin: 10px 0 0 0; font-weight: bold;">Status: <span style="background-color: #c1ff00; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 14px;">PAID</span></p>
+    <div style="background-color: #09090b; padding: 20px; margin: 25px 0; border-radius: 12px; border: 1px solid #27272a;">
+      <p style="margin: 0; font-weight: bold; font-size: 16px; color: #ffffff;">Total Paid: Rp ${orderData.totalAmount.toLocaleString('id-ID')}</p>
+      <p style="margin: 12px 0 0 0; font-weight: bold; color: #ffffff;">Status: <span style="background-color: #c1ff00; color: #000; padding: 4px 10px; border-radius: 6px; font-size: 14px; margin-left: 5px;">PAID</span></p>
     </div>
 
     <p>Your order is now being processed by our team. You can track your shipment and order status anytime by clicking the link below:</p>
     
-    <div style="text-align: center; margin: 30px 0;">
-      <a href="${SITE_URL}/order-status?id=${orderData.id}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
+    <div style="text-align: left; margin: 35px 0 10px 0;">
+      <a href="${SITE_URL}/order-status?id=${orderData.id}" style="display: inline-block; background-color: #c1ff00; color: #000000; padding: 16px 32px; text-decoration: none; font-weight: bold; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px;">
         TRACK MY ORDER
       </a>
     </div>
