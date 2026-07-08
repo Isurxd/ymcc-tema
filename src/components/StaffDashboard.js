@@ -1393,7 +1393,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
           if (targetEmails.length > 0) {
             const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://ymccvii.com";
             const newsLink = `${SITE_URL}/news/${slug}`;
-            const htmlMessage = `<p>A new article has been published on YMCC VII!</p><h2 style="text-transform: uppercase;">${payload.title}</h2><p>${payload.content.substring(0, 150)}...</p><br><br><a href="${newsLink}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase;">READ MORE</a>`;
+            const imageHtml = payload.imageUrl ? `<img src="${payload.imageUrl}" style="max-width: 100%; height: auto; border-radius: 8px; margin-bottom: 16px;" alt="News Image" /><br/>` : '';
+            const htmlMessage = `<p>A new article has been published on YMCC VII!</p>${imageHtml}<h2 style="text-transform: uppercase;">${payload.title}</h2><p>${payload.desc}</p><br><br><a href="${newsLink}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase;">READ MORE</a>`;
             try {
               const token = await auth.currentUser.getIdToken();
               console.log("Sending email to subscribers:", targetEmails.length);
