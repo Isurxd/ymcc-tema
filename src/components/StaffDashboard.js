@@ -184,7 +184,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   });
 
   useEffect(() => {
-    if (activeTab !== "attendance" || scannerMode !== "HARDWARE") return;
+    if (activeTab !== "qr_scanner" || scannerMode !== "HARDWARE") return;
 
     const handleKeyDown = (e) => {
       if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") {

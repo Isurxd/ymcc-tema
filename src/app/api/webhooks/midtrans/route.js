@@ -64,10 +64,17 @@ export async function POST(req) {
     const isPaid = status === "PAID" || status === "SETTLED";
 
     // Fetch order first to get dependencies
-    const orderRef = db.collection("merch_orders").doc(orderId);
-    const orderDocSnap = await orderRef.get();
+    let orderRef = db.collection("merch_orders").doc(orderId);
+    let orderDocSnap = await orderRef.get();
+    let isDigital = false;
+
     if (!orderDocSnap.exists) {
-      throw new Error(`Order not found: ${orderId}`);
+      orderRef = db.collection("Orders").doc(orderId);
+      orderDocSnap = await orderRef.get();
+      if (!orderDocSnap.exists) {
+        throw new Error(`Order not found: ${orderId}`);
+      }
+      isDigital = true;
     }
     const orderData = orderDocSnap.data();
 
@@ -127,7 +134,7 @@ export async function POST(req) {
 
       // Jika EXPIRED, CANCELLED, atau DENIED: kembalikan stok & kurangi frozen balance
       if (["EXPIRED", "CANCELLED", "DENIED", "FRAUD_DENIED"].includes(status)) {
-        if (Array.isArray(data.items)) {
+        if (!isDigital && Array.isArray(data.items)) {
           data.items.forEach((item) => {
             const productId = item.productId || item.id;
             if (productId) {

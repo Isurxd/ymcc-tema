@@ -19,48 +19,56 @@ export async function POST(req) {
     let totalAmount = 0;
     let totalItems = 0;
     const orderItems = [];
-    const orderId = db.collection('merch_orders').doc().id;
+
+    const isDigital = deliveryMethod === "digital";
+    const targetCollection = isDigital ? 'Orders' : 'merch_orders';
+    const sourceCollection = isDigital ? 'activities' : 'merchandise';
+    const orderId = db.collection(targetCollection).doc().id;
 
     // Begin Firestore transaction for Atomic Soft-Lock
     await db.runTransaction(async (transaction) => {
-      // 1. Fetch all merch docs first to avoid read-after-write errors
-      const merchRefs = items.map(item => db.collection('merchandise').doc(item.id));
-      const merchDocs = await transaction.getAll(...merchRefs);
+      // 1. Fetch all docs first to avoid read-after-write errors
+      const itemRefs = items.map(item => db.collection(sourceCollection).doc(item.id));
+      const itemDocs = await transaction.getAll(...itemRefs);
 
-      merchDocs.forEach((docSnap, idx) => {
+      itemDocs.forEach((docSnap, idx) => {
         const item = items[idx];
-        if (!docSnap.exists) throw new Error(`Product ${item.name} not found`);
-        const itemSize = item.size;
-        const stockPerSize = docSnap.data().stockPerSize || {};
-        // If the item has sizes but no stockPerSize, or if it uses stockPerSize, use it
-        const hasPerSizeStock = Object.keys(stockPerSize).length > 0;
+        if (!docSnap.exists) throw new Error(`${isDigital ? 'Activity' : 'Product'} ${item.name} not found`);
         
-        let stock = docSnap.data().stockAmount || 0;
-        if (hasPerSizeStock && itemSize) {
-          stock = stockPerSize[itemSize] || 0;
+        let dbPrice = Number(docSnap.data().priceNumber) || Number(docSnap.data().price) || Number(item.price) || 150000;
+
+        if (!isDigital) {
+          const itemSize = item.size;
+          const stockPerSize = docSnap.data().stockPerSize || {};
+          // If the item has sizes but no stockPerSize, or if it uses stockPerSize, use it
+          const hasPerSizeStock = Object.keys(stockPerSize).length > 0;
+          
+          let stock = docSnap.data().stockAmount || 0;
+          if (hasPerSizeStock && itemSize) {
+            stock = stockPerSize[itemSize] || 0;
+          }
+
+          // Disable stock check for PO (Pre-Order) items if needed
+          if (docSnap.data().stockType !== "PO" && stock < item.quantity) {
+            throw new Error(`Insufficient stock for ${item.name} (Size: ${itemSize || 'N/A'})`);
+          }
+
+          // Direct Row-level Locking: Decrement stock immediately
+          const updatePayload = {};
+          if (hasPerSizeStock && itemSize) {
+            updatePayload[`stockPerSize.${itemSize}`] = FieldValue.increment(-Number(item.quantity || 1));
+          }
+          updatePayload.stockAmount = FieldValue.increment(-Number(item.quantity || 1));
+          transaction.update(docSnap.ref, updatePayload);
         }
 
-        // Disable stock check for PO (Pre-Order) items if needed
-        if (docSnap.data().stockType !== "PO" && stock < item.quantity) {
-          throw new Error(`Insufficient stock for ${item.name} (Size: ${itemSize || 'N/A'})`);
-        }
-
-        // Direct Row-level Locking: Decrement stock immediately
-        const updatePayload = {};
-        if (hasPerSizeStock && itemSize) {
-          updatePayload[`stockPerSize.${itemSize}`] = FieldValue.increment(-Number(item.quantity || 1));
-        }
-        updatePayload.stockAmount = FieldValue.increment(-Number(item.quantity || 1));
-        transaction.update(docSnap.ref, updatePayload);
-
-        const dbPrice = Number(docSnap.data().priceNumber) || 0;
         const qty = Number(item.quantity) || 1;
         totalAmount += dbPrice * qty;
         totalItems += qty;
         orderItems.push({
           productId: item.id,
-          name: docSnap.data().name || item.name,
-          image: docSnap.data().image || null,
+          name: docSnap.data().title || docSnap.data().name || item.name,
+          image: docSnap.data().icon || docSnap.data().image || null,
           size: item.size || null,
           quantity: qty,
           price: dbPrice
@@ -106,7 +114,7 @@ export async function POST(req) {
       totalAmount = totalAmount - discountAmount + secureShippingCost + SERVER_PLATFORM_FEE;
 
       // Create Order Document
-      const orderRef = db.collection('merch_orders').doc(orderId);
+      const orderRef = db.collection(targetCollection).doc(orderId);
       transaction.set(orderRef, {
         id: orderId,
         userDetails,

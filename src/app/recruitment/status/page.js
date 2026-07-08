@@ -25,7 +25,7 @@ export default function RecruitmentStatus() {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error || "Terjadi kesalahan sistem");
+        throw new Error(data.error || "A system error occurred.");
       }
       
       setResult(data.result);

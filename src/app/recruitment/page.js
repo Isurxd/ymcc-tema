@@ -100,32 +100,32 @@ export default function Recruitment() {
     setError("");
     // Basic validation before next
     if (step === 1 && !formData.protocolConsent) {
-      setError("Anda wajib menyetujui protokol pengisian.");
+      setError("You must agree to the filling protocol.");
       return;
     }
     if (step === 2) {
       if (!formData.fullName || !formData.nim || !formData.ktaLink || !formData.email || !formData.whatsapp || !formData.domicile) {
-        setError("Semua kolom pada bagian ini wajib diisi.");
+        setError("All fields in this section are required.");
         return;
       }
       if (!formData.ktaLink.includes("drive.google.com")) {
-        setError("Link KTA/KTM/KRP harus berupa link Google Drive yang valid.");
+        setError("The KTA/KTM/KRP link must be a valid Google Drive shareable link.");
         return;
       }
     }
     if (step === 3) {
       if (!formData.organizationExp || !formData.achievementDesc || !formData.academicCommitment) {
-        setError("Semua kolom pengalaman dan komitmen wajib diisi.");
+        setError("All experience and commitment fields are required.");
         return;
       }
     }
     if (step === 4) {
       if (!formData.division1 || !formData.division2 || !formData.specificContribution) {
-        setError("Pilihan divisi dan kontribusi spesifik wajib diisi.");
+        setError("Division choices and specific contribution are required.");
         return;
       }
       if (formData.division1 === formData.division2) {
-        setError("Division Choice 1 dan Divisi 2 tidak boleh sama.");
+        setError("Division Choice 1 and Division Choice 2 cannot be the same.");
         return;
       }
     }
@@ -141,7 +141,7 @@ export default function Recruitment() {
     setLoading(true);
 
     if (formData.documentLink && !formData.documentLink.includes("drive.google.com")) {
-      setError("Jika mengisi dokumen pendukung, pastikan itu link Google Drive yang valid.");
+      setError("If providing supporting documents, please ensure it is a valid Google Drive link.");
       setLoading(false);
       return;
     }
@@ -155,13 +155,13 @@ export default function Recruitment() {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error || "Gagal Submitting...ta");
+        throw new Error(data.error || "Failed to submit application.");
       }
       
       setSuccess(true);
     } catch (err) {
       console.error(err);
-      setError(err.message || "Terjadi kesalahan sistem. Silakan coba lagi nanti.");
+      setError(err.message || "A system error occurred. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -174,9 +174,9 @@ export default function Recruitment() {
           <div className="absolute top-0 left-0 w-full h-3 bg-black"></div>
           <FaCheckCircle className="text-6xl text-[#c1ff00] mx-auto mb-6 drop-shadow-md" />
           <h1 className="font-anton text-4xl uppercase tracking-wide text-[#111] mb-4">APPLICATION SUBMITTED</h1>
-          <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Terima kasih telah mendaftar sebagai Staf YMCC VII. Berkas Anda telah berhasil kami terima dan akan segera direview. The Green Compass Starts With You!</p>
+          <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Thank you for registering as a YMCC VII Staff. We have successfully received your documents and they will be reviewed shortly. The Green Compass Starts With You!</p>
           <Link href="/" className="inline-block bg-black text-[#c1ff00] px-8 py-3 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00]">
-            Back ke Beranda
+            Back to Homepage
           </Link>
         </div>
       </div>
@@ -198,9 +198,9 @@ export default function Recruitment() {
           <FaCalendarAlt className="text-6xl text-gray-300 mx-auto mb-6 drop-shadow-sm" />
           <h1 className="font-anton text-4xl uppercase tracking-wide text-[#111] mb-2">COMING SOON</h1>
           <h2 className="font-poppins font-bold text-gray-500 text-sm mb-6">Staff Recruitment Batch 2 - YMCC VII</h2>
-          <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Pendaftaran Panitia Batch 2 YMCC VII akan segera dibuka. Siapkan berkas Anda dan nantikan informasi resminya di Instagram kami @ymcc_upnvyk!</p>
+          <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Registration for YMCC VII Batch 2 Staff will be open soon. Prepare your documents and stay tuned for official updates on our Instagram @ymcc_upnvyk!</p>
           <Link href="/" className="inline-block bg-black text-[#c1ff00] px-8 py-3 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00]">
-            Back ke Beranda
+            Back to Homepage
           </Link>
         </div>
       </div>
@@ -214,9 +214,9 @@ export default function Recruitment() {
           <FaLock className="text-6xl text-red-500 mx-auto mb-6 drop-shadow-sm" />
           <h1 className="font-anton text-4xl uppercase tracking-wide text-[#111] mb-2">RECRUITMENT CLOSED</h1>
           <h2 className="font-poppins font-bold text-gray-500 text-sm mb-6">Staff Recruitment Batch 2 - YMCC VII</h2>
-          <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Terima kasih atas antusiasme Anda. Masa pendaftaran untuk Panitia Batch 2 YMCC VII telah ditutup. Pengumuman selanjutnya akan diinformasikan melalui Email atau Grup WhatsApp.</p>
+          <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Thank you for your enthusiasm. The registration period for YMCC VII Batch 2 Staff has closed. Next announcements will be notified via Email or WhatsApp Group.</p>
           <Link href="/" className="inline-block bg-black text-[#c1ff00] px-8 py-3 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00]">
-            Back ke Beranda
+            Back to Homepage
           </Link>
         </div>
       </div>
@@ -236,7 +236,7 @@ export default function Recruitment() {
               <div key={s} className={`h-2 flex-1 rounded-full border border-black ${step >= s ? 'bg-[#c1ff00]' : 'bg-gray-100'}`}></div>
             ))}
           </div>
-          <p className="text-xs font-bold text-right mt-2 text-gray-400">Bagian {step} dari 5</p>
+          <p className="text-xs font-bold text-right mt-2 text-gray-400">Section {step} of 5</p>
         </div>
 
         {error && (
@@ -251,16 +251,16 @@ export default function Recruitment() {
           {/* STEP 1 */}
           {step === 1 && (
             <div className="animate-fade-in-up">
-              <h3 className="font-anton text-2xl uppercase mb-4 bg-black text-[#c1ff00] inline-block px-3 py-1">Validasi Protocol & Integritas</h3>
+              <h3 className="font-anton text-2xl uppercase mb-4 bg-black text-[#c1ff00] inline-block px-3 py-1">Protocol & Integrity Validation</h3>
               <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-6 space-y-4">
-                <p className="text-sm font-medium text-gray-700">Selamat datang di gerbang pendaftaran pilar strategis YMCC VII. Kami mencari individu yang presisi, adaptif, dan selaras dengan visi Sustainable Future Mining.</p>
+                <p className="text-sm font-medium text-gray-700">Welcome to the registration gateway for the strategic pillars of YMCC VII. We seek individuals who are precise, adaptive, and aligned with the vision of Sustainable Future Mining.</p>
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
-                  <p className="font-bold text-sm mb-2 text-yellow-800">PENTING: Protokol Pengisian (Wajib Dibaca):</p>
+                  <p className="font-bold text-sm mb-2 text-yellow-800">IMPORTANT: Filling Protocol (Must Read):</p>
                   <ul className="list-disc pl-5 text-sm space-y-1 text-yellow-900">
-                    <li><strong>Standardisasi Nama:</strong> Gunakan HURUF KAPITAL sesuai identitas resmi (Tanpa Gelar).</li>
-                    <li><strong>Standardisasi Email:</strong> Gunakan huruf kecil semua (lowercase).</li>
-                    <li><strong>Format File:</strong> Seluruh dokumen pendukung digabung dalam 1 file PDF (Maks. 5MB) dengan nama: <em>[PILIHAN 1] _ [Full Name] _ [NIM]</em>.</li>
-                    <li><strong>Validitas Data:</strong> Data yang Anda masukkan akan digunakan secara otomatis oleh sistem. Kesalahan input sepenuhnya menjadi tanggung jawab pendaftar.</li>
+                    <li><strong>Name Standardization:</strong> Use UPPERCASE letters according to official identity card (No Titles).</li>
+                    <li><strong>Email Standardization:</strong> Use lowercase letters (all lowercase).</li>
+                    <li><strong>File Format:</strong> All supporting documents must be combined into 1 PDF file (Max 5MB) named: <em>[CHOICE 1] _ [Full Name] _ [NIM]</em>.</li>
+                    <li><strong>Data Validity:</strong> The data you enter will be automatically processed by the system. Any input errors are entirely the responsibility of the applicant.</li>
                   </ul>
                 </div>
               </div>
@@ -275,8 +275,8 @@ export default function Recruitment() {
                   className="mt-1 w-5 h-5 accent-[#c1ff00] border-2 border-black rounded cursor-pointer shrink-0"
                 />
                 <label htmlFor="protocolConsent" className="text-sm font-bold cursor-pointer">
-                  Sebelum melanjutkan, Anda wajib memahami bahwa YMCC VII menjunjung tinggi ketelitian teknis.<br/>
-                  Saya telah membaca Handbook dan memahami seluruh prosedur teknis pengisian (Format Nama, Email, dan Penamaan File). Ya, saya mengerti dan siap bertanggung jawab atas validitas data saya.
+                  Before proceeding, you must understand that YMCC VII values technical precision.<br/>
+                  I have read the Handbook and understand all technical filling procedures (Name, Email, and File Naming Formats). Yes, I understand and am ready to be responsible for the validity of my data.
                 </label>
               </div>
             </div>
@@ -289,34 +289,34 @@ export default function Recruitment() {
               
               <div>
                 <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">1. Full Name <span className="text-red-500">*</span></label>
-                <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Gunakan HURUF KAPITAL sesuai KTP/KTM" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00] uppercase" />
+                <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Use UPPERCASE letters according to official ID card" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00] uppercase" />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">2. NIM <span className="text-red-500">*</span></label>
-                  <input type="text" name="nim" value={formData.nim} onChange={handleChange} placeholder="Tanpa titik. Contoh: 112XXXXXX" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
+                  <input type="text" name="nim" value={formData.nim} onChange={handleChange} placeholder="No dots/separators. Example: 112XXXXXX" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
                 </div>
                 <div>
-                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">3. Email Aktif <span className="text-red-500">*</span></label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="emailanda@gmail.com" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00] lowercase" />
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">3. Active Email <span className="text-red-500">*</span></label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="youremail@gmail.com" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00] lowercase" />
                 </div>
               </div>
 
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Unggah Bukti KTA / KTM / KRP <span className="text-red-500">*</span></label>
-                <input type="url" name="ktaLink" value={formData.ktaLink} onChange={handleChange} placeholder="Tautan (URL) Google Drive..." required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
-                <p className="text-xs text-gray-500 mt-2 font-medium">Unggah foto ke Google Drive pribadi. Pastikan pengaturan berbagi (Share) diatur ke <strong>&apos;Anyone with the link&apos;</strong>.</p>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Upload Proof of KTA / KTM / KRP <span className="text-red-500">*</span></label>
+                <input type="url" name="ktaLink" value={formData.ktaLink} onChange={handleChange} placeholder="Google Drive Link (URL)..." required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
+                <p className="text-xs text-gray-500 mt-2 font-medium">Upload photo to your personal Google Drive. Ensure the sharing settings are set to <strong>&apos;Anyone with the link&apos;</strong>.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">4. WhatsApp Number <span className="text-red-500">*</span></label>
-                  <input type="text" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="Format: 628xxxxxxxxxx (tanpa +)" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
+                  <input type="text" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="Format: 628xxxxxxxxxx (without +)" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
                 </div>
                 <div>
-                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">5. Domisili Saat Ini <span className="text-red-500">*</span></label>
-                  <input type="text" name="domicile" value={formData.domicile} onChange={handleChange} placeholder="KOTA/KABUPATEN" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00] uppercase" />
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">5. Current Domicile <span className="text-red-500">*</span></label>
+                  <input type="text" name="domicile" value={formData.domicile} onChange={handleChange} placeholder="CITY/REGENCY" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00] uppercase" />
                 </div>
               </div>
             </div>
@@ -328,20 +328,20 @@ export default function Recruitment() {
               <h3 className="font-anton text-2xl uppercase mb-4 bg-black text-[#c1ff00] inline-block px-3 py-1">B. Academic & Org. Track Record</h3>
               
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">6. Pengalaman Organisasi Terakhir <span className="text-red-500">*</span></label>
-                <textarea name="organizationExp" value={formData.organizationExp} onChange={handleChange} rows="3" placeholder="Sebutkan 1-2 pengalaman (Jabatan & Tahun)" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">6. Latest Organizational Experience <span className="text-red-500">*</span></label>
+                <textarea name="organizationExp" value={formData.organizationExp} onChange={handleChange} rows="3" placeholder="List 1-2 experiences (Position & Year)" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
               </div>
 
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">7. Deskripsi Pencapaian / Tantangan Terbesar <span className="text-red-500">*</span></label>
-                <textarea name="achievementDesc" value={formData.achievementDesc} onChange={handleChange} rows="4" placeholder="Ceritakan tantangan terbesar (maks ±150 kata)..." required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">7. Description of Greatest Achievement / Challenge <span className="text-red-500">*</span></label>
+                <textarea name="achievementDesc" value={formData.achievementDesc} onChange={handleChange} rows="4" placeholder="Tell us about your greatest challenge (max ±150 words)..." required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
               </div>
 
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">8. Komitmen Akademik 2026-2027 <span className="text-red-500">*</span></label>
-                <p className="text-xs text-gray-500 mb-3">Apakah ada rencana Magang / KKN pada Jan - Jun 2027?</p>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">8. Academic Commitment 2026-2027 <span className="text-red-500">*</span></label>
+                <p className="text-xs text-gray-500 mb-3">Are there any plans for Internship / Community Service (KKN) during Jan - Jun 2027?</p>
                 <div className="flex gap-4">
-                  {["Ya", "Tidak", "Masih Tentatif"].map(opt => (
+                  {["Yes", "No", "Still Tentative"].map(opt => (
                     <label key={opt} className={`flex-1 text-center py-3 px-2 rounded-xl border-2 cursor-pointer font-bold text-sm transition-all ${formData.academicCommitment === opt ? 'bg-black text-[#c1ff00] border-black shadow-[2px_2px_0_0_#c1ff00]' : 'bg-gray-50 border-gray-300 hover:border-black text-gray-600'}`}>
                       <input type="radio" name="academicCommitment" value={opt} onChange={handleChange} className="hidden" />
                       {opt}
@@ -358,24 +358,24 @@ export default function Recruitment() {
               <h3 className="font-anton text-2xl uppercase mb-4 bg-black text-[#c1ff00] inline-block px-3 py-1">C. Strategic Alignment</h3>
               
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">9. Division Choice 1 (Prioritas) <span className="text-red-500">*</span></label>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">9. Division Choice 1 (Priority) <span className="text-red-500">*</span></label>
                 <select name="division1" value={formData.division1} onChange={handleChange} required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm font-semibold focus:ring-[#c1ff00] cursor-pointer">
-                  <option value="">-- Pilih Prioritas Utama --</option>
+                  <option value="">-- Select First Choice Priority --</option>
                   {divisions.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">10. Division Choice 2 (Alternatif) <span className="text-red-500">*</span></label>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">10. Division Choice 2 (Alternative) <span className="text-red-500">*</span></label>
                 <select name="division2" value={formData.division2} onChange={handleChange} required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm font-semibold focus:ring-[#c1ff00] cursor-pointer">
-                  <option value="">-- Pilih Prioritas Kedua --</option>
+                  <option value="">-- Select Second Choice Priority --</option>
                   {divisions.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">11. Kontribusi Spesifik untuk YMCC VII <span className="text-red-500">*</span></label>
-                <textarea name="specificContribution" value={formData.specificContribution} onChange={handleChange} rows="4" placeholder="Apa kontribusi konkret Anda untuk divisi yang dipilih?" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">11. Specific Contribution to YMCC VII <span className="text-red-500">*</span></label>
+                <textarea name="specificContribution" value={formData.specificContribution} onChange={handleChange} rows="4" placeholder="What is your concrete contribution to the selected division?" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
               </div>
             </div>
           )}
@@ -383,17 +383,17 @@ export default function Recruitment() {
           {/* STEP 5 */}
           {step === 5 && (
             <div className="animate-fade-in-up space-y-6">
-              <h3 className="font-anton text-2xl uppercase mb-4 bg-black text-[#c1ff00] inline-block px-3 py-1">D. Submission Berkas</h3>
+              <h3 className="font-anton text-2xl uppercase mb-4 bg-black text-[#c1ff00] inline-block px-3 py-1">D. Document Submission</h3>
               
               <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 text-center">
                 <FaFileUpload className="text-5xl text-gray-300 mx-auto mb-4" />
-                <p className="text-sm font-medium text-gray-700 mb-2">Seluruh dokumen wajib digabungkan dalam <strong>1 file PDF (Maks. 5MB)</strong>.</p>
-                <p className="text-xs text-gray-500 mb-6">Format nama file: <strong className="text-black">[PILIHAN 1] _ [Full Name] _ [NIM]</strong></p>
+                <p className="text-sm font-medium text-gray-700 mb-2">All documents must be combined into <strong>1 PDF file (Max 5MB)</strong>.</p>
+                <p className="text-xs text-gray-500 mb-6">File name format: <strong className="text-black">[CHOICE 1] _ [Full Name] _ [NIM]</strong></p>
                 
                 <div className="text-left">
-                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">12. Dokumen Pendukung Pilihan 1 [OPSIONAL]</label>
-                  <input type="url" name="documentLink" value={formData.documentLink} onChange={handleChange} placeholder="Tautan (URL) Google Drive..." className="w-full bg-white border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
-                  <p className="text-xs text-gray-500 mt-2">Pastikan pengaturan berbagi (Share) diatur ke <strong>&apos;Anyone with the link&apos;</strong>. Kosongkan jika tidak ada dokumen pendukung.</p>
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">12. Supporting Documents Choice 1 [OPTIONAL]</label>
+                  <input type="url" name="documentLink" value={formData.documentLink} onChange={handleChange} placeholder="Google Drive Link (URL)..." className="w-full bg-white border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
+                  <p className="text-xs text-gray-500 mt-2">Ensure the sharing settings are set to <strong>&apos;Anyone with the link&apos;</strong>. Leave blank if there are no supporting documents.</p>
                 </div>
               </div>
             </div>
@@ -413,7 +413,7 @@ export default function Recruitment() {
               </button>
             ) : (
               <button type="submit" disabled={loading} className="flex-1 bg-[#c1ff00] text-black border-2 border-black px-6 py-3 rounded-xl font-bold uppercase text-sm shadow-[4px_4px_0_0_rgba(17,17,17,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50">
-                {loading ? "Menyimpan Data..." : "Kirim Formulir"}
+                {loading ? "Saving Data..." : "Submit Form"}
               </button>
             )}
           </div>

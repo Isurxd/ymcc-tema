@@ -50,12 +50,14 @@ export default function Login() {
       const { user, error } = await loginUser(email, password);
       if (error) throw new Error(error);
 
-      if (isMasterEmail(user.email)) {
+      const cleanEmail = (user.email || "").toLowerCase().trim();
+
+      if (isMasterEmail(cleanEmail)) {
         router.push("/master");
         return;
       }
 
-      const staffDocRef = doc(db, "staff_applications", user.email);
+      const staffDocRef = doc(db, "staff_applications", cleanEmail);
       const staffSnap = await getDoc(staffDocRef);
 
       if (staffSnap.exists() && staffSnap.data().status === "APPROVED") {
@@ -75,13 +77,16 @@ export default function Login() {
     try {
       const { user, error: authError } = await loginWithGoogle();
       if (authError) throw new Error(authError);
-      if (isMasterEmail(user.email)) {
+      
+      const cleanEmail = (user.email || "").toLowerCase().trim();
+
+      if (isMasterEmail(cleanEmail)) {
         router.push("/master");
         return;
       }
 
       // Check if user is staff/operator
-      const staffDocRef = doc(db, "staff_applications", user.email);
+      const staffDocRef = doc(db, "staff_applications", cleanEmail);
       const staffSnap = await getDoc(staffDocRef);
 
       if (staffSnap.exists()) {
