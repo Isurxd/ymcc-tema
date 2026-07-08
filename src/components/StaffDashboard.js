@@ -6,7 +6,8 @@ import { auth, db, storage, secondaryAuth } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword, updateEmail } from "firebase/auth";
-import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint, FaCalendarCheck } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint, FaCalendarCheck, FaDatabase } from "react-icons/fa";
+import QRCode from "react-qr-code";
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend, LabelList } from "recharts";
 import { useRouter } from "next/navigation";
@@ -102,6 +103,11 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
   const [promos, setPromos] = useState([]);
+  const [ticketOrders, setTicketOrders] = useState([]);
+  const [dbSelectedActivity, setDbSelectedActivity] = useState("ALL");
+  const [dbSearchQuery, setDbSearchQuery] = useState("");
+  const [dbStatusFilter, setDbStatusFilter] = useState("ALL");
+  const [selectedQrParticipant, setSelectedQrParticipant] = useState(null);
   const [promoForm, setPromoForm] = useState({ code: "", type: "VOUCHER", discount: "", discountType: "PERCENT", maxUses: "", commission: "", affiliateEmail: "" });
   
   // NEW FILTERS & SEARCH STATES
@@ -350,12 +356,16 @@ export default function StaffDashboard({ portalType = "operator" }) {
     let unsubTickets = () => {};
     let unsubPromos = () => {};
     let unsubAffiliateApps = () => {};
+    let unsubTicketOrders = () => {};
 
     if (portalType === "admin" || portalType === "master") {
       unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
         const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setUsers(list);
         setParticipants(list.filter(u => u.role === "participant"));
+      });
+      unsubTicketOrders = onSnapshot(collection(db, "Orders"), (snap) => {
+        setTicketOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       });
       unsubBroadcasts = onSnapshot(query(collection(db, "broadcasts"), orderBy("sentAt", "desc")), (snap) => {
         setBroadcasts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -443,6 +453,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
       unsubStaffApps(); unsubSubscribers(); unsubFeedback(); unsubClicks();
       unsubNews(); unsubFaqs(); unsubSponsors(); unsubActivities(); unsubBroadcasts();
       unsubSubmissions(); unsubAudit(); unsubTickets(); unsubPromos(); unsubAffiliateApps(); unsubAttendanceSessions();
+      unsubTicketOrders();
     };
   }, [isAuthenticated, portalType, userEmail]);
 
@@ -1546,6 +1557,101 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
+  const getUserPaidCompetitions = (email) => {
+    if (!email) return [];
+    const paidOrders = ticketOrders.filter(order => 
+      (order.userDetails?.email || "").toLowerCase() === email.toLowerCase() &&
+      (order.status === "PAID" || order.status === "SETTLED")
+    );
+    const comps = [];
+    paidOrders.forEach(order => {
+      if (Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          comps.push({ id: item.productId || item.id, name: item.name });
+        });
+      }
+    });
+    return comps;
+  };
+
+  const getFilteredDatabasePeserta = () => {
+    return participants.filter(p => {
+      if (dbSearchQuery) {
+        const queryVal = dbSearchQuery.toLowerCase();
+        const matchName = (p.fullName || "").toLowerCase().includes(queryVal);
+        const matchEmail = (p.email || "").toLowerCase().includes(queryVal);
+        const matchPhone = (p.whatsapp || p.phone || "").toLowerCase().includes(queryVal);
+        const matchInst = (p.institution || "").toLowerCase().includes(queryVal);
+        if (!matchName && !matchEmail && !matchPhone && !matchInst) return false;
+      }
+      if (dbStatusFilter !== "ALL") {
+        if ((p.registrationStatus || "UNVERIFIED") !== dbStatusFilter) return false;
+      }
+      if (dbSelectedActivity !== "ALL") {
+        const paidComps = getUserPaidCompetitions(p.email);
+        const hasComp = paidComps.some(c => 
+          c.id === dbSelectedActivity || 
+          (c.name || "").toLowerCase().includes(dbSelectedActivity.toLowerCase())
+        );
+        if (!hasComp) return false;
+      }
+      return true;
+    });
+  };
+
+  const exportDatabaseToCSV = () => {
+    const filtered = getFilteredDatabasePeserta();
+    const headers = ["UID,Nama Lengkap,Email,WhatsApp,Asal Negara,Asal Provinsi,Institusi,NPM/NIM/NISN,Status Verifikasi,Status Presensi,Aktivitas Terdaftar"];
+    const csvData = filtered.map(p => {
+      const paidComps = getUserPaidCompetitions(p.email);
+      const compsStr = paidComps.map(c => c.name).join("; ");
+      const fullName = p.fullName || "";
+      const email = p.email || "";
+      const whatsapp = p.whatsapp || p.phone || "";
+      const country = p.country || "";
+      const province = p.province || "";
+      const institution = p.institution || "";
+      const studentId = p.studentId || "";
+      const status = p.registrationStatus || "UNVERIFIED";
+      const attendance = p.attendance ? "HADIR" : "ABSEN";
+      return `"${p.id}","${fullName}","${email}","${whatsapp}","${country}","${province}","${institution}","${studentId}","${status}","${attendance}","${compsStr}"`;
+    });
+    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `database_peserta_export_${new Date().getTime()}.csv`;
+    a.click();
+  };
+
+  const downloadQR = (participantId, participantName) => {
+    const svgElement = document.getElementById(`qr-svg-${participantId}`);
+    if (!svgElement) return;
+    const svgString = new XMLSerializer().serializeToString(svgElement);
+    const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+    const URL = window.URL || window.webkitURL || window;
+    const blobURL = URL.createObjectURL(svgBlob);
+    const image = new window.Image();
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 400;
+      canvas.height = 400;
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, 400, 400);
+      context.drawImage(image, 50, 50, 300, 300);
+      const png = canvas.toDataURL("image/png");
+      const downloadLink = document.createElement("a");
+      downloadLink.href = png;
+      downloadLink.download = `QR_${participantName.replace(/\s+/g, "_")}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(blobURL);
+    };
+    image.src = blobURL;
+  };
+
   const exportAffiliatesToCSV = () => {
     const headers = ["ID,Full Name,Email,Institution,Bank Name,Account Number,Account Name,Status,Created At"];
     const csvData = affiliateApps.map(p => {
@@ -1946,6 +2052,45 @@ export default function StaffDashboard({ portalType = "operator" }) {
         </div>
       )}
 
+      {/* PARTICIPANT QR MODAL */}
+      {selectedQrParticipant && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-white border-4 border-black rounded-3xl shadow-[8px_8px_0_0_#000] w-full max-w-sm p-6 relative flex flex-col items-center">
+            
+            {/* Close Button */}
+            <button 
+              onClick={() => setSelectedQrParticipant(null)}
+              className="absolute top-4 right-4 z-10 w-8 h-8 bg-white border-2 border-black rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+            >
+              <FaTimes className="text-[#111]" />
+            </button>
+
+            <h3 className="font-anton text-2xl uppercase mb-1 text-[#111] text-center">Participant QR Code</h3>
+            <p className="font-poppins text-xs font-bold text-gray-400 mb-6 text-center">{selectedQrParticipant.fullName}</p>
+            
+            {/* QR Render Area */}
+            <div className="bg-white border-2 border-black p-4 rounded-2xl mb-6 shadow-[4px_4px_0_0_#000]">
+              <QRCode 
+                id={`qr-svg-${selectedQrParticipant.id}`} 
+                value={selectedQrParticipant.id} 
+                size={200} 
+              />
+            </div>
+            
+            <p className="font-mono text-xs text-gray-500 bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-lg mb-6 w-full text-center break-all select-all">
+              UID: {selectedQrParticipant.id}
+            </p>
+
+            <button 
+              onClick={() => downloadQR(selectedQrParticipant.id, selectedQrParticipant.fullName)}
+              className="w-full bg-[#c1ff00] border-2 border-black text-black font-anton text-lg uppercase py-3 rounded-xl hover:bg-black hover:text-[#c1ff00] transition-colors shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-y-px"
+            >
+              <FaDownload className="inline-block mr-2" /> Download QR
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* CONFIRM MODAL */}
       {confirmState.isOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
@@ -2113,6 +2258,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
                 <div className="pl-2 space-y-1 mt-1">
                   <button onClick={() => { setActiveTab("participants"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "participants" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaUsers /> Verification Hub
+                  </button>
+                  <button onClick={() => { setActiveTab("database"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "database" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                    <FaDatabase /> Database Peserta
                   </button>
                   <button onClick={() => { setActiveTab("submissions"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "submissions" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaFileAlt /> Submission Locker
@@ -3283,6 +3431,153 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     </div>
                   ))}
                   {staffApps.length === 0 && <div className="text-center py-8 text-gray-400 font-bold">No applications yet.</div>}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* DATABASE PESERTA TAB */}
+          {!loadingData && activeTab === "database" && (
+            <div className="max-w-6xl mx-auto space-y-8">
+              <div className="bg-[#c1ff00] p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000] mb-8">
+                <h3 className="font-anton text-2xl uppercase mb-2">Database Peserta</h3>
+                <p className="font-poppins text-sm font-medium text-black">
+                  Kelola dan ekspor data peserta terdaftar serta lihat QR Code untuk proses check-in.
+                </p>
+              </div>
+              
+              <div className="bg-white p-8 rounded-2xl shadow-sm border-2 border-black shadow-[4px_4px_0_0_#000]">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b-2 border-dashed border-gray-200 gap-4">
+                  <h2 className="font-anton text-2xl uppercase">Directory Peserta</h2>
+                  <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                    {/* Search query input */}
+                    <input 
+                      type="text" 
+                      placeholder="Cari nama/email/wa..." 
+                      className="px-4 py-2 border-2 border-black rounded-xl text-sm font-poppins w-full sm:w-48 outline-none focus:bg-gray-50 text-black" 
+                      value={dbSearchQuery} 
+                      onChange={e => setDbSearchQuery(e.target.value)} 
+                    />
+                    
+                    {/* Activity Filter Dropdown */}
+                    <select 
+                      className="px-4 py-2 border-2 border-black rounded-xl text-sm font-poppins font-semibold w-full sm:w-48 cursor-pointer outline-none text-black" 
+                      value={dbSelectedActivity} 
+                      onChange={e => setDbSelectedActivity(e.target.value)}
+                    >
+                      <option value="ALL">Semua Kompetisi</option>
+                      {activities.filter(a => a.type === "COMPETITIONS").map(act => (
+                        <option key={act.id} value={act.id}>{act.title}</option>
+                      ))}
+                    </select>
+
+                    {/* Status Filter Dropdown */}
+                    <select 
+                      className="px-4 py-2 border-2 border-black rounded-xl text-sm font-poppins font-semibold w-full sm:w-40 cursor-pointer outline-none text-black" 
+                      value={dbStatusFilter} 
+                      onChange={e => setDbStatusFilter(e.target.value)}
+                    >
+                      <option value="ALL">Semua Status</option>
+                      <option value="VERIFIED">Verified</option>
+                      <option value="UNVERIFIED">Unverified</option>
+                      <option value="NEEDS REVISION">Needs Revision</option>
+                    </select>
+
+                    {/* Export Button */}
+                    <button 
+                      onClick={exportDatabaseToCSV} 
+                      className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-anton uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm flex items-center gap-2"
+                    >
+                      <FaDownload /> Export Database
+                    </button>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-max">
+                    <thead>
+                      <tr className="border-b-2 border-black text-xs font-anton uppercase tracking-wider text-gray-500 bg-gray-50">
+                        <th className="p-4">Peserta</th>
+                        <th className="p-4">Kontak</th>
+                        <th className="p-4">Institusi</th>
+                        <th className="p-4">Kompetisi</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4">Presensi</th>
+                        <th className="text-right p-4">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-sm font-medium">
+                      {getFilteredDatabasePeserta().map(p => {
+                        const paidComps = getUserPaidCompetitions(p.email);
+                        return (
+                          <tr key={p.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors text-black">
+                            <td className="p-4">
+                              <div className="font-bold text-gray-900">{p.fullName || "No Name"}</div>
+                              <div className="text-xs text-gray-500 font-mono">UID: {p.id}</div>
+                            </td>
+                            <td className="p-4">
+                              <div className="text-xs font-semibold text-gray-700">{p.email}</div>
+                              {p.whatsapp && (
+                                <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                                  <FaWhatsapp className="text-green-500" /> {p.whatsapp}
+                                </div>
+                              )}
+                            </td>
+                            <td className="p-4">
+                              <div className="font-semibold text-gray-800">{p.institution || "-"}</div>
+                              <div className="text-xs text-gray-500">NPM/NIM: {p.studentId || "-"}</div>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex flex-wrap gap-1 max-w-xs">
+                                {paidComps.length > 0 ? (
+                                  paidComps.map((c, i) => (
+                                    <span key={i} className="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] px-2 py-0.5 rounded font-bold uppercase">
+                                      {c.name}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-gray-400 text-xs italic">Belum mendaftar</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className={`px-2 py-0.5 text-xs font-bold uppercase rounded border ${
+                                p.registrationStatus === 'VERIFIED' 
+                                  ? 'bg-[#eefcf0] border-green-500 text-green-700' 
+                                  : p.registrationStatus === 'NEEDS REVISION'
+                                    ? 'bg-amber-50 border-amber-500 text-amber-700'
+                                    : 'bg-red-50 border-red-500 text-red-700'
+                              }`}>
+                                {p.registrationStatus || "UNVERIFIED"}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              {p.attendance ? (
+                                <span className="text-green-600 font-bold bg-green-50 border border-green-200 px-2.5 py-0.5 rounded text-xs uppercase">Hadir</span>
+                              ) : (
+                                <span className="text-gray-400 font-medium bg-gray-50 border border-gray-200 px-2.5 py-0.5 rounded text-xs uppercase">Absen</span>
+                              )}
+                            </td>
+                            <td className="p-4 text-right">
+                              <button 
+                                onClick={() => setSelectedQrParticipant(p)}
+                                className="bg-white hover:bg-gray-100 border-2 border-black text-black font-anton text-xs uppercase px-3 py-1.5 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px"
+                              >
+                                <FaQrcode /> View QR
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {getFilteredDatabasePeserta().length === 0 && (
+                        <tr>
+                          <td colSpan={7} className="text-center py-12 text-gray-400 font-bold">
+                            Tidak ada data peserta ditemukan.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
