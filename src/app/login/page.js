@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { loginUser, loginWithGoogle, logoutUser } from "@/lib/auth";
+import { loginUser, loginWithGoogle, logoutUser, getFriendlyErrorMessage } from "@/lib/auth";
 import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "sonner";
 import { db } from "@/lib/firebase";
@@ -44,7 +44,7 @@ export default function Login() {
          router.push("/portal");
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(getFriendlyErrorMessage(err));
     }
   };
 
@@ -86,7 +86,7 @@ export default function Login() {
         router.push("/register");
       }
     } catch (err) {
-      toast.error(err.message);
+      toast.error(getFriendlyErrorMessage(err));
     }
   };
 

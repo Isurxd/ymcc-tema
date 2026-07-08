@@ -6,6 +6,7 @@ import { FaShieldAlt, FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "firebase/auth";
+import { getFriendlyErrorMessage } from "@/lib/auth";
 
 export default function StaffLogin() {
   const [email, setEmail] = useState("");
@@ -46,7 +47,7 @@ export default function StaffLogin() {
         await signOut(auth);
       }
     } catch (err) {
-      setErrorMsg("Failed to verify access: " + err.message);
+      setErrorMsg("Failed to verify access: " + getFriendlyErrorMessage(err));
       await signOut(auth);
     }
     setLoading(false);
@@ -73,7 +74,7 @@ export default function StaffLogin() {
       await signInWithPopup(auth, provider);
       // checkAccess will be triggered by onAuthStateChanged
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(getFriendlyErrorMessage(err));
       setLoading(false);
     }
   };
@@ -86,7 +87,7 @@ export default function StaffLogin() {
       await signInWithEmailAndPassword(auth, email, password);
       // checkAccess will be triggered by onAuthStateChanged
     } catch (err) {
-      setErrorMsg(err.message);
+      setErrorMsg(getFriendlyErrorMessage(err));
       setLoading(false);
     }
   };

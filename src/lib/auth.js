@@ -59,3 +59,32 @@ export const subscribeToAuthChanges = (callback) => {
   }
   return onAuthStateChanged(auth, callback);
 };
+
+export const getFriendlyErrorMessage = (error) => {
+  if (!error) return "";
+  const message = typeof error === 'string' ? error : error.message || "";
+  
+  if (message.includes("auth/invalid-credential") || message.includes("auth/wrong-password") || message.includes("auth/user-not-found")) {
+    return "Email atau password yang Anda masukkan salah. Silakan periksa kembali.";
+  }
+  if (message.includes("auth/invalid-email")) {
+    return "Format email tidak valid. Pastikan email ditulis dengan benar.";
+  }
+  if (message.includes("auth/email-already-in-use")) {
+    return "Email ini sudah terdaftar sebagai akun YMCC. Silakan langsung login atau gunakan email lain.";
+  }
+  if (message.includes("auth/weak-password")) {
+    return "Password terlalu lemah. Gunakan minimal 8 karakter.";
+  }
+  if (message.includes("auth/popup-closed-by-user")) {
+    return "Proses masuk dibatalkan karena jendela popup Google ditutup.";
+  }
+  if (message.includes("auth/too-many-requests")) {
+    return "Terlalu banyak percobaan masuk yang gagal. Akun diblokir sementara demi keamanan. Silakan coba beberapa saat lagi.";
+  }
+  if (message.includes("auth/network-request-failed")) {
+    return "Koneksi jaringan bermasalah. Pastikan perangkat Anda terhubung ke internet.";
+  }
+  
+  return message.replace("Firebase: Error (", "").replace(").", "").trim();
+};

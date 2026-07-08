@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { registerUser, loginWithGoogle } from "@/lib/auth";
+import { registerUser, loginWithGoogle, getFriendlyErrorMessage } from "@/lib/auth";
 import { db, auth } from "@/lib/firebase";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -198,7 +198,7 @@ export default function Register() {
       setIsGoogleAuth(true);
       setGoogleUid(user.uid);
     } catch (err) {
-      setError(err.message);
+      setError(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -256,7 +256,7 @@ export default function Register() {
 
       router.push("/portal");
     } catch (err) {
-      setError(err.message);
+      setError(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }

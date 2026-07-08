@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { registerUser, loginWithGoogle } from "@/lib/auth";
+import { registerUser, loginWithGoogle, getFriendlyErrorMessage } from "@/lib/auth";
 import { db, auth } from "@/lib/firebase";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -92,7 +92,7 @@ export default function StaffRegister() {
       setIsGoogleAuth(true);
       setGoogleUid(user.uid);
     } catch (err) {
-      setError(err.message);
+      setError(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -168,7 +168,7 @@ export default function StaffRegister() {
 
       setSuccess(true);
     } catch (err) {
-      setError(err.message);
+      setError(getFriendlyErrorMessage(err));
     } finally {
       setLoading(false);
     }
