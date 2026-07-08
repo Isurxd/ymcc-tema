@@ -103,6 +103,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [merchOrders, setMerchOrders] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  const [recruitmentSubmissions, setRecruitmentSubmissions] = useState([]);
   const [promos, setPromos] = useState([]);
   const [ticketOrders, setTicketOrders] = useState([]);
   const [dbSelectedActivity, setDbSelectedActivity] = useState("ALL");
@@ -323,6 +324,10 @@ export default function StaffDashboard({ portalType = "operator" }) {
   // Helpdesk
   const [ticketModal, setTicketModal] = useState({ isOpen: false, ticketId: null, reply: "" });
 
+  // Recruitment Settings & Status
+  const [recruitmentSettings, setRecruitmentSettings] = useState("OPEN");
+  const [recruitmentStatusModal, setRecruitmentStatusModal] = useState({ isOpen: false, docId: null, newStatus: "", applicant: null });
+
   const router = useRouter();
 
   useEffect(() => {
@@ -386,11 +391,14 @@ export default function StaffDashboard({ portalType = "operator" }) {
     let unsubBanners = () => {};
     let unsubBroadcasts = () => {};
     let unsubSubmissions = () => {};
+    let unsubRecruitment = () => {};
     let unsubAudit = () => {};
     let unsubTickets = () => {};
     let unsubPromos = () => {};
     let unsubAffiliateApps = () => {};
     let unsubTicketOrders = () => {};
+
+    let unsubRecruitmentSettings = () => {};
 
     if (portalType === "admin" || portalType === "master") {
       unsubUsers = onSnapshot(collection(db, "users"), (snap) => {
@@ -400,6 +408,12 @@ export default function StaffDashboard({ portalType = "operator" }) {
       });
       unsubTicketOrders = onSnapshot(collection(db, "Orders"), (snap) => {
         setTicketOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      });
+      unsubRecruitment = onSnapshot(query(collection(db, "recruitment_submissions"), orderBy("submittedAt", "desc")), (snap) => {
+        setRecruitmentSubmissions(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      });
+      unsubRecruitmentSettings = onSnapshot(doc(db, "site_settings", "recruitment"), (snap) => {
+        if (snap.exists()) setRecruitmentSettings(snap.data().status || "OPEN");
       });
       unsubBroadcasts = onSnapshot(query(collection(db, "broadcasts"), orderBy("sentAt", "desc")), (snap) => {
         setBroadcasts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -486,14 +500,57 @@ export default function StaffDashboard({ portalType = "operator" }) {
       unsubUsers(); unsubMerch(); unsubOrders(); unsubBanners();
       unsubStaffApps(); unsubSubscribers(); unsubFeedback(); unsubClicks();
       unsubNews(); unsubFaqs(); unsubSponsors(); unsubActivities(); unsubBroadcasts();
-      unsubSubmissions(); unsubAudit(); unsubTickets(); unsubPromos(); unsubAffiliateApps(); unsubAttendanceSessions();
+      unsubSubmissions(); unsubAudit(); unsubTickets(); unsubPromos(); unsubAffiliateApps(); unsubAttendanceSessions(); unsubRecruitment();
       unsubTicketOrders();
+      unsubRecruitmentSettings();
     };
   }, [isAuthenticated, portalType, userEmail]);
 
   useEffect(() => {
     setDbCurrentPage(1);
   }, [dbSelectedActivity, dbSearchQuery, dbStatusFilter]);
+
+  const updateRecruitmentSettings = async (status) => {
+    if (confirm(`Change recruitment status to ${status}?`)) {
+      try {
+        await setDoc(doc(db, "site_settings", "recruitment"), { status }, { merge: true });
+        toast.success(`Recruitment is now ${status}`);
+      } catch (err) {
+        toast.error("Failed to update status");
+      }
+    }
+  };
+
+  const submitRecruitmentStatus = async (sendEmail) => {
+    const { docId, newStatus, applicant } = recruitmentStatusModal;
+    setRecruitmentStatusModal({ ...recruitmentStatusModal, isOpen: false });
+    const toastId = toast.loading("Updating status...");
+    
+    try {
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch("/api/recruitment/status-update", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          docId,
+          newStatus,
+          email: applicant.email,
+          fullName: applicant.fullName,
+          sendEmail
+        })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      toast.success("Applicant status updated successfully!", { id: toastId });
+    } catch (err) {
+      toast.error(err.message, { id: toastId });
+    }
+  };
 
   const filteredData = useMemo(() => {
     const filterByDate = (items) => {
@@ -1777,6 +1834,20 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
+  const exportRecruitmentToCSV = () => {
+    const headers = ["ID,Full Name,NIM,Email,WhatsApp,Domicile,Division 1,Division 2,Submitted At,Status"];
+    const csvData = recruitmentSubmissions.map(r => {
+      const date = r.submittedAt ? new Date(r.submittedAt.seconds * 1000).toLocaleString() : "";
+      return `"${r.id}","${r.fullName || ""}","${r.nim || ""}","${r.email || ""}","${r.whatsapp || ""}","${r.domicile || ""}","${r.division1 || ""}","${r.division2 || ""}","${date}","${r.status || ""}"`;
+    });
+    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `recruitment_export_${new Date().getTime()}.csv`;
+    a.click();
+  };
+
   // Helper for safe timestamp extraction for sorting
   const getSafeTimestamp = (obj, field = 'createdAt') => {
     const t = obj[field];
@@ -2315,6 +2386,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   <button onClick={() => { setActiveTab("users"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaUserShield /> Staff Management
                     {staffApps.filter(s => s.status === "PENDING").length > 0 && <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{staffApps.filter(s => s.status === "PENDING").length}</span>}
+                  </button>
+                  <button onClick={() => { setActiveTab("recruitment"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "recruitment" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                    <FaFileAlt /> Recruitment Database
                   </button>
                 </div>
               )}
@@ -4461,8 +4535,145 @@ export default function StaffDashboard({ portalType = "operator" }) {
               </div>
             </div>
           )}
+
+          {/* RECRUITMENT TAB */}
+          {!loadingData && activeTab === "recruitment" && (portalType === "admin" || portalType === "master") && (
+            <div className="max-w-6xl mx-auto space-y-8 animate-fade-in-up">
+              <div className="bg-[#c1ff00] p-6 rounded-2xl border border-black shadow-[4px_4px_0_0_#000] mb-8">
+                <h3 className="font-anton text-2xl uppercase mb-2">Staff Recruitment Database</h3>
+                <p className="font-poppins text-sm font-medium">Review new staff applications and export their data for further processing.</p>
+                <div className="mt-4 flex flex-wrap gap-4 items-center bg-white/50 p-4 rounded-xl border border-black/10">
+                  <span className="font-bold text-sm uppercase">Pendaftaran Terbuka:</span>
+                  <div className="flex gap-2">
+                    {["UPCOMING", "OPEN", "CLOSED"].map(s => (
+                      <button key={s} onClick={() => updateRecruitmentSettings(s)} className={`px-4 py-2 rounded-lg font-bold text-xs uppercase border-2 transition-all ${recruitmentSettings === s ? 'bg-black text-[#c1ff00] border-black shadow-[2px_2px_0_0_#000]' : 'bg-white text-gray-500 border-gray-300 hover:border-black'}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4">
+                  <h2 className="font-anton text-2xl uppercase">Applicants</h2>
+                  <div className="flex gap-3 w-full sm:w-auto">
+                    <button onClick={exportRecruitmentToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
+                      Export CSV
+                    </button>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-max">
+                    <thead>
+                      <tr className="border-b-2 border-black text-xs font-bold uppercase tracking-widest text-gray-500">
+                        <th className="p-4 border-b border-gray-200">Name & Contact</th>
+                        <th className="p-4 border-b border-gray-200">Divisions</th>
+                        <th className="p-4 border-b border-gray-200">Submitted At</th>
+                        <th className="p-4 border-b border-gray-200">Status</th>
+                        <th className="text-right p-4 border-b border-gray-200">Documents</th>
+                      </tr>
+                    </thead>
+                    {recruitmentSubmissions.map(req => (
+                      <tbody key={req.id} className="text-sm font-medium border-b border-gray-300">
+                        <tr>
+                          <td className="p-4">
+                            <div className="font-bold text-gray-900">{req.fullName}</div>
+                            <div className="text-xs text-gray-500">{req.email} | {req.whatsapp}</div>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-sm">1. {req.division1}</div>
+                            <div className="text-xs text-gray-500">2. {req.division2}</div>
+                          </td>
+                          <td className="p-4">
+                            {req.submittedAt ? new Date(req.submittedAt.seconds * 1000).toLocaleString() : "-"}
+                          </td>
+                          <td className="p-4">
+                            <select 
+                              value={req.status || "PENDING_REVIEW"}
+                              onChange={(e) => setRecruitmentStatusModal({ isOpen: true, docId: req.id, newStatus: e.target.value, applicant: req })}
+                              className="px-2 py-1 text-xs font-bold uppercase rounded border border-gray-300 bg-white cursor-pointer outline-none focus:border-black"
+                            >
+                              <option value="PENDING_REVIEW">PENDING REVIEW</option>
+                              <option value="INTERVIEW">INTERVIEW</option>
+                              <option value="ACCEPTED">ACCEPTED</option>
+                              <option value="REJECTED">REJECTED</option>
+                            </select>
+                          </td>
+                          <td className="text-right p-4 space-y-2">
+                            {req.ktaLink && <a href={req.ktaLink} target="_blank" className="text-blue-500 underline text-xs block hover:text-black">View KTA/KTM</a>}
+                            {req.documentLink && <a href={req.documentLink} target="_blank" className="text-blue-500 underline text-xs block hover:text-black">View Support Docs</a>}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="5" className="p-4 pt-0">
+                             <details className="text-xs group border border-gray-200 rounded-xl p-4 bg-gray-50 hover:border-black transition-colors">
+                               <summary className="font-bold cursor-pointer text-[#c1ff00] bg-black inline-block px-4 py-2 rounded-lg tracking-widest uppercase">VIEW FULL DETAILS</summary>
+                               <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700 border-t border-gray-200 pt-4">
+                                 <div>
+                                   <strong className="block text-black mb-1">NIM / Domicile</strong>
+                                   <p>{req.nim} / {req.domicile}</p>
+                                 </div>
+                                 <div>
+                                   <strong className="block text-black mb-1">Academic Commitment</strong>
+                                   <p>{req.academicCommitment}</p>
+                                 </div>
+                                 <div className="md:col-span-2">
+                                   <strong className="block text-black mb-1">Organization Experience</strong>
+                                   <p className="whitespace-pre-wrap leading-relaxed">{req.organizationExp}</p>
+                                 </div>
+                                 <div className="md:col-span-2">
+                                   <strong className="block text-black mb-1">Achievement / Challenge</strong>
+                                   <p className="whitespace-pre-wrap leading-relaxed">{req.achievementDesc}</p>
+                                 </div>
+                                 <div className="md:col-span-2">
+                                   <strong className="block text-black mb-1">Specific Contribution</strong>
+                                   <p className="whitespace-pre-wrap leading-relaxed">{req.specificContribution}</p>
+                                 </div>
+                               </div>
+                             </details>
+                          </td>
+                        </tr>
+                      </tbody>
+                    ))}
+                    {recruitmentSubmissions.length === 0 && (
+                      <tbody>
+                        <tr><td colSpan="5" className="p-8 text-center text-gray-500 font-bold">No applications found.</td></tr>
+                      </tbody>
+                    )}
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
+
+      {/* RECRUITMENT STATUS MODAL */}
+      {recruitmentStatusModal.isOpen && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white p-8 rounded-2xl w-full max-w-sm border-2 border-black shadow-[4px_4px_0_0_#000] text-center">
+            <h3 className="font-anton text-2xl uppercase mb-2">Update Status</h3>
+            <p className="text-sm font-medium text-gray-600 mb-6">Ubah status <strong>{recruitmentStatusModal.applicant?.fullName}</strong> menjadi <strong className="text-black">{recruitmentStatusModal.newStatus}</strong>?</p>
+            
+            <div className="space-y-3">
+              <button onClick={() => submitRecruitmentStatus(true)} className="w-full bg-[#c1ff00] text-black border-2 border-black px-4 py-3 rounded-xl font-bold uppercase shadow-[2px_2px_0_0_#000] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
+                Ya & Kirim Email Notifikasi
+              </button>
+              <button onClick={() => submitRecruitmentStatus(false)} className="w-full bg-white text-black border-2 border-black px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-100 transition-colors">
+                Ya (Tanpa Email)
+              </button>
+              <button onClick={() => setRecruitmentStatusModal({ isOpen: false, docId: null, newStatus: "", applicant: null })} className="w-full bg-gray-200 text-gray-600 px-4 py-3 rounded-xl font-bold uppercase hover:bg-gray-300 transition-colors">
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ... previous modals like edit staff remain untouched ... */}
+
 
       {/* EDIT STAFF MODAL */}
       {editStaffModal.isOpen && editStaffModal.data && (
@@ -4741,6 +4952,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
           </div>
         </div>
       )}
+
+
 
     </div>
   );
