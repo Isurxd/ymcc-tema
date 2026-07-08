@@ -2395,7 +2395,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <FaUsers /> Verification Hub
                   </button>
                   <button onClick={() => { setActiveTab("database"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "database" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
-                    <FaDatabase /> Database Peserta
+                    <FaDatabase /> Participant Database
                   </button>
                   <button onClick={() => { setActiveTab("submissions"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "submissions" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaFileAlt /> Submission Locker
@@ -3516,7 +3516,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
               <div className="bg-[#c1ff00] p-6 rounded-2xl border border-black shadow-[4px_4px_0_0_#000] mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                   <h3 className="font-anton text-2xl uppercase mb-2">Superadmin Privilege</h3>
-                  <p className="font-poppins text-sm font-medium">Anda memiliki akses eksklusif untuk mereview, menambah, dan menyunting aplikasi staff (Admin & Operator).</p>
+                  <p className="font-poppins text-sm font-medium">You have exclusive access to review, add, and edit staff applications (Admin & Operator).</p>
                 </div>
                 <button onClick={() => setAddStaffModal({ ...addStaffModal, isOpen: true })} className="bg-black text-white px-6 py-3 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shrink-0">
                   + Add Staff Manually
@@ -3586,20 +3586,20 @@ export default function StaffDashboard({ portalType = "operator" }) {
           {!loadingData && activeTab === "database" && (userRole === "Superadmin" || userRole === "Admin") && (
             <div className="max-w-6xl mx-auto space-y-8">
               <div className="bg-[#c1ff00] p-6 rounded-2xl border-2 border-black shadow-[4px_4px_0_0_#000] mb-8">
-                <h3 className="font-anton text-2xl uppercase mb-2">Database Peserta</h3>
+                <h3 className="font-anton text-2xl uppercase mb-2">Participant Database</h3>
                 <p className="font-poppins text-sm font-medium text-black">
-                  Kelola dan ekspor data peserta terdaftar serta lihat QR Code untuk proses check-in.
+                  Manage and export registered participant data, and view QR Codes for check-in process.
                 </p>
               </div>
               
               <div className="bg-white p-8 rounded-2xl shadow-sm border-2 border-black shadow-[4px_4px_0_0_#000]">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-6 border-b-2 border-dashed border-gray-200 gap-4">
-                  <h2 className="font-anton text-2xl uppercase">Directory Peserta</h2>
+                  <h2 className="font-anton text-2xl uppercase">Participant Directory</h2>
                   <div className="flex flex-wrap gap-3 w-full md:w-auto">
                     {/* Search query input */}
                     <input 
                       type="text" 
-                      placeholder="Cari nama/email/wa..." 
+                      placeholder="Search name/email/wa..." 
                       className="px-4 py-2 border-2 border-black rounded-xl text-sm font-poppins w-full sm:w-48 outline-none focus:bg-gray-50 text-black" 
                       value={dbSearchQuery} 
                       onChange={e => setDbSearchQuery(e.target.value)} 
@@ -3611,7 +3611,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       value={dbSelectedActivity} 
                       onChange={e => setDbSelectedActivity(e.target.value)}
                     >
-                      <option value="ALL">Semua Kompetisi</option>
+                      <option value="ALL">All Competitions</option>
                       {activities.filter(a => a.type === "COMPETITIONS").map(act => (
                         <option key={act.id} value={act.id}>{act.title}</option>
                       ))}
@@ -3623,7 +3623,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       value={dbStatusFilter} 
                       onChange={e => setDbStatusFilter(e.target.value)}
                     >
-                      <option value="ALL">Semua Status</option>
+                      <option value="ALL">All Statuses</option>
                       <option value="VERIFIED">Verified</option>
                       <option value="UNVERIFIED">Unverified</option>
                       <option value="NEEDS REVISION">Needs Revision</option>
@@ -3643,13 +3643,13 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   <table className="w-full text-left border-collapse min-w-max">
                     <thead>
                       <tr className="border-b-2 border-black text-xs font-anton uppercase tracking-wider text-gray-500 bg-gray-50">
-                        <th className="p-4">Peserta</th>
-                        <th className="p-4">Kontak</th>
-                        <th className="p-4">Institusi</th>
-                        <th className="p-4">Kompetisi</th>
+                        <th className="p-4">Participant</th>
+                        <th className="p-4">Contact</th>
+                        <th className="p-4">Institution</th>
+                        <th className="p-4">Competition</th>
                         <th className="p-4">Status</th>
                         
-                        <th className="text-right p-4">Aksi</th>
+                        <th className="text-right p-4">Action</th>
                       </tr>
                     </thead>
                     <tbody className="text-sm font-medium">
@@ -3663,7 +3663,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                           return (
                             <tr>
                               <td colSpan={7} className="text-center py-12 text-gray-400 font-bold">
-                                Tidak ada data peserta ditemukan.
+                                No participant data found.
                               </td>
                             </tr>
                           );
@@ -3698,7 +3698,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                       </span>
                                     ))
                                   ) : (
-                                    <span className="text-gray-400 text-xs italic">Belum mendaftar</span>
+                                    <span className="text-gray-400 text-xs italic">Not Registered</span>
                                   )}
                                 </div>
                               </td>
@@ -3740,7 +3740,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   return (
                     <div className="flex flex-col sm:flex-row justify-between items-center mt-6 pt-6 border-t-2 border-dashed border-gray-200 gap-4">
                       <p className="font-poppins text-xs font-bold text-gray-400 uppercase tracking-widest text-center sm:text-left">
-                        Menampilkan {(dbCurrentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(dbCurrentPage * ITEMS_PER_PAGE, totalItems)} Dari {totalItems} Peserta
+                        Showing {(dbCurrentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(dbCurrentPage * ITEMS_PER_PAGE, totalItems)} of {totalItems} Participants
                       </p>
                       <div className="flex gap-2">
                         <button
@@ -4858,6 +4858,22 @@ export default function StaffDashboard({ portalType = "operator" }) {
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-2xl w-full max-w-2xl border-2 border-black shadow-[4px_4px_0_0_#000] relative max-h-[90vh] overflow-y-auto">
             <h3 className="font-anton text-2xl uppercase mb-4 border-b-2 border-gray-100 pb-2">Verify Participant</h3>
+
+            <div className="flex justify-center mb-6">
+              <div className="flex flex-col items-center">
+                <span className="text-gray-500 font-bold text-xs block uppercase mb-2">Formal Profile Photo</span>
+                {participantModal.data.photoUrl ? (
+                  <div className="w-32 h-40 bg-red-600 rounded-lg overflow-hidden border-2 border-black shadow-[4px_4px_0_0_#000]">
+                    <img src={participantModal.data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-32 h-40 bg-gray-100 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-400 text-gray-400 text-xs text-center p-2">
+                    No Photo<br/>Uploaded
+                  </div>
+                )}
+              </div>
+            </div>
+
             
             <div className="grid grid-cols-2 gap-4 text-sm mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
               <div><span className="text-gray-500 font-bold text-xs block uppercase">Full Name</span><span className="font-semibold text-gray-900">{participantModal.data.fullName}</span></div>
