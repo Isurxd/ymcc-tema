@@ -861,7 +861,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     };
   }, [dateFilter, subscribers, newsFeedback, activityClicks, activities, news, sponsors, orders, users, merchandise]);
 
-  const handleUploadImage = async (file, folder) => {
+  const handleFileUpload = async (file, folder) => {
     if (!storage) {
        console.error("Storage not initialized.");
        return null;
