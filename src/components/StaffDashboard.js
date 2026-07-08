@@ -6,7 +6,7 @@ import { auth, db, storage, secondaryAuth } from "@/lib/firebase";
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updatePassword, updateEmail } from "firebase/auth";
-import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus, FaSignOutAlt, FaTimes, FaCheck, FaTimesCircle, FaNewspaper, FaQuestionCircle, FaHandshake, FaTrophy, FaUsers, FaTasks, FaCog, FaChartBar, FaQrcode, FaCamera, FaEnvelope, FaPaperPlane, FaFileAlt, FaSearch, FaDownload, FaChevronDown, FaChevronRight, FaWhatsapp, FaCopy, FaWallet, FaImage, FaClock, FaTags, FaStore, FaShoppingBag, FaUserShield, FaPrint } from "react-icons/fa";
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend, LabelList } from "recharts";
 import { useRouter } from "next/navigation";
@@ -31,6 +31,48 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   const [userEmail, setUserEmail] = useState("");
   const [userRole, setUserRole] = useState("");
+  
+  // Modern Promise-based confirmation modal
+  const [confirmState, setConfirmState] = useState({ isOpen: false, message: "", resolve: null });
+
+  const confirmAction = (message) => {
+    return new Promise((resolve) => {
+      setConfirmState({ isOpen: true, message, resolve });
+    });
+  };
+
+  const handleConfirmChoice = (choice) => {
+    if (confirmState.resolve) confirmState.resolve(choice);
+    setConfirmState({ isOpen: false, message: "", resolve: null });
+  };
+
+  const [shippingModal, setShippingModal] = useState({ isOpen: false, order: null, resolve: null });
+  const [shippingForm, setShippingForm] = useState({ trackingNumber: "", courier: "REGULER" });
+
+  const requestShippingDetails = (order) => {
+    setShippingForm({ 
+      trackingNumber: order.shippingDetails?.trackingNumber || "", 
+      courier: (order.shippingDetails?.courier && order.shippingDetails.courier !== "REGULER_YMCC") ? order.shippingDetails.courier : "" 
+    });
+    return new Promise((resolve) => {
+      setShippingModal({ isOpen: true, order, resolve });
+    });
+  };
+
+  const handleShippingModalClose = (success) => {
+    if (shippingModal.resolve) {
+      if (success && shippingForm.trackingNumber && shippingForm.courier) {
+        shippingModal.resolve(shippingForm);
+      } else if (success) {
+        toast.error("Tracking number and courier cannot be empty.");
+        return; // prevent closing
+      } else {
+        shippingModal.resolve(null);
+      }
+    }
+    setShippingModal({ isOpen: false, order: null, resolve: null });
+  };
+
   const [activeTab, setActiveTab] = useState(portalType === "admin" ? "participants" : portalType === "fundraising" ? "merch_orders" : "dashboard");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -65,6 +107,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [orderSearch, setOrderSearch] = useState("");
   const [orderSort, setOrderSort] = useState("NEWEST");
   const [orderDateRange, setOrderDateRange] = useState({ start: "", end: "" });
+  const [selectedOrders, setSelectedOrders] = useState([]);
   const [userSearch, setUserSearch] = useState("");
   const [participantSearch, setParticipantSearch] = useState("");
   const [participantFilter, setParticipantFilter] = useState("ALL");
@@ -133,7 +176,49 @@ export default function StaffDashboard({ portalType = "operator" }) {
   const [operatorForm, setOperatorForm] = useState({ email: "", password: "" });
 
   const [editStaffModal, setEditStaffModal] = useState({ isOpen: false, data: null });
-  const [addStaffModal, setAddStaffModal] = useState({ isOpen: false, email: "", password: "", role: "Operator", name: "", nim: "", department: "", division: "", position: "Staff" });
+  const [addStaffModal, setAddStaffModal] = useState({ isOpen: false, email: "", password: "", confirmPassword: "", role: "Operator", name: "", nim: "", department: "", division: "", position: "Staff", driveLink: "" });
+
+  const departmentData = {
+    "COMPETITION": [
+      "Mining Games",
+      "Mining Strategy & Innovation Competition",
+      "Intellectual Challenges",
+      "Paper Competition"
+    ],
+    "FUNDRAISING": [
+      "Entrepreneurship",
+      "Sponsorship"
+    ],
+    "EVENT": [
+      "Mining Camp",
+      "Opening & Closing",
+      "Studium General",
+      "Society Project",
+      "Seminar Nasional",
+      "Minexplo"
+    ],
+    "OPERATIONAL": [
+      "General Affair",
+      "Logistic",
+      "Consumption",
+      "Safety, Security, Health, and Care",
+      "Laison Officer"
+    ],
+    "MEDIA": [
+      "Branding & Public Relation",
+      "Creative Production",
+      "Secretariat"
+    ]
+  };
+
+  const bodData = [
+    "Executive Director",
+    "Vice Executive Director",
+    "Secretary I",
+    "Secretary II",
+    "Finance Director I",
+    "Finance Director II"
+  ];
   const [settingsForm, setSettingsForm] = useState({ newEmail: "", newPassword: "" });
   const [participantModal, setParticipantModal] = useState({ isOpen: false, data: {} });
 
@@ -155,9 +240,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const cleanEmail = user.email ? user.email.toLowerCase().trim() : "";
-        if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(cleanEmail)) {
+        if (["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "suryatripatih2003@gmail.com", "noreply@ymccvii.com"].includes(cleanEmail)) {
            setIsAuthenticated(true);
-           setUserEmail(user.email);
+           setUserEmail(cleanEmail);
            setUserRole("Superadmin");
         } else {
            const staffDoc = await getDoc(doc(db, "staff_applications", user.email));
@@ -171,7 +256,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
              
              if (allowed) {
                setIsAuthenticated(true);
-               setUserEmail(user.email);
+               setUserEmail(cleanEmail);
                setUserRole(role);
              } else {
                setIsAuthenticated(false);
@@ -306,7 +391,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
       unsubNews(); unsubFaqs(); unsubSponsors(); unsubActivities(); unsubBroadcasts();
       unsubSubmissions(); unsubAudit(); unsubTickets(); unsubPromos(); unsubAffiliateApps();
     };
-  }, [isAuthenticated, portalType]);
+  }, [isAuthenticated, portalType, userEmail]);
 
   const filteredData = useMemo(() => {
     const filterByDate = (items) => {
@@ -600,7 +685,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
       setEditingId(null);
       setBannerUploadFile(null);
       toast.success("Banner saved successfully!");
-      fetchData();
+      toast.success("Banner saved successfully!");
     } catch (err) {
       toast.error("Error saving banner.");
       console.error(err);
@@ -613,7 +698,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     try {
       await deleteDoc(doc(db, "merch_banners", id));
       toast.success("Banner deleted!");
-      fetchData();
+      toast.success("Banner deleted!");
     } catch (err) {
       toast.error("Error deleting banner.");
       console.error(err);
@@ -642,6 +727,10 @@ export default function StaffDashboard({ portalType = "operator" }) {
         image: finalImageUrl,
         additionalImages: additionalImagesArray,
       };
+
+      if (dataToSave.sizes && dataToSave.sizes.length > 0 && dataToSave.stockPerSize) {
+        dataToSave.stockAmount = dataToSave.sizes.reduce((sum, size) => sum + (dataToSave.stockPerSize[size] || 0), 0);
+      }
 
       if (editingId) {
         dataToSave.updatedAt = new Date().toISOString();
@@ -698,7 +787,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
         await addDoc(collection(db, "merchandise"), p);
       }
       toast.success("Initial merchandise data seeded successfully!");
-      fetchData();
+      toast.success("Initial merchandise data seeded successfully!");
     } catch (err) {
       toast.error("Error seeding merchandise.");
       console.error(err);
@@ -713,12 +802,12 @@ export default function StaffDashboard({ portalType = "operator" }) {
       if (item && item.image) await deleteFileFromStorage(item.image);
       await deleteDoc(doc(db, "merchandise", id));
       toast.success("Merchandise deleted.");
-      fetchData();
+      toast.success("Merchandise deleted.");
     } catch (err) { toast.error("Error deleting merch."); }
   };
 
   const handleDeleteAffiliate = async (id) => {
-    if (!(await confirmAction("Hapus aplikasi affiliate ini?"))) return;
+    if (!(await confirmAction("Delete this affiliate application?"))) return;
     try {
       await deleteDoc(doc(db, "affiliate_applications", id));
       toast.success("Affiliate deleted.");
@@ -728,13 +817,55 @@ export default function StaffDashboard({ portalType = "operator" }) {
     }
   };
 
-  const handleUpdateOrderStatus = async (id, newStatus) => {
+  const handleRequestCourier = async (orderId) => {
+    if (!(await confirmAction("Are you sure you want to request a courier pickup via Biteship for this order?"))) return;
+    const toastId = toast.loading("Requesting courier via Biteship...");
     try {
-      await updateDoc(doc(db, "merch_orders", id), { orderStatus: newStatus });
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const token = await user.getIdToken();
+      const res = await fetch("/api/biteship/order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ orderId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Courier requested! Waybill: ${data.tracking.waybill_id}`, { id: toastId });
+        logAuditAction("request_courier", `Requested Biteship courier for order ${orderId}`);
+      } else {
+        toast.error(`Error: ${data.error}`, { id: toastId });
+      }
+    } catch (err) {
+      toast.error("Failed to request courier.", { id: toastId });
+    }
+  };
+
+  const handleUpdateOrderStatus = async (o, newStatus) => {
+    try {
+      const updateData = { orderStatus: newStatus };
+      if (newStatus === 'SHIPPED' && o.deliveryMethod !== 'pickup') {
+         const details = await requestShippingDetails(o);
+         if (!details) return; // Cancelled
+         updateData['shippingDetails.trackingNumber'] = details.trackingNumber.trim();
+         updateData['shippingDetails.courier'] = details.courier.trim();
+      }
+      await updateDoc(doc(db, "merch_orders", o.id), updateData);
       toast.success(`Order status updated to ${newStatus}`);
-      logAuditAction("update_order", `Updated order ${id} status to ${newStatus}`);
+      logAuditAction("update_order", `Updated order ${o.id} status to ${newStatus}`);
     } catch (err) {
       toast.error("Error updating order status.");
+    }
+  };
+
+  const handleDeleteOrder = async (id) => {
+    if (!(await confirmAction("Delete this order permanently?"))) return;
+    try {
+      await deleteDoc(doc(db, "merch_orders", id));
+      toast.success("Order deleted.");
+      toast.success("Order deleted.");
+    } catch (e) {
+      toast.error("Failed to delete order: " + e.message);
     }
   };
 
@@ -748,18 +879,16 @@ export default function StaffDashboard({ portalType = "operator" }) {
          codeToSave = "REF-" + Math.random().toString(36).substring(2, 8).toUpperCase();
          if(!promoForm.affiliateEmail) throw new Error("Affiliate Email is required for Referral.");
       }
-      
-      const payload = { 
-        ...promoForm, 
-        code: codeToSave,
-        createdAt: new Date().toISOString() 
-      };
-
       const promoData = {
-        code: promoForm.code.toUpperCase(),
+        code: codeToSave.toUpperCase(),
         type: promoForm.type,
-        value: Number(promoForm.value),
-        status: promoForm.status
+        discount: Number(promoForm.discount),
+        discountType: promoForm.discountType || "PERCENT",
+        status: promoForm.status || "ACTIVE",
+        maxUses: promoForm.maxUses ? Number(promoForm.maxUses) : null,
+        commission: promoForm.commission ? Number(promoForm.commission) : null,
+        affiliateEmail: promoForm.affiliateEmail || null,
+        createdAt: new Date().toISOString()
       };
       
       await fetch('/api/admin/data', {
@@ -771,14 +900,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
         })
       });
       
-      // Optimitistic update
-      if (promoForm.id) {
-        setPromos(prev => prev.map(p => p.id === promoForm.id ? { ...p, ...promoData } : p));
-      } else {
-        setPromos(prev => [{ id: Math.random().toString(), ...promoData, usageCount: 0, createdAt: new Date().toISOString() }, ...prev]);
-      }
       
-      setPromoForm({ id: null, code: "", type: "percentage", value: "", status: "ACTIVE" });
+      setPromoForm({ id: null, code: "", type: "VOUCHER", discount: "", discountType: "PERCENT", maxUses: "", commission: "", affiliateEmail: "", status: "ACTIVE" });
       setEditingId(null);
       toast.success("Promo saved successfully.");
     } catch (error) {
@@ -824,7 +947,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const handleDeletePromo = async (id) => {
-    if (!(await confirmAction("Hapus promo/referral ini?"))) return;
+    if (!(await confirmAction("Delete this promo/referral?"))) return;
     setActionLoading(true);
     try {
       await fetch('/api/admin/data', {
@@ -886,7 +1009,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const handleRejectAffiliate = async (appId) => {
-    if (!(await confirmAction("Tolak Affiliate ini?"))) return;
+    if (!(await confirmAction("Reject this affiliate?"))) return;
     setActionLoading(true);
     try {
       await fetch('/api/admin/data', {
@@ -926,7 +1049,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const handleDeleteFaq = async (id) => {
-    if (!(await confirmAction("Hapus FAQ ini?"))) return;
+    if (!(await confirmAction("Delete this FAQ?"))) return;
     try { 
         await deleteDoc(doc(db, "faqs", id)); 
         toast.success("FAQ deleted.");
@@ -971,7 +1094,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const handleDeleteNews = async (id) => {
-    if (!(await confirmAction("Hapus Berita ini?"))) return;
+    if (!(await confirmAction("Delete this news article?"))) return;
     try { 
       const item = news.find(n => n.id === id);
       if (item && item.image) await deleteFileFromStorage(item.image);
@@ -1009,7 +1132,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const handleDeleteSponsor = async (id) => {
-    if (!(await confirmAction("Hapus Sponsor ini?"))) return;
+    if (!(await confirmAction("Delete this sponsor?"))) return;
     setActionLoading(true);
     try { 
         const item = sponsors.find(s => s.id === id);
@@ -1058,7 +1181,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const handleDeleteActivity = async (id) => {
-    if (!(await confirmAction("Hapus Aktivitas ini?"))) return;
+    if (!(await confirmAction("Delete this activity?"))) return;
     setActionLoading(true);
     try { 
         const item = activities.find(a => a.id === id);
@@ -1164,6 +1287,10 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   const handleRegisterStaffManual = async (e) => {
     e.preventDefault();
+    if (addStaffModal.password !== addStaffModal.confirmPassword) {
+      toast.error("Passwords do not match. Please verify.");
+      return;
+    }
     setActionLoading(true);
     try {
       if (!secondaryAuth) {
@@ -1213,8 +1340,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
       await signOut(secondaryAuth);
 
-      toast.success("Staff registered and email sent successfully!");
-      setAddStaffModal({ isOpen: false, email: "", password: "", role: "Operator", name: "", nim: "", department: "", division: "", position: "Staff" });
+      toast.success("Staff registered successfully!");
+      setAddStaffModal({ isOpen: false, email: '', password: '', confirmPassword: '', role: 'Operator', name: '', nim: '', department: '', division: '', position: 'Staff', driveLink: '' });
+      setAddStaffModal({ isOpen: false, email: '', password: '', confirmPassword: '', role: 'Operator', name: '', nim: '', department: '', division: '', position: 'Staff', driveLink: '' });
     } catch (err) {
       console.error(err);
       toast.error("Error registering staff: " + err.message);
@@ -1279,32 +1407,32 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   const handleBulkVerify = async () => {
     if (selectedParticipants.length === 0) return;
-    if (!(await confirmAction(`Verifikasi ${selectedParticipants.length} peserta terpilih?`))) return;
+    if (!(await confirmAction(`Verify ${selectedParticipants.length} selected participants?`))) return;
     setActionLoading(true);
     try {
       await Promise.all(selectedParticipants.map(id => 
         updateDoc(doc(db, "users", id), { registrationStatus: "VERIFIED" })
       ));
-      toast.success(`${selectedParticipants.length} peserta berhasil diverifikasi!`);
+      toast.success(`${selectedParticipants.length} participants verified successfully!`);
       setSelectedParticipants([]);
     } catch (e) {
-      toast.error("Gagal verifikasi massal: " + e.message);
+      toast.error("Bulk verification failed: " + e.message);
     }
     setActionLoading(false);
   };
 
   const handleBulkDelete = async () => {
     if (selectedParticipants.length === 0) return;
-    if (!(await confirmAction(`HAPUS ${selectedParticipants.length} peserta terpilih secara permanen?`))) return;
+    if (!(await confirmAction(`PERMANENTLY DELETE ${selectedParticipants.length} selected participants?`))) return;
     setActionLoading(true);
     try {
       await Promise.all(selectedParticipants.map(id => 
         deleteDoc(doc(db, "users", id))
       ));
-      toast.success(`${selectedParticipants.length} peserta berhasil dihapus!`);
+      toast.success(`${selectedParticipants.length} participants deleted successfully!`);
       setSelectedParticipants([]);
     } catch (e) {
-      toast.error("Gagal hapus massal: " + e.message);
+      toast.error("Bulk delete failed: " + e.message);
     }
     setActionLoading(false);
   };
@@ -1390,13 +1518,19 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const exportOrdersToCSV = () => {
-    const headers = ["Order ID,Customer Name,Customer Email,Customer WhatsApp,Referral Code,Items,Delivery Method,Total Amount,Payment Status,Order Status,Created At"];
+    const headers = ["Order ID,Customer Name,Customer Email,Customer WhatsApp,Referral Code,Items,Delivery Method,Waybill (Resi),Total Amount,Payment Status,Order Status,Created At"];
     const csvData = orders.map(o => {
       let tVal = o.createdAt || o.timestamp || o.created_at;
       if (tVal && tVal.seconds) tVal = tVal.seconds * 1000;
       const date = tVal ? new Date(tVal).toLocaleString() : "";
       const itemsStr = (o.items || []).map(i => `${i.quantity}x ${i.name}`).join("; ");
-      return `"${o.id}","${o.customerInfo?.fullName || ""}","${o.customerInfo?.email || ""}","${o.customerInfo?.whatsapp || ""}","${o.customerInfo?.referralCode || ""}","${itemsStr}","${o.deliveryMethod}","${o.totalAmount}","${o.paymentStatus}","${o.orderStatus}","${date}"`;
+      const cust = o.userDetails || o.customerInfo || {};
+      const fullName = cust.name || cust.fullName || "";
+      const email = cust.email || "";
+      const whatsapp = cust.phone || cust.whatsapp || "";
+      const referralCode = cust.referralCode || "";
+      const waybill = o.waybillId || "";
+      return `"${o.id}","${fullName}","${email}","${whatsapp}","${referralCode}","${itemsStr}","${o.deliveryMethod}","${waybill}","${o.totalAmount}","${o.paymentStatus}","${o.orderStatus}","${date}"`;
     });
     
     const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
@@ -1649,6 +1783,78 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   return (
     <div className="min-h-screen flex bg-[#fafafa] font-poppins relative">
+      {/* SHIPPING MODAL */}
+      {shippingModal.isOpen && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-white border-4 border-black rounded-3xl shadow-[8px_8px_0_0_#000] w-full max-w-md p-6">
+            <h3 className="font-anton text-3xl uppercase mb-2 text-[#111]">Shipping Details</h3>
+            <p className="font-poppins text-sm text-gray-600 mb-6">Please enter the courier name and tracking number to fulfill this order.</p>
+            
+            <div className="space-y-4 mb-8">
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Courier Service</label>
+                <input 
+                  type="text" 
+                  value={shippingForm.courier}
+                  onChange={e => setShippingForm({...shippingForm, courier: e.target.value.toUpperCase()})}
+                  placeholder="e.g. JNE, J&T, SICEPAT"
+                  className="w-full border-2 border-black rounded-xl p-3 font-bold uppercase outline-none focus:bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Tracking Number (Resi)</label>
+                <input 
+                  type="text" 
+                  value={shippingForm.trackingNumber}
+                  onChange={e => setShippingForm({...shippingForm, trackingNumber: e.target.value})}
+                  placeholder="Enter tracking number"
+                  className="w-full border-2 border-black rounded-xl p-3 font-bold font-mono outline-none focus:bg-gray-50"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <button 
+                onClick={() => handleShippingModalClose(false)}
+                className="flex-1 bg-white border-2 border-black text-black font-bold uppercase py-3 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleShippingModalClose(true)}
+                className="flex-1 bg-black border-2 border-black text-[#c1ff00] font-bold uppercase py-3 rounded-xl hover:bg-[#111] transition-colors shadow-[4px_4px_0_0_#c1ff00]"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRM MODAL */}
+      {confirmState.isOpen && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-white border-4 border-black rounded-3xl shadow-[8px_8px_0_0_#000] w-full max-w-sm p-6 text-center">
+            <h3 className="font-anton text-2xl uppercase mb-4 text-[#111]">Confirmation</h3>
+            <p className="font-poppins text-sm text-gray-600 mb-8">{confirmState.message}</p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => handleConfirmChoice(false)}
+                className="flex-1 bg-white border-2 border-black text-black font-bold uppercase py-3 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleConfirmChoice(true)}
+                className="flex-1 bg-red-500 border-2 border-black text-white font-bold uppercase py-3 rounded-xl hover:bg-red-600 transition-colors shadow-[4px_4px_0_0_#000]"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {roleModal.isOpen && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-2xl w-full max-w-sm border-2 border-black shadow-[4px_4px_0_0_#000] relative">
@@ -1803,7 +2009,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   <button onClick={() => { setActiveTab("broadcast"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "broadcast" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaEnvelope /> Broadcast Center
                   </button>
-                  <button onClick={() => { setActiveTab("staff"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "staff" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("users"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaUserShield /> Staff Management
                     {staffApps.filter(s => s.status === "PENDING").length > 0 && <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{staffApps.filter(s => s.status === "PENDING").length}</span>}
                   </button>
@@ -2221,7 +2427,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* AUDIT LOGS TAB */}
-          {!loadingData && activeTab === "audit_logs" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
+          {!loadingData && activeTab === "audit_logs" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "suryatripatih2003@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
             <div className="max-w-6xl mx-auto space-y-6 animate-fade-in-up">
               <div className="bg-white p-8 rounded-3xl shadow-sm border-2 border-black">
                 <h3 className="font-anton text-2xl uppercase mb-6">System Audit Trail</h3>
@@ -2762,7 +2968,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* USERS TAB */}
-          {!loadingData && activeTab === "users" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
+          {!loadingData && activeTab === "users" && ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "suryatripatih2003@gmail.com", "noreply@ymccvii.com"].includes(userEmail) && (
             <div className="max-w-5xl mx-auto space-y-8">
               <div className="bg-[#c1ff00] p-6 rounded-2xl border border-black shadow-[4px_4px_0_0_#000] mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
@@ -2936,7 +3142,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* MERCH INVENTORY TAB */}
-          {!loadingData && activeTab === "merch_inventory" && (portalType === "fundraising" || portalType === "master") && (
+          {!loadingData && activeTab === "merchandise" && (portalType === "fundraising" || portalType === "master") && (
             <div className="max-w-6xl mx-auto space-y-8">
               
               {/* BANNER MANAGEMENT */}
@@ -2993,28 +3199,28 @@ export default function StaffDashboard({ portalType = "operator" }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">Item Name</label>
-                      <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.name} onChange={e => setMerchForm({...merchForm, name: e.target.value})} />
+                      <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.name || ""} onChange={e => setMerchForm({...merchForm, name: e.target.value})} />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">Tagline (Short Desc)</label>
-                      <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.tagline} onChange={e => setMerchForm({...merchForm, tagline: e.target.value})} />
+                      <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.tagline || ""} onChange={e => setMerchForm({...merchForm, tagline: e.target.value})} />
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">Price String (e.g. 150K)</label>
-                      <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.price} onChange={e => setMerchForm({...merchForm, price: e.target.value})} />
+                      <input type="text" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.price || ""} onChange={e => setMerchForm({...merchForm, price: e.target.value})} />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">Exact Price (Number)</label>
-                      <input type="number" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.priceNumber} onChange={e => setMerchForm({...merchForm, priceNumber: Number(e.target.value)})} />
+                      <input type="number" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.priceNumber || 0} onChange={e => setMerchForm({...merchForm, priceNumber: Number(e.target.value)})} />
                       <label className="block text-sm font-bold text-gray-700 mt-4 mb-2">Cost Price / Harga Modal (Number)</label>
                       <input type="number" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.costPrice || 0} onChange={e => setMerchForm({...merchForm, costPrice: Number(e.target.value)})} />
                     </div>
                     <div>
                       <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
-                      <select required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.category} onChange={e => setMerchForm({...merchForm, category: e.target.value})}>
+                      <select required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.category || "SAFETY WEAR"} onChange={e => setMerchForm({...merchForm, category: e.target.value})}>
                         <option value="APPAREL">APPAREL</option>
                         <option value="ACCESSORIES">ACCESSORIES</option>
                         <option value="BUNDLES">BUNDLES</option>
@@ -3036,14 +3242,43 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">Available Stock Amount</label>
-                      <input type="number" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.stockAmount !== undefined ? merchForm.stockAmount : 100} onChange={e => setMerchForm({...merchForm, stockAmount: Number(e.target.value)})} />
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Sizes (Comma separated, e.g. S, M, L)</label>
+                      <input type="text" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.sizesRaw !== undefined ? merchForm.sizesRaw : (merchForm.sizes ? merchForm.sizes.join(', ') : "")} onChange={e => {
+                        const val = e.target.value;
+                        const sizes = val.split(',').map(s => s.trim()).filter(Boolean);
+                        setMerchForm({...merchForm, sizesRaw: val, sizes});
+                      }} />
                     </div>
                   </div>
 
+                  {merchForm.sizes && merchForm.sizes.length > 0 ? (
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Available Stock Amount (Per Size)</label>
+                      <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+                        {merchForm.sizes.map(size => (
+                          <div key={size}>
+                            <label className="block text-xs font-bold text-gray-500 mb-1">{size}</label>
+                            <input type="number" required className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl" value={(merchForm.stockPerSize && merchForm.stockPerSize[size]) || 0} onChange={e => setMerchForm({
+                              ...merchForm,
+                              stockPerSize: {
+                                ...merchForm.stockPerSize,
+                                [size]: Number(e.target.value)
+                              }
+                            })} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-2">Available Stock Amount</label>
+                      <input type="number" required className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.stockAmount !== undefined ? merchForm.stockAmount : 0} onChange={e => setMerchForm({...merchForm, stockAmount: Number(e.target.value)})} />
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
-                    <textarea required rows="3" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.description} onChange={e => setMerchForm({...merchForm, description: e.target.value})}></textarea>
+                    <textarea required rows="3" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={merchForm.description || ""} onChange={e => setMerchForm({...merchForm, description: e.target.value})}></textarea>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t pt-6">
@@ -3139,66 +3374,126 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <button onClick={exportOrdersToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm whitespace-nowrap">
                       Export CSV
                     </button>
+                    {selectedOrders.length > 0 && (
+                      <button onClick={() => {
+                        localStorage.setItem('bulkPrintOrderIds', JSON.stringify(selectedOrders));
+                        window.open('/admin/print-label-bulk', '_blank');
+                      }} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold uppercase hover:bg-blue-800 transition-colors shadow-[2px_2px_0_0_#000] text-sm whitespace-nowrap flex items-center justify-center gap-2" title="Print Labels">
+                        <FaPrint size={16} /> ({selectedOrders.length})
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-max">
-                    <thead>
-                      <tr className="border-b-2 border-black text-xs font-bold uppercase tracking-widest text-gray-500">
-                        <th className="py-3 px-4">Order ID</th>
-                        <th className="py-3 px-4">Customer</th>
-                        <th className="py-3 px-4">Items</th>
-                        <th className="py-3 px-4">Delivery</th>
-                        <th className="py-3 px-4">Total Amount</th>
-                        <th className="py-3 px-4">Payment</th>
-                        <th className="py-3 px-4">Order Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-sm font-medium">
-                      {orders.filter(o => {
-                        // Apply Search
-                        if (orderSearch) {
-                          const q = orderSearch.toLowerCase();
-                          const matchId = o.id.toLowerCase().includes(q);
-                          const matchName = (o.customerInfo?.fullName || "").toLowerCase().includes(q);
-                          const matchEmail = (o.customerInfo?.email || "").toLowerCase().includes(q);
-                          const matchPhone = (o.customerInfo?.whatsapp || "").toLowerCase().includes(q);
-                          if (!matchId && !matchName && !matchEmail && !matchPhone) return false;
+                  {(() => {
+                    const filteredOrdersList = orders.filter(o => {
+                      if (orderSearch) {
+                        const q = orderSearch.toLowerCase();
+                        const cust = o.userDetails || o.customerInfo || {};
+                        const fullName = cust.name || cust.fullName || "";
+                        const email = cust.email || "";
+                        const whatsapp = cust.phone || cust.whatsapp || "";
+                        const matchId = o.id.toLowerCase().includes(q);
+                        const matchName = fullName.toLowerCase().includes(q);
+                        const matchEmail = email.toLowerCase().includes(q);
+                        const matchPhone = whatsapp.toLowerCase().includes(q);
+                        if (!matchId && !matchName && !matchEmail && !matchPhone) return false;
+                      }
+                      if (orderDateRange.start || orderDateRange.end) {
+                        let tVal = o.createdAt || o.timestamp || o.created_at;
+                        if (tVal && tVal.seconds) tVal = tVal.seconds * 1000;
+                        if (!tVal) return false;
+                        const d = new Date(tVal);
+                        if (orderDateRange.start && d < new Date(orderDateRange.start)) return false;
+                        if (orderDateRange.end) {
+                          const endD = new Date(orderDateRange.end);
+                          endD.setDate(endD.getDate() + 1);
+                          if (d >= endD) return false;
                         }
-                        // Apply Date Filter
-                        if (orderDateRange.start || orderDateRange.end) {
-                          let tVal = o.createdAt || o.timestamp || o.created_at;
-                          if (tVal && tVal.seconds) tVal = tVal.seconds * 1000;
-                          if (!tVal) return false;
-                          const d = new Date(tVal);
-                          if (orderDateRange.start && d < new Date(orderDateRange.start)) return false;
-                          if (orderDateRange.end) {
-                            const endD = new Date(orderDateRange.end);
-                            endD.setDate(endD.getDate() + 1); // include the whole end day
-                            if (d >= endD) return false;
-                          }
-                        }
-                        return true;
-                      }).sort((a,b) => {
-                        const dateA = getSafeTimestamp(a, 'createdAt');
-                        const dateB = getSafeTimestamp(b, 'createdAt');
-                        return orderSort === "NEWEST" ? dateB - dateA : dateA - dateB;
-                      }).map(o => (
-                        <tr key={o.id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-4 px-4 font-mono text-xs" title={o.id}>{o.id.substring(0,8)}...</td>
+                      }
+                      return true;
+                    }).sort((a,b) => {
+                      const dateA = getSafeTimestamp(a, 'createdAt');
+                      const dateB = getSafeTimestamp(b, 'createdAt');
+                      return orderSort === "NEWEST" ? dateB - dateA : dateA - dateB;
+                    });
+                    
+                    const handleSelectAll = (e) => {
+                      if (e.target.checked) {
+                        setSelectedOrders(filteredOrdersList.filter(o => o.deliveryMethod !== "pickup").map(o => o.id));
+                      } else {
+                        setSelectedOrders([]);
+                      }
+                    };
+
+                    const handleSelectOne = (id) => {
+                      if (selectedOrders.includes(id)) {
+                        setSelectedOrders(selectedOrders.filter(x => x !== id));
+                      } else {
+                        setSelectedOrders([...selectedOrders, id]);
+                      }
+                    };
+
+                    return (
+                      <table className="w-full text-left border-collapse min-w-max">
+                        <thead>
+                          <tr className="border-b-2 border-black text-xs font-bold uppercase tracking-widest text-gray-500">
+                            <th className="py-3 px-4 w-10">
+                              <input 
+                                type="checkbox" 
+                                checked={filteredOrdersList.length > 0 && selectedOrders.length === filteredOrdersList.length}
+                                onChange={handleSelectAll}
+                                className="w-4 h-4 cursor-pointer"
+                              />
+                            </th>
+                            <th className="py-3 px-4">Order ID</th>
+                            <th className="py-3 px-4">Customer</th>
+                            <th className="py-3 px-4">Items</th>
+                            <th className="py-3 px-4">Delivery</th>
+                            <th className="py-3 px-4">Total Amount</th>
+                            <th className="py-3 px-4">Payment</th>
+                            <th className="py-3 px-4">Order Status</th>
+                            <th className="py-3 px-4">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="text-sm font-medium">
+                          {filteredOrdersList.map(o => (
+                            <tr key={o.id} className="border-b border-gray-100 hover:bg-gray-50">
+                              <td className="py-4 px-4">
+                                <input 
+                                  type="checkbox"
+                                  checked={selectedOrders.includes(o.id)}
+                                  onChange={() => handleSelectOne(o.id)}
+                                  className={`w-4 h-4 ${o.deliveryMethod === 'pickup' ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                                  disabled={o.deliveryMethod === 'pickup'}
+                                  title={o.deliveryMethod === 'pickup' ? 'Pickup orders cannot be bulk printed' : ''}
+                                />
+                              </td>
+                              <td className="py-4 px-4 font-mono text-xs" title={o.id}>{o.id.substring(0,8)}...</td>
                           <td className="py-4 px-4">
-                            <div className="font-bold">{o.customerInfo?.fullName || "-"}</div>
-                            <div className="text-xs text-gray-500">{o.customerInfo?.email || "-"}</div>
-                            {o.customerInfo?.whatsapp && (
-                              <a href={`https://wa.me/${o.customerInfo.whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-1">
-                                <FaWhatsapp className="text-green-500" /> {o.customerInfo.whatsapp}
-                              </a>
-                            )}
-                            {o.customerInfo?.referralCode && (
-                              <div className="mt-2 inline-block px-2 py-0.5 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded text-[10px] font-bold">
-                                REF: {o.customerInfo.referralCode}
-                              </div>
-                            )}
+                            {(() => {
+                              const cust = o.userDetails || o.customerInfo || {};
+                              const fullName = cust.name || cust.fullName || "-";
+                              const email = cust.email || "-";
+                              const whatsapp = cust.phone || cust.whatsapp || "";
+                              const referralCode = cust.referralCode || "";
+                              return (
+                                <>
+                                  <div className="font-bold">{fullName}</div>
+                                  <div className="text-xs text-gray-500">{email}</div>
+                                  {whatsapp && (
+                                    <a href={`https://wa.me/${whatsapp.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1 mt-1">
+                                      <FaWhatsapp className="text-green-500" /> {whatsapp}
+                                    </a>
+                                  )}
+                                  {referralCode && (
+                                    <div className="mt-2 inline-block px-2 py-0.5 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded text-[10px] font-bold">
+                                      REF: {referralCode}
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
                           </td>
                           <td className="py-4 px-4">
                             <ul className="text-xs list-disc list-inside">
@@ -3210,13 +3505,18 @@ export default function StaffDashboard({ portalType = "operator" }) {
                           <td className="py-4 px-4 text-xs max-w-[200px]">
                             <span className="font-bold uppercase block">{o.deliveryMethod}</span>
                             {o.deliveryMethod === "shipping" && o.shippingCost > 0 && <span className="text-gray-500 block mb-1">Cost: Rp {(o.shippingCost/1000).toLocaleString()}k</span>}
-                            {o.deliveryMethod === "shipping" && o.shippingAddress?.address && (
+                            {(o.waybillId || o.shippingDetails?.trackingNumber) && (
+                              <div className="my-1 bg-[#c1ff00] text-black p-2 border-2 border-black rounded text-[10px] font-mono font-bold break-all shadow-[2px_2px_0_0_#000]">
+                                {o.shippingDetails?.courier || "RESI"}: {o.waybillId || o.shippingDetails?.trackingNumber}
+                              </div>
+                            )}
+                            {o.deliveryMethod === "shipping" && (o.shippingAddress?.address || o.shippingDetails?.address) && (
                               <div className="mt-1 bg-gray-50 p-2 rounded border border-gray-200">
                                 <div className="flex justify-between items-start">
-                                  <span className="text-gray-600 line-clamp-2" title={o.shippingAddress.address}>{o.shippingAddress.address}</span>
+                                  <span className="text-gray-600 line-clamp-2" title={o.shippingAddress?.address || o.shippingDetails?.address}>{o.shippingAddress?.address || o.shippingDetails?.address}</span>
                                   <button 
                                     onClick={() => {
-                                      navigator.clipboard.writeText(o.shippingAddress.address);
+                                      navigator.clipboard.writeText(o.shippingAddress?.address || o.shippingDetails?.address);
                                       toast.success("Address copied!");
                                     }}
                                     className="text-gray-400 hover:text-black"
@@ -3225,7 +3525,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                     <FaCopy />
                                   </button>
                                 </div>
-                                <div className="text-gray-500 font-medium mt-1">{o.shippingAddress.city}, {o.shippingAddress.province}</div>
+                                <div className="text-gray-500 font-medium mt-1">{o.shippingAddress?.city || o.shippingDetails?.city}, {o.shippingAddress?.province || o.shippingDetails?.province}</div>
                               </div>
                             )}
                           </td>
@@ -3241,7 +3541,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                           <td className="py-4 px-4">
                             <select 
                               value={o.orderStatus || 'PENDING'} 
-                              onChange={(e) => handleUpdateOrderStatus(o.id, e.target.value)}
+                              onChange={(e) => handleUpdateOrderStatus(o, e.target.value)}
                               className={`px-2 py-1 text-xs font-bold uppercase rounded border outline-none cursor-pointer ${
                                 o.orderStatus === 'COMPLETED' ? 'bg-[#c1ff00] border-[#c1ff00] text-black' : 
                                 o.orderStatus === 'CANCELLED' ? 'bg-red-100 border-red-500 text-red-600' : 
@@ -3257,13 +3557,25 @@ export default function StaffDashboard({ portalType = "operator" }) {
                               <option value="CANCELLED">CANCELLED</option>
                             </select>
                           </td>
+                          <td className="p-4 align-top flex flex-col gap-2">
+                            {(o.paymentStatus === 'PAID' || o.paymentStatus === 'SETTLED') && o.deliveryMethod === 'shipping' && (
+                              <button onClick={() => window.open(`/admin/print-label/${o.id}`, '_blank')} className="bg-black text-[#c1ff00] px-2 py-1 text-[10px] font-bold uppercase rounded hover:bg-[#c1ff00] hover:text-black transition-colors" title="Print Shipping Label">
+                                Print Label
+                              </button>
+                            )}
+                            <button onClick={() => handleDeleteOrder(o.id)} className="text-red-500 hover:text-red-700 p-1 bg-red-50 rounded-lg hover:bg-red-100 transition-colors self-start" title="Delete Order">
+                              <FaTrash size={14} />
+                            </button>
+                          </td>
                         </tr>
                       ))}
-                      {orders.length === 0 && (
-                        <tr><td colSpan="6" className="text-center py-8 text-gray-400">No orders placed yet.</td></tr>
+                      {filteredOrdersList.length === 0 && (
+                        <tr><td colSpan="9" className="text-center py-8 text-gray-400">No orders found.</td></tr>
                       )}
                     </tbody>
                   </table>
+                  );
+                  })()}
                 </div>
               </div>
             </div>
@@ -3469,7 +3781,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                            <button onClick={() => handleApproveAffiliate(app)} className="bg-[#c1ff00] text-black font-bold uppercase border-2 border-black px-4 py-2 rounded-xl hover:bg-black hover:text-[#c1ff00] transition-colors text-xs flex-1 text-center">
                              Approve
                            </button>
-                           <button onClick={() => updateDoc(doc(db, "affiliate_applications", app.id), {status: "REJECTED"})} className="bg-orange-500 text-white font-bold uppercase border-2 border-black px-4 py-2 rounded-xl hover:bg-orange-600 transition-colors text-xs flex-1 text-center">
+                           <button onClick={() => handleRejectAffiliate(app.id)} className="bg-orange-500 text-white font-bold uppercase border-2 border-black px-4 py-2 rounded-xl hover:bg-orange-600 transition-colors text-xs flex-1 text-center">
                              Reject
                            </button>
                          </>
@@ -3563,34 +3875,98 @@ export default function StaffDashboard({ portalType = "operator" }) {
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-2xl w-full max-w-lg border-2 border-black shadow-[4px_4px_0_0_#000] relative max-h-[90vh] overflow-y-auto">
             <h3 className="font-anton text-2xl uppercase mb-4 border-b-2 border-gray-100 pb-2">Register Staff Manually</h3>
-            <form onSubmit={handleRegisterStaffManual} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-bold uppercase text-gray-500">Email (Login)</label><input type="email" required className="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-sm" value={addStaffModal.email} onChange={e => setAddStaffModal({...addStaffModal, email: e.target.value})} /></div>
-                <div><label className="block text-xs font-bold uppercase text-gray-500">Password</label><input type="password" required minLength="6" className="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-sm" value={addStaffModal.password} onChange={e => setAddStaffModal({...addStaffModal, password: e.target.value})} /></div>
+            <form onSubmit={handleRegisterStaffManual} className="flex flex-col gap-6 mt-4">
+              <div>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Full Legal Name</label>
+                <input type="text" required placeholder="As written on ID/KTM" className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all" value={addStaffModal.name} onChange={e => setAddStaffModal({...addStaffModal, name: e.target.value})} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-bold uppercase text-gray-500">Full Name</label><input required className="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-sm" value={addStaffModal.name} onChange={e => setAddStaffModal({...addStaffModal, name: e.target.value})} /></div>
-                <div><label className="block text-xs font-bold uppercase text-gray-500">NIM</label><input required className="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-sm" value={addStaffModal.nim} onChange={e => setAddStaffModal({...addStaffModal, nim: e.target.value})} /></div>
+
+              <div>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Email Address</label>
+                <input type="email" required placeholder="active.email@domain.com" className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all" value={addStaffModal.email} onChange={e => setAddStaffModal({...addStaffModal, email: e.target.value})} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-gray-500">Role</label>
-                  <select className="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-sm" value={addStaffModal.role} onChange={e => setAddStaffModal({...addStaffModal, role: e.target.value})}>
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Password</label>
+                  <input type="password" required minLength="8" placeholder="Minimum 8 characters" className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all" value={addStaffModal.password} onChange={e => setAddStaffModal({...addStaffModal, password: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Confirm Password</label>
+                  <input type="password" required minLength="8" placeholder="Verify password" className={`w-full bg-gray-50 border-2 rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 transition-all ${addStaffModal.confirmPassword && addStaffModal.password !== addStaffModal.confirmPassword ? "border-red-500 focus:ring-red-500" : "border-black focus:ring-[#c1ff00]"}`} value={addStaffModal.confirmPassword} onChange={e => setAddStaffModal({...addStaffModal, confirmPassword: e.target.value})} />
+                  {addStaffModal.confirmPassword && addStaffModal.password !== addStaffModal.confirmPassword && (
+                    <p className="text-red-500 text-xs mt-2 font-bold font-poppins">Passwords do not match</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Student ID (NIM)</label>
+                  <input type="text" required placeholder="NIM / NPM" pattern="^[0-9]+$" title="Must contain numbers only" className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all" value={addStaffModal.nim} onChange={e => setAddStaffModal({...addStaffModal, nim: e.target.value.replace(/\D/g, '')})} />
+                </div>
+                <div>
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Position in YMCC</label>
+                  <select required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all font-semibold cursor-pointer" value={addStaffModal.position} onChange={e => {
+                    const value = e.target.value;
+                    if (value === "BOD" || value === "Head") {
+                      setAddStaffModal({...addStaffModal, position: value, division: ""});
+                    } else {
+                      setAddStaffModal({...addStaffModal, position: value});
+                    }
+                  }}>
+                    <option value="Staff">Staff</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Head">Head of Department</option>
+                    <option value="BOD">Board of Directors (BOD)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Role</label>
+                  <select required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all font-semibold cursor-pointer" value={addStaffModal.role} onChange={e => setAddStaffModal({...addStaffModal, role: e.target.value})}>
                     <option value="Operator">Operator</option>
                     <option value="Admin">Admin</option>
                     <option value="Fundraising">Fundraising</option>
                   </select>
                 </div>
-                <div><label className="block text-xs font-bold uppercase text-gray-500">Position</label><input required placeholder="Staff / Head" className="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-sm" value={addStaffModal.position} onChange={e => setAddStaffModal({...addStaffModal, position: e.target.value})} /></div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-bold uppercase text-gray-500">Dept</label><input required className="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-sm" value={addStaffModal.department} onChange={e => setAddStaffModal({...addStaffModal, department: e.target.value})} /></div>
-                <div><label className="block text-xs font-bold uppercase text-gray-500">Division</label><input required className="w-full bg-gray-50 border border-gray-300 rounded px-3 py-2 text-sm" value={addStaffModal.division} onChange={e => setAddStaffModal({...addStaffModal, division: e.target.value})} /></div>
+
+              <div className={`grid grid-cols-1 ${addStaffModal.position === "BOD" || addStaffModal.position === "Head" ? "" : "md:grid-cols-2"} gap-6`}>
+                <div>
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">
+                    {addStaffModal.position === "BOD" ? "Board of Directors Role" : "YMCC Department"}
+                  </label>
+                  {addStaffModal.position === "BOD" ? (
+                    <select required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all font-semibold cursor-pointer" value={addStaffModal.department} onChange={e => setAddStaffModal({...addStaffModal, department: e.target.value, division: ""})}>
+                      <option value="">-- Select BOD Role --</option>
+                      {bodData.map(role => <option key={role} value={role}>{role}</option>)}
+                    </select>
+                  ) : (
+                    <select required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all font-semibold cursor-pointer" value={addStaffModal.department} onChange={e => setAddStaffModal({...addStaffModal, department: e.target.value, division: ""})}>
+                      <option value="">-- Select Department --</option>
+                      {Object.keys(departmentData).map(dep => <option key={dep} value={dep}>{dep}</option>)}
+                    </select>
+                  )}
+                </div>
+                
+                {addStaffModal.position !== "BOD" && addStaffModal.position !== "Head" && (
+                  <div>
+                    <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">YMCC Division</label>
+                    <select required disabled={!addStaffModal.department} className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 font-poppins text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all font-semibold cursor-pointer disabled:opacity-50" value={addStaffModal.division} onChange={e => setAddStaffModal({...addStaffModal, division: e.target.value})}>
+                      <option value="">-- Select Division --</option>
+                      {addStaffModal.department && departmentData[addStaffModal.department] && departmentData[addStaffModal.department].map(div => <option key={div} value={div}>{div}</option>)}
+                    </select>
+                  </div>
+                )}
               </div>
-              
-              <div className="flex gap-3 pt-4 border-t-2 border-gray-100">
-                <button type="button" onClick={() => setAddStaffModal({...addStaffModal, isOpen:false})} className="flex-1 bg-white border-2 border-black text-black font-bold uppercase py-2 rounded-xl">Cancel</button>
-                <button type="submit" disabled={actionLoading} className="flex-1 bg-[#c1ff00] border-2 border-black text-black font-bold uppercase py-2 rounded-xl shadow-[2px_2px_0_0_#000]">Register</button>
+
+
+
+              <div className="flex gap-4 pt-4 mt-2">
+                <button type="button" onClick={() => setAddStaffModal({...addStaffModal, isOpen:false})} className="flex-1 bg-white border-2 border-black text-black font-poppins font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-gray-50 transition-colors">Cancel</button>
+                <button type="submit" disabled={actionLoading} className="flex-1 bg-[#c1ff00] border-2 border-black text-black font-poppins font-bold uppercase tracking-widest py-3 rounded-xl shadow-[4px_4px_0_0_#000] hover:translate-y-1 hover:translate-x-1 hover:shadow-none transition-all disabled:opacity-50 flex items-center justify-center gap-3">
+                  {actionLoading ? "PROCESSING..." : "REGISTER ACCOUNT"}
+                </button>
               </div>
             </form>
           </div>

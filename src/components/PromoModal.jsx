@@ -6,34 +6,38 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaXmark, FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
-const SLIDES = [
-  {
-    rank: "#1 - MOST POPULAR",
-    title: "YMCC VII OFFICIAL SAFETY JACKET (WEARPACK)",
-    description: "The absolute gold standard of field engineering apparel. Constructed with heavyweight, industrial-grade American Drill fabric to withstand rigorous open-pit conditions. Engineered with high-reflectivity safety striping, a tactical radio pocket, and reinforced double-stitching. Built for both administrative authority and field-grade resilience.",
-    specs: "Edition: Limited Campaign Release | Material: Premium Heavy American Drill.",
-    image: "/merch/DSC01632.jpg"
-  },
-  {
-    rank: "#2 - HIGH DEMAND",
-    title: "YMCC VII PREMIUM UTILITY VEST",
-    description: "Optimized for high-mobility exploration and surveying tasks. Featuring a dual-pane chest zipper, breathable internal mesh lining, and heavy-duty steel utility loops. Lined with high-visibility silver reflective bands to ensure absolute safety and structural prominence in low-light environments.",
-    specs: "Edition: Field Surveyor Special | Material: Water-resistant Drill Hybrid.",
-    image: "/merch/DSC01482.jpg"
-  },
-  {
-    rank: "#3 - COLLECTIBLES",
-    title: "PREMIUM STEEL KEYCHAIN & TACTICAL STICKERS",
-    description: 'Carry the physical weight of "The Green Compass" wherever your journey leads. Heavy-gauge, laser-engraved brushed stainless steel keychain paired with a collection of premium, UV-resistant, scratchproof industrial stickers designed for helmets, laptops, and field equipment.',
-    specs: "Keychain: 304 Stainless Steel | Stickers: Weatherproof Matte Vinyl Overlaminate.",
-    image: "/HERO FOTO.jpg"
-  }
-];
+import { db } from "@/lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function PromoModal() {
   const [isVisible, setIsVisible] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState([]);
   const pathname = usePathname();
+
+  useEffect(() => {
+    // Fetch real merch data
+    const fetchMerch = async () => {
+      try {
+        const snap = await getDocs(collection(db, "merchandise"));
+        const items = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (items.length > 0) {
+          const formattedSlides = items.map((item, idx) => ({
+            rank: `#${idx + 1} - ${item.category || "GEAR"}`,
+            title: item.name,
+            description: item.description,
+            specs: item.tagline || "Limited Edition",
+            image: item.image,
+            id: item.id
+          }));
+          setSlides(formattedSlides);
+        }
+      } catch (err) {
+        console.error("Error fetching merch for promo:", err);
+      }
+    };
+    fetchMerch();
+  }, []);
 
   useEffect(() => {
     const hasSeenPromo = localStorage.getItem("ymcc_promo_seen");
@@ -46,9 +50,9 @@ export default function PromoModal() {
   }, []);
 
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || slides.length === 0) return;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(interval);
   }, [isVisible]);
@@ -61,10 +65,14 @@ export default function PromoModal() {
     setIsVisible(false);
   };
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
+  const nextSlide = () => {
+    if (slides.length > 0) setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+  const prevSlide = () => {
+    if (slides.length > 0) setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
 
-  if (!isVisible) return null;
+  if (!isVisible || slides.length === 0) return null;
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
@@ -81,8 +89,8 @@ export default function PromoModal() {
         {/* Visual Anchor (Left Side) */}
         <div className="w-full lg:w-1/2 relative min-h-[300px] lg:min-h-[500px] bg-gray-100">
           <Image 
-            src={SLIDES[currentSlide].image} 
-            alt={SLIDES[currentSlide].title}
+            src={slides[currentSlide].image} 
+            alt={slides[currentSlide].title}
             fill
             className="object-cover transition-opacity duration-500"
           />
@@ -108,23 +116,23 @@ export default function PromoModal() {
           
           <div className="mb-4">
             <span className="inline-block bg-[#111] text-white font-poppins font-bold text-[10px] px-3 py-1 rounded-sm uppercase tracking-widest mb-3">
-              RANK {SLIDES[currentSlide].rank}
+              RANK {slides[currentSlide].rank}
             </span>
             <h2 className="font-anton text-3xl lg:text-4xl leading-tight uppercase text-[#111] mb-4">
-              {SLIDES[currentSlide].title}
+              {slides[currentSlide].title}
             </h2>
           </div>
 
           <p className="font-poppins text-sm text-gray-600 leading-relaxed mb-6">
-            {SLIDES[currentSlide].description}
+            {slides[currentSlide].description}
           </p>
 
           <div className="bg-[#eefcf0] border-l-2 border-[var(--color-grass)] p-4 rounded-r-lg mb-10">
-            <p className="font-poppins text-xs font-medium text-[#111]"><span className="font-bold">Technical Specs:</span> {SLIDES[currentSlide].specs}</p>
+            <p className="font-poppins text-xs font-medium text-[#111]"><span className="font-bold">Specs:</span> {slides[currentSlide].specs}</p>
           </div>
 
           <div className="flex flex-col gap-4 mt-auto">
-            <Link href="/merch" onClick={handleDismiss}>
+            <Link href={`/merch?id=${slides[currentSlide].id}`} onClick={handleDismiss}>
               <button className="btn-brutal w-full bg-[var(--color-grass)] text-[#111] font-anton text-xl tracking-wide py-4 rounded-xl uppercase">
                 SECURE MY GEAR &rarr;
               </button>

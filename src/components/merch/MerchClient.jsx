@@ -11,6 +11,15 @@ import { collection, onSnapshot, query, orderBy, where } from "firebase/firestor
 import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 
+const isOutOfStock = (product) => {
+  if (!product) return false;
+  if (product.stockType === "PO") return false;
+  if (product.stockPerSize && Object.keys(product.stockPerSize).length > 0) {
+    return Object.values(product.stockPerSize).every(s => s <= 0);
+  }
+  return product.stockAmount <= 0;
+};
+
 export default function MerchClient({ initialProduct }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -158,9 +167,9 @@ export default function MerchClient({ initialProduct }) {
                    fill 
                    className={`object-cover ${selectedProduct.category === 'ACCESSORIES' ? 'object-contain p-8' : ''}`}
                  />
-                 {(!selectedProduct.stockPerSize || Object.values(selectedProduct.stockPerSize).every(s => s <= 0)) && (
-                   <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm z-20">
-                     <span className="font-anton text-4xl text-white rotate-[-15deg] border-4 border-red-500 text-red-500 px-6 py-2 rounded-xl">OUT OF STOCK</span>
+                 {isOutOfStock(selectedProduct) && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[2px] z-20 pointer-events-none">
+                    <span className="font-anton text-4xl text-white rotate-[-15deg] border-4 border-red-500 text-red-500 px-6 py-2 rounded-xl">OUT OF STOCK</span>
                    </div>
                  )}
               </div>
@@ -225,7 +234,7 @@ export default function MerchClient({ initialProduct }) {
               </div>
 
               <button 
-                disabled={!selectedProduct.stockPerSize || Object.values(selectedProduct.stockPerSize).every(s => s <= 0) || !selectedSize}
+                disabled={isOutOfStock(selectedProduct) || !selectedSize}
                 onClick={() => {
                   if (!selectedSize) {
                     toast.error("Please select a size first");
@@ -242,14 +251,14 @@ export default function MerchClient({ initialProduct }) {
                   });
                 }}
                 className={`w-full font-anton text-2xl tracking-widest py-4 rounded-full border-2 border-black transition-colors shadow-brutal-sm ${
-                  !selectedProduct.stockPerSize || Object.values(selectedProduct.stockPerSize).every(s => s <= 0)
+                  isOutOfStock(selectedProduct)
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed" 
                     : !selectedSize
                       ? "bg-gray-200 text-black cursor-not-allowed"
                       : "bg-[#c1ff00] text-black hover:bg-black hover:text-white"
                 }`}
               >
-                {(!selectedProduct.stockPerSize || Object.values(selectedProduct.stockPerSize).every(s => s <= 0)) ? "OUT OF STOCK" : "ADD TO CART"}
+                {isOutOfStock(selectedProduct) ? "OUT OF STOCK" : "ADD TO CART"}
               </button>
             </div>
           </div>
@@ -264,6 +273,11 @@ export default function MerchClient({ initialProduct }) {
                     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-[#c1ff00] px-4 py-1.5 border-2 border-black rounded-full font-poppins font-bold text-[10px] uppercase tracking-widest">
                       {prod.category}
                     </div>
+                    {isOutOfStock(prod) && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[2px] z-20 pointer-events-none">
+                        <span className="font-anton text-2xl text-red-500 border-4 border-red-500 px-4 py-1 rotate-[-15deg] rounded-lg bg-black/50">OUT OF STOCK</span>
+                      </div>
+                    )}
                     <FadeInImage src={prod.image} alt={prod.name} fill className={`object-cover group-hover:scale-105 transition-transform duration-500 ${prod.category === 'ACCESSORIES' ? 'object-contain p-8' : ''}`} />
                   </div>
                   <div className="p-6">
@@ -327,8 +341,8 @@ export default function MerchClient({ initialProduct }) {
             {featuredSlides[currentSlide] && (
               <>
                 <FadeInImage src={featuredSlides[currentSlide].image} alt="Featured Gear Main" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                {featuredSlides[currentSlide].product && (!featuredSlides[currentSlide].product.stockPerSize || Object.values(featuredSlides[currentSlide].product.stockPerSize).every(s => s <= 0)) && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-10 pointer-events-none">
+                {featuredSlides[currentSlide].product && isOutOfStock(featuredSlides[currentSlide].product) && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-20 pointer-events-none">
                     <span className="font-anton text-3xl text-red-500 border-4 border-red-500 px-6 py-2 rotate-[-15deg] rounded-xl bg-black/50">OUT OF STOCK</span>
                   </div>
                 )}
@@ -352,8 +366,8 @@ export default function MerchClient({ initialProduct }) {
                 onClick={() => featuredSlides[(currentSlide + 1) % featuredSlides.length].product && handleProductClick(featuredSlides[(currentSlide + 1) % featuredSlides.length].product)}
               >
                 <FadeInImage src={featuredSlides[(currentSlide + 1) % featuredSlides.length].image} alt="Featured Gear 2" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                {featuredSlides[(currentSlide + 1) % featuredSlides.length].product && (!featuredSlides[(currentSlide + 1) % featuredSlides.length].product.stockPerSize || Object.values(featuredSlides[(currentSlide + 1) % featuredSlides.length].product.stockPerSize).every(s => s <= 0)) && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-10 pointer-events-none">
+                {featuredSlides[(currentSlide + 1) % featuredSlides.length].product && isOutOfStock(featuredSlides[(currentSlide + 1) % featuredSlides.length].product) && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-20 pointer-events-none rounded-2xl">
                     <span className="font-anton text-xl text-red-500 border-4 border-red-500 px-4 py-1 rotate-[-15deg] rounded-lg bg-black/50">OUT OF STOCK</span>
                   </div>
                 )}
@@ -365,8 +379,8 @@ export default function MerchClient({ initialProduct }) {
                 onClick={() => featuredSlides[(currentSlide + 2) % featuredSlides.length].product && handleProductClick(featuredSlides[(currentSlide + 2) % featuredSlides.length].product)}
               >
                 <FadeInImage src={featuredSlides[(currentSlide + 2) % featuredSlides.length].image} alt="Featured Gear 3" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
-                {featuredSlides[(currentSlide + 2) % featuredSlides.length].product && (!featuredSlides[(currentSlide + 2) % featuredSlides.length].product.stockPerSize || Object.values(featuredSlides[(currentSlide + 2) % featuredSlides.length].product.stockPerSize).every(s => s <= 0)) && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-10 pointer-events-none">
+                {featuredSlides[(currentSlide + 2) % featuredSlides.length].product && isOutOfStock(featuredSlides[(currentSlide + 2) % featuredSlides.length].product) && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-20 pointer-events-none rounded-2xl">
                     <span className="font-anton text-xl text-red-500 border-4 border-red-500 px-4 py-1 rotate-[-15deg] rounded-lg bg-black/50">OUT OF STOCK</span>
                   </div>
                 )}
@@ -413,7 +427,7 @@ export default function MerchClient({ initialProduct }) {
                 </span>
               )}
             </button>
-            <Link href="/merch/track">
+            <Link href="/order-status">
               <button className="border-2 border-black rounded-full px-6 py-3 font-poppins font-bold text-sm bg-black text-[#c1ff00] hover:bg-[#c1ff00] hover:text-black transition-colors whitespace-nowrap">
                 TRACK ORDER
               </button>
@@ -461,7 +475,7 @@ export default function MerchClient({ initialProduct }) {
                   fill 
                   className={`object-cover transition-transform duration-700 group-hover:scale-105 ${product.category === 'ACCESSORIES' ? 'object-contain p-8' : ''}`} 
                 />
-                {(!product.stockPerSize || Object.values(product.stockPerSize).every(s => s <= 0)) && (
+                {isOutOfStock(product) && (
                   <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-20 pointer-events-none">
                     <span className="font-anton text-2xl text-red-500 border-4 border-red-500 px-4 py-1 rotate-[-15deg] rounded-lg bg-black/50">OUT OF STOCK</span>
                   </div>

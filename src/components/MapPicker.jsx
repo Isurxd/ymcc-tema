@@ -66,6 +66,16 @@ export default function MapPicker({ latitude, longitude, setCoordinates, searchA
     }
   }, [position]);
 
+  const [mounted, setMounted] = useState(false);
+  const [mapKey, setMapKey] = useState(0);
+  useEffect(() => {
+    setMounted(true);
+    setMapKey(Date.now()); // Forces a fresh DOM node on Strict Mode remount
+    return () => {
+      setMounted(false);
+    };
+  }, []);
+
   const eventHandlers = useMemo(
     () => ({
       dragend() {
@@ -79,9 +89,13 @@ export default function MapPicker({ latitude, longitude, setCoordinates, searchA
     [setCoordinates]
   );
 
+  if (!mounted) {
+    return <div className="h-[400px] w-full border-2 border-black rounded-xl bg-gray-100 animate-pulse"></div>;
+  }
+
   return (
     <div className="h-[400px] w-full border-2 border-black rounded-xl overflow-hidden relative z-0">
-      <MapContainer center={center} zoom={13} scrollWheelZoom={true} className="h-full w-full">
+      <MapContainer key={mapKey} center={center} zoom={13} scrollWheelZoom={true} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

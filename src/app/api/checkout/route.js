@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
+import { sendOrderCreatedEmail } from "@/lib/email";
 
 export async function POST(req) {
   try {
@@ -18,7 +19,7 @@ export async function POST(req) {
     let totalAmount = 0;
     let totalItems = 0;
     const orderItems = [];
-    const orderId = db.collection('Orders').doc().id;
+    const orderId = db.collection('merch_orders').doc().id;
 
     // Begin Firestore transaction for Atomic Soft-Lock
     await db.runTransaction(async (transaction) => {
@@ -48,9 +49,8 @@ export async function POST(req) {
         const updatePayload = {};
         if (hasPerSizeStock && itemSize) {
           updatePayload[`stockPerSize.${itemSize}`] = FieldValue.increment(-Number(item.quantity || 1));
-        } else {
-          updatePayload.stockAmount = FieldValue.increment(-Number(item.quantity || 1));
         }
+        updatePayload.stockAmount = FieldValue.increment(-Number(item.quantity || 1));
         transaction.update(docSnap.ref, updatePayload);
 
         const dbPrice = Number(docSnap.data().priceNumber) || 0;
@@ -60,6 +60,7 @@ export async function POST(req) {
         orderItems.push({
           productId: item.id,
           name: docSnap.data().name || item.name,
+          image: docSnap.data().image || null,
           size: item.size || null,
           quantity: qty,
           price: dbPrice
@@ -105,7 +106,7 @@ export async function POST(req) {
       totalAmount = totalAmount - discountAmount + secureShippingCost + SERVER_PLATFORM_FEE;
 
       // Create Order Document
-      const orderRef = db.collection('Orders').doc(orderId);
+      const orderRef = db.collection('merch_orders').doc(orderId);
       transaction.set(orderRef, {
         id: orderId,
         userDetails,
@@ -120,6 +121,8 @@ export async function POST(req) {
         items: orderItems,
         totalAmount,
         status: "PENDING_PAYMENT",
+        paymentStatus: "UNPAID",
+        orderStatus: "PENDING",
         createdAt: FieldValue.serverTimestamp(),
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 Hours Expiry
       });
@@ -155,9 +158,17 @@ export async function POST(req) {
     }
 
     // Update the order in Firestore with the generated Midtrans link & token
-    await db.collection("Orders").doc(orderId).update({
+    await db.collection("merch_orders").doc(orderId).update({
       checkoutUrl: midtransData.redirect_url,
       token: midtransData.token
+    });
+
+    // Send Invoice Email via Nodemailer (Background task)
+    sendOrderCreatedEmail(userDetails.email, {
+      id: orderId,
+      customerName: userDetails.name,
+      totalAmount: Math.round(totalAmount),
+      status: "PENDING_PAYMENT"
     });
 
     return NextResponse.json({ 
@@ -169,6 +180,7 @@ export async function POST(req) {
 
   } catch (error) {
     console.error("Checkout Error:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+// Force Next.js cache invalidation 3

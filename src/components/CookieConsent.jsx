@@ -36,7 +36,7 @@ export default function CookieConsent() {
             [SECURITY & TELEMETRY PROTOCOL]
           </h3>
           <p className="font-poppins text-sm text-gray-300 leading-relaxed text-justify md:text-left">
-            This Platform utilizes strictly functional and telemetry cookies to secure your dashboard session, prevent multi-device authentication fraud, manage local exam state caches, and execute PCI-DSS compliant transactions via Xendit. We do not engage in advertising or third-party data monetization. By continuing to navigate the compass, you consent to our technical data parameters as detailed in our Cookie Policy.
+            This Platform utilizes strictly functional and telemetry cookies to secure your dashboard session, prevent multi-device authentication fraud, manage local exam state caches, and execute PCI-DSS compliant transactions via Midtrans. We do not engage in advertising or third-party data monetization. By continuing to navigate the compass, you consent to our technical data parameters as detailed in our Cookie Policy.
           </p>
         </div>
 
@@ -46,11 +46,6 @@ export default function CookieConsent() {
             className="bg-[var(--color-grass)] text-[#111] font-poppins font-bold text-xs px-8 py-3.5 rounded-xl uppercase tracking-widest border border-black hover:bg-white transition-colors active:translate-y-px whitespace-nowrap shadow-[4px_4px_0px_0px_rgba(17,17,17,1)] hover:shadow-none"
           >
             ACCEPT ALL PROTOCOLS
-          </button>
-          <button 
-            className="bg-transparent text-white font-poppins font-bold text-xs px-8 py-3.5 rounded-xl uppercase tracking-widest border border-gray-600 hover:border-white hover:bg-white hover:text-[#111] transition-colors whitespace-nowrap"
-          >
-            CUSTOMIZE
           </button>
         </div>
       </div>

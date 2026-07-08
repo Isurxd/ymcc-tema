@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/firebaseAdmin";
 import { FieldValue } from "firebase-admin/firestore";
 import crypto from "crypto";
+import { sendPaymentReceivedEmail } from "@/lib/email";
 
 export async function POST(req) {
   try {
@@ -40,7 +41,7 @@ export async function POST(req) {
     }
 
     // Fetch order first to get dependencies
-    const orderRef = db.collection('Orders').doc(orderId);
+    const orderRef = db.collection('merch_orders').doc(orderId);
     const orderDocSnap = await orderRef.get();
     if (!orderDocSnap.exists) {
       throw new Error("Order not found");
@@ -70,7 +71,9 @@ export async function POST(req) {
 
       // Update Order Status
       transaction.update(orderRef, {
-        status: status, 
+        status: status,
+        paymentStatus: status === "PAID" || status === "SETTLED" ? "PAID" : "UNPAID",
+        orderStatus: status === "EXPIRED" || status === "CANCELLED" ? "CANCELLED" : "PROCESSING",
         paidAt: status === "PAID" || status === "SETTLED" ? FieldValue.serverTimestamp() : null
       });
 
@@ -80,9 +83,13 @@ export async function POST(req) {
           data.items.forEach((item) => {
             if (item.productId) { 
               const merchRef = db.collection('merchandise').doc(item.productId);
-              transaction.update(merchRef, {
+              const updatePayload = {
                 stockAmount: FieldValue.increment(item.quantity)
-              });
+              };
+              if (item.size) {
+                 updatePayload[`stockPerSize.${item.size}`] = FieldValue.increment(item.quantity);
+              }
+              transaction.update(merchRef, updatePayload);
             }
           });
         }
@@ -106,9 +113,23 @@ export async function POST(req) {
       }
     });
 
+    if (status === "PAID" || status === "SETTLED") {
+      const custEmail = orderData.userDetails?.email || orderData.customerDetails?.email;
+      const custName = orderData.userDetails?.name || orderData.userDetails?.fullName || orderData.customerDetails?.first_name || "Customer";
+      if (custEmail) {
+        sendPaymentReceivedEmail(custEmail, {
+          id: orderId,
+          customerName: custName,
+          totalAmount: orderData.totalAmount || grossAmount,
+          status: "PAID"
+        });
+      }
+    }
+
     return NextResponse.json({ success: true, message: "Webhook processed successfully" });
   } catch (error) {
     console.error("Midtrans Webhook Error:", error);
-    return NextResponse.json({ error: "Webhook Error", details: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
+// Force Next.js cache invalidation 3

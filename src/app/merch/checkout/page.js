@@ -47,10 +47,8 @@ export default function CheckoutPage() {
   const [districts, setDistricts] = useState([]);
   const [villages, setVillages] = useState([]);
 
-  // Shipping Cost from Biteship
+  // Shipping Cost from Local Calculator
   const [shippingCost, setShippingCost] = useState(0);
-  const [availableRates, setAvailableRates] = useState([]);
-  const [isFetchingRates, setIsFetchingRates] = useState(false);
 
   useEffect(() => {
     fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
@@ -58,33 +56,39 @@ export default function CheckoutPage() {
       .then(data => setProvinces(data));
   }, []);
 
-  const fetchRates = async () => {
-    setIsFetchingRates(true);
-    try {
-      const res = await fetch("/api/biteship/rates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          destinationPostalCode: formData.postalCode,
-          items: cartItems
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setAvailableRates(data.rates);
-        // Reset selected courier if new rates are fetched
-        setFormData(prev => ({ ...prev, courier: "" }));
-        setShippingCost(0);
-      } else {
-        setAvailableRates([]);
-      }
-    } catch (err) {
-      console.error(err);
-      setAvailableRates([]);
-    } finally {
-      setIsFetchingRates(false);
+  const calculateLocalShipping = (provinceName) => {
+    if (!provinceName) return 0;
+    const name = provinceName.toUpperCase();
+    
+    // Default rate if not matched
+    let ratePerKg = 40000; 
+
+    if (name.includes("YOGYAKARTA")) {
+      ratePerKg = 10000;
+    } else if (name.includes("JAWA TENGAH")) {
+      ratePerKg = 15000;
+    } else if (name.includes("JAWA TIMUR") || name.includes("JAWA BARAT") || name.includes("BANTEN") || name.includes("JAKARTA")) {
+      ratePerKg = 20000;
     }
+
+    // Calculate total weight
+    const totalWeightGrams = cartItems.reduce((acc, item) => acc + ((item.weight || 500) * item.quantity), 0);
+    const totalWeightKg = Math.ceil(totalWeightGrams / 1000) || 1;
+
+    return ratePerKg * totalWeightKg;
   };
+
+  useEffect(() => {
+    if (deliveryMethod === "shipping" && formData.province) {
+      setShippingCost(calculateLocalShipping(formData.province));
+      setFormData(prev => ({ ...prev, courier: "REGULER_YMCC" }));
+    } else {
+      setShippingCost(0);
+      setFormData(prev => ({ ...prev, courier: "" }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.province, deliveryMethod, cartItems]);
+
 
   const handleApplyPromo = async () => {
     setPromoError("");
@@ -123,7 +127,7 @@ export default function CheckoutPage() {
     if (name === "province") {
       const selectedProv = provinces.find(p => p.name === value);
       setFormData({ ...formData, province: value, city: "", district: "", village: "" });
-      setCities([]); setDistricts([]); setVillages([]); setShippingCost(0);
+      setCities([]); setDistricts([]); setVillages([]);
       if (selectedProv) {
         fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${selectedProv.id}.json`)
           .then(res => res.json())
@@ -132,7 +136,7 @@ export default function CheckoutPage() {
     } else if (name === "city") {
       const selectedCity = cities.find(c => c.name === value);
       setFormData({ ...formData, city: value, district: "", village: "" });
-      setDistricts([]); setVillages([]); setShippingCost(0);
+      setDistricts([]); setVillages([]);
       if (selectedCity) {
         fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${selectedCity.id}.json`)
           .then(res => res.json())
@@ -141,7 +145,7 @@ export default function CheckoutPage() {
     } else if (name === "district") {
       const selectedDist = districts.find(d => d.name === value);
       setFormData({ ...formData, district: value, village: "" });
-      setVillages([]); setShippingCost(0);
+      setVillages([]);
       if (selectedDist) {
         fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedDist.id}.json`)
           .then(res => res.json())
@@ -207,7 +211,7 @@ export default function CheckoutPage() {
             postalCode: formData.postalCode,
             latitude: formData.latitude,
             longitude: formData.longitude,
-            courier: formData.courier
+            courier: formData.courier || "REGULER_YMCC"
           } : null
         })
       });
@@ -215,6 +219,7 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (data.success && data.checkoutUrl) {
+        localStorage.setItem("lastOrderId", data.orderId);
         if (window.snap && data.token) {
           window.snap.pay(data.token, {
             onSuccess: function () {
@@ -292,6 +297,9 @@ export default function CheckoutPage() {
             <div>
               <label className="block font-bold text-sm mb-2">Email Address</label>
               <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full border-2 border-black rounded-lg p-3 outline-none focus:bg-gray-50" />
+              <p className="text-xs font-bold text-red-500 mt-2 bg-red-50 p-2 border border-red-200 rounded">
+                * IMPORTANT: Invoice and logistics tracking number will be sent automatically to this email. Please ensure it is active.
+              </p>
             </div>
 
             <div>
@@ -381,27 +389,6 @@ export default function CheckoutPage() {
                   <input required type="text" name="postalCode" value={formData.postalCode} onChange={handleChange} className="w-full border-2 border-black rounded-lg p-3 outline-none focus:bg-gray-50" placeholder="e.g. 55281" />
                 </div>
 
-                <div className="mt-4 border-t-2 border-black pt-4">
-                  <label className="block font-bold text-sm mb-2">Select Courier</label>
-                  {isFetchingRates ? (
-                    <div className="w-full border-2 border-black rounded-lg p-3 bg-gray-50 text-gray-500 font-bold animate-pulse">
-                      Fetching Rates from Biteship...
-                    </div>
-                  ) : (
-                    <select required name="courier" value={formData.courier} onChange={handleChange} className="w-full border-2 border-black rounded-lg p-3 outline-none focus:bg-gray-50 bg-white">
-                      <option value="" disabled>Choose your courier</option>
-                      {availableRates.map((rate, idx) => (
-                        <option key={idx} value={`${rate.courier} - ${rate.service}`}>
-                          {rate.courier.toUpperCase()} {rate.service} - Rp {rate.price.toLocaleString("id-ID")}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  {availableRates.length === 0 && formData.postalCode.length >= 5 && !isFetchingRates && (
-                    <p className="text-red-500 text-xs mt-2 font-bold">No couriers available for this postal code.</p>
-                  )}
-                </div>
-                
                 <div className="mt-8 border-t-2 border-dashed border-black pt-6">
                   <label className="block font-bold text-sm mb-2">Pin Coordinates (For Instant Couriers)</label>
                   <MapPicker 
@@ -436,7 +423,7 @@ export default function CheckoutPage() {
 
             <button 
               type="submit" 
-              disabled={isLoading || (deliveryMethod === "shipping" && (!formData.village || !formData.courier))}
+              disabled={isLoading || (deliveryMethod === "shipping" && (!formData.village || !formData.postalCode || !formData.address))}
               className="w-full mt-8 bg-black text-[#c1ff00] font-bold uppercase tracking-widest text-xl py-4 rounded-full border-2 border-black hover:bg-[#c1ff00] hover:text-black transition-all shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-y-1 disabled:opacity-50"
             >
               {isLoading ? "PROCESSING..." : "PAY SECURELY"}
@@ -501,7 +488,7 @@ export default function CheckoutPage() {
                     ? "Rp 0" 
                     : shippingCost > 0 
                       ? `Rp ${shippingCost.toLocaleString("id-ID")}` 
-                      : <span className="text-xs italic font-normal text-gray-500 mt-1">Select Village to calculate</span>
+                      : <span className="text-xs italic font-normal text-gray-500 mt-1">Select Province to calculate</span>
                   }
                 </span>
               </div>

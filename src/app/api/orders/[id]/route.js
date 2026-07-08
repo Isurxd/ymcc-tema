@@ -3,12 +3,12 @@ import { db } from "@/lib/firebaseAdmin";
 
 export async function GET(request, { params }) {
   try {
-    const orderId = params.id;
+    const { id: orderId } = await params;
     if (!orderId) {
       return NextResponse.json({ error: "Order ID is required" }, { status: 400 });
     }
 
-    const orderDoc = await db.collection("Orders").doc(orderId).get();
+    const orderDoc = await db.collection("merch_orders").doc(orderId).get();
 
     if (!orderDoc.exists) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -21,13 +21,17 @@ export async function GET(request, { params }) {
       order: {
         id: orderId,
         status: orderData.status,
+        orderStatus: orderData.orderStatus,
+        deliveryMethod: orderData.deliveryMethod,
+        trackingNumber: orderData.shippingDetails?.trackingNumber || null,
+        courier: orderData.shippingDetails?.courier || null,
         totalAmount: orderData.totalAmount,
         items: orderData.items,
         shippingDetails: orderData.shippingDetails,
-        customerName: orderData.customerDetails?.first_name || orderData.customerDetails?.name || "Customer",
+        customerName: orderData.userDetails?.name || orderData.userDetails?.fullName || orderData.customerDetails?.first_name || "Customer",
         checkoutUrl: orderData.checkoutUrl,
         token: orderData.token,
-        createdAt: orderData.createdAt ? orderData.createdAt.toDate().toISOString() : null
+        createdAt: orderData.createdAt ? (typeof orderData.createdAt.toDate === 'function' ? orderData.createdAt.toDate().toISOString() : new Date(orderData.createdAt).toISOString()) : null
       }
     });
 

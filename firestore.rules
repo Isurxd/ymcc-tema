@@ -5,8 +5,16 @@ service cloud.firestore {
     
     // Function to check if user is a verified Admin/Operator
     function isStaff() {
-      return request.auth != null && (
-        request.auth.token.email in ["m.fairuzadhimularifin@gmail.com", "suryatripatih@gmail.com", "noreply@ymccvii.com"] ||
+      return request.auth != null && request.auth.token.email != null && (
+        request.auth.token.email in [
+          "m.fairuzadhimularifin@gmail.com", 
+          "M.fairuzadhimularifin@gmail.com", 
+          "suryatripatih@gmail.com", 
+          "Suryatripatih@gmail.com", 
+          "suryatripatih2003@gmail.com", 
+          "Suryatripatih2003@gmail.com", 
+          "noreply@ymccvii.com"
+        ] ||
         (
           exists(/databases/$(database)/documents/staff_applications/$(request.auth.token.email)) &&
           get(/databases/$(database)/documents/staff_applications/$(request.auth.token.email)).data.status == "APPROVED"
@@ -15,13 +23,13 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
+      allow read: if (request.auth != null && request.auth.uid == userId) || isStaff();
       allow write: if (request.auth != null && request.auth.uid == userId) || isStaff();
     }
 
     match /staff_applications/{emailId} {
-      // Users can only read their own application
-      allow read: if request.auth != null && request.auth.token.email == emailId;
+      // Users can only read their own application (or staff can read all)
+      allow read: if (request.auth != null && request.auth.token.email == emailId) || isStaff();
       // FIX 1 (SANGAT KRITIS): Prevent "God-Mode" exploit.
       // Users can only CREATE an application with status PENDING. They cannot UPDATE it to APPROVED.
       allow create: if request.auth != null && request.auth.token.email == emailId && request.resource.data.status == "PENDING";
@@ -56,6 +64,10 @@ service cloud.firestore {
     match /merchandise/{document=**} {
       allow read: if true;
       allow write: if isStaff();
+    }
+
+    match /merch_orders/{document=**} {
+      allow read, write: if isStaff();
     }
 
     match /orders/{document=**} {
@@ -126,6 +138,14 @@ service cloud.firestore {
       // Anyone can submit (create) an application, but they cannot update or delete existing applications!
       allow create: if true;
       allow update, delete: if isStaff();
+    }
+
+    match /payout_requests/{document=**} {
+      allow read, write: if isStaff();
+    }
+
+    match /tickets/{document=**} {
+      allow read, write: if isStaff();
     }
 
     // Default deny
