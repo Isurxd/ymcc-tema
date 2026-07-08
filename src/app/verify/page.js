@@ -38,17 +38,41 @@ function VerifyContent() {
         
         const uData = userSnap.data();
         setUserData(uData);
+        const userEmail = uData.email;
 
         // 2. Fetch Competitions (competition_documents)
         const compQ = query(collection(db, "competition_documents"), where("uid", "==", id));
         const compSnap = await getDocs(compQ);
         const comps = compSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Also fetch from Orders (paid competition tickets)
+        if (userEmail) {
+          const ordCompQ = query(collection(db, "Orders"), where("userDetails.email", "==", userEmail));
+          const ordCompSnap = await getDocs(ordCompQ);
+          ordCompSnap.docs.forEach(d => {
+            const data = d.data();
+            if (Array.isArray(data.items)) {
+              data.items.forEach(item => {
+                if (!comps.some(c => c.id === item.productId || c.fileName === item.name)) {
+                  comps.push({
+                    id: item.productId || d.id,
+                    fileName: item.name,
+                    status: data.status
+                  });
+                }
+              });
+            }
+          });
+        }
         setCompetitions(comps);
 
         // 3. Fetch Merch Orders
-        const ordQ = query(collection(db, "merch_orders"), where("uid", "==", id));
-        const ordSnap = await getDocs(ordQ);
-        const ords = ordSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        let ords = [];
+        if (userEmail) {
+          const ordQ = query(collection(db, "merch_orders"), where("userDetails.email", "==", userEmail));
+          const ordSnap = await getDocs(ordQ);
+          ords = ordSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
         setOrders(ords);
 
       } catch (err) {

@@ -6,7 +6,7 @@ export async function POST(req) {
     const { nim, email } = await req.json();
 
     if (!nim || !email) {
-      return NextResponse.json({ error: "NIM dan Email harus diisi" }, { status: 400 });
+      return NextResponse.json({ error: "Student ID (NIM) and Email are required." }, { status: 400 });
     }
 
     // Since we're using admin SDK, we can query safely without rules.
@@ -17,7 +17,7 @@ export async function POST(req) {
       .get();
 
     if (snapshot.empty) {
-      return NextResponse.json({ error: "Data peserta tidak ditemukan. Pastikan NIM dan Email yang dimasukkan sesuai dengan data pendaftaran." }, { status: 404 });
+      return NextResponse.json({ error: "Applicant data not found. Please ensure your Student ID (NIM) and Email match your application details." }, { status: 404 });
     }
 
     const doc = snapshot.docs[0];

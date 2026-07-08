@@ -15,7 +15,7 @@ export async function POST(req) {
 
     // Server-side validation
     if (!fullName || !nim || !email || !whatsapp || !division1 || !division2 || !protocolConsent) {
-      return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
+      return NextResponse.json({ error: "Incomplete data" }, { status: 400 });
     }
 
     // Save to Firestore using Admin SDK
@@ -57,39 +57,39 @@ export async function POST(req) {
         <p style="color: #666; font-size: 14px;">YMCC VII 2027 | The Green Compass</p>
       </div>
       
-      <p>Halo <strong>${fullName}</strong>,</p>
-      <p>Terima kasih telah mendaftar sebagai Calon Panitia <strong>(Staff Recruitment Batch 2)</strong> YMCC VII. Data pendaftaran Anda beserta kelengkapan berkas telah berhasil kami terima dan masuk ke dalam database kami.</p>
+      <p>Dear <strong>${fullName}</strong>,</p>
+      <p>Thank you for applying as a Staff Candidate <strong>(Staff Recruitment Batch 2)</strong> for YMCC VII. Your application data and documents have been successfully received and saved in our database.</p>
       
       <div style="background-color: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #c1ff00;">
-        <p style="margin: 0 0 10px 0; font-size: 14px; color: #555;"><strong>Detail Pendaftaran:</strong></p>
+        <p style="margin: 0 0 10px 0; font-size: 14px; color: #555;"><strong>Application Details:</strong></p>
         <ul style="margin: 0; padding-left: 20px; font-size: 14px; color: #333;">
-          <li>NIM: ${nim}</li>
-          <li>Pilihan 1: ${division1}</li>
-          <li>Pilihan 2: ${division2}</li>
+          <li>Student ID (NIM): ${nim}</li>
+          <li>Choice 1: ${division1}</li>
+          <li>Choice 2: ${division2}</li>
         </ul>
       </div>
 
-      <p>Saat ini berkas Anda sedang berada dalam tahap <strong>Verifikasi Berkas</strong> oleh tim kami. Pengumuman tahapan selanjutnya (termasuk jadwal Wawancara) akan diinformasikan kemudian.</p>
+      <p>Currently, your application documents are undergoing the <strong>Document Verification</strong> phase by our team. Announcements regarding the next stages (including Interview schedules) will be sent to you in due course.</p>
       
-      <p>Untuk mempermudah koordinasi, silakan bergabung ke dalam Grup WhatsApp resmi Calon Panitia Batch 2 YMCC VII melalui tautan di bawah ini:</p>
+      <p>To facilitate coordination, please join the official Staff Candidate Batch 2 YMCC VII WhatsApp Group via the link below:</p>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://chat.whatsapp.com/YOUR_GROUP_LINK_HERE" style="background-color: #111; color: #c1ff00; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">GABUNG GRUP WHATSAPP</a>
-        <p style="font-size: 11px; color: #999; margin-top: 10px;">*(Tautan grup akan menyusul diupdate oleh panitia)*</p>
+        <a href="https://chat.whatsapp.com/YOUR_GROUP_LINK_HERE" style="background-color: #111; color: #c1ff00; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">JOIN WHATSAPP GROUP</a>
+        <p style="font-size: 11px; color: #999; margin-top: 10px;">*(Group link will be updated by the committee)*</p>
       </div>
       
-      <p>Persiapkan diri Anda sebaik mungkin. The Green Compass Starts With You!</p>
+      <p>Prepare yourself well. The Green Compass Starts With You!</p>
       
       <br/>
-      <p style="font-size: 12px; color: #888;">Salam hormat,<br/>Panitia YMCC VII 2027</p>
+      <p style="font-size: 12px; color: #888;">Warm regards,<br/>YMCC VII 2027 Committee</p>
     `;
 
-    const professionalTemplate = generateEmailTemplate("Pendaftaran Berhasil - YMCC VII Staff Recruitment", emailHtml);
+    const professionalTemplate = generateEmailTemplate("Application Received - YMCC VII Staff Recruitment", emailHtml);
 
     const mailOptions = {
       from: `"YMCC VII Official" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Pendaftaran Berhasil - YMCC VII Staff Recruitment",
+      subject: "Application Received - YMCC VII Staff Recruitment",
       html: professionalTemplate,
     };
 
