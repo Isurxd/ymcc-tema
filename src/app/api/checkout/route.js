@@ -29,15 +29,29 @@ export async function POST(req) {
       merchDocs.forEach((docSnap, idx) => {
         const item = items[idx];
         if (!docSnap.exists) throw new Error(`Product ${item.name} not found`);
-        const stock = docSnap.data().stockAmount || 0;
+        const itemSize = item.size;
+        const stockPerSize = docSnap.data().stockPerSize || {};
+        // If the item has sizes but no stockPerSize, or if it uses stockPerSize, use it
+        const hasPerSizeStock = Object.keys(stockPerSize).length > 0;
         
-        // Disable stock check for PO (Pre-Order) items if needed, but assuming all use stockAmount
+        let stock = docSnap.data().stockAmount || 0;
+        if (hasPerSizeStock && itemSize) {
+          stock = stockPerSize[itemSize] || 0;
+        }
+
+        // Disable stock check for PO (Pre-Order) items if needed
         if (docSnap.data().stockType !== "PO" && stock < item.quantity) {
-          throw new Error(`Insufficient stock for ${item.name}`);
+          throw new Error(`Insufficient stock for ${item.name} (Size: ${itemSize || 'N/A'})`);
         }
 
         // Direct Row-level Locking: Decrement stock immediately
-        transaction.update(docSnap.ref, { stockAmount: FieldValue.increment(-Number(item.quantity || 1)) });
+        const updatePayload = {};
+        if (hasPerSizeStock && itemSize) {
+          updatePayload[`stockPerSize.${itemSize}`] = FieldValue.increment(-Number(item.quantity || 1));
+        } else {
+          updatePayload.stockAmount = FieldValue.increment(-Number(item.quantity || 1));
+        }
+        transaction.update(docSnap.ref, updatePayload);
 
         const dbPrice = Number(docSnap.data().priceNumber) || 0;
         const qty = Number(item.quantity) || 1;
