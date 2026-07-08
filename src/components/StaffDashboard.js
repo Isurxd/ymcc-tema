@@ -1377,6 +1377,28 @@ export default function StaffDashboard({ portalType = "operator" }) {
         await updateDoc(doc(db, "news", editingId), payload);
       } else {
         await addDoc(collection(db, "news"), { ...payload, date: new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(), createdAt: new Date().toISOString() });
+        
+        // Notify subscribers if it's a new published article
+        if (payload.status === "PUBLISHED" && subscribers && subscribers.length > 0) {
+          const targetEmails = subscribers.map(s => s.email).filter(e => e);
+          if (targetEmails.length > 0) {
+            const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://ymccvii.com";
+            const newsLink = `${SITE_URL}/news/${slug}`;
+            const htmlMessage = `<p>A new article has been published on YMCC VII!</p><h2 style="text-transform: uppercase;">${payload.title}</h2><p>${payload.content.substring(0, 150)}...</p><br><br><a href="${newsLink}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase;">READ MORE</a>`;
+            try {
+              const token = await auth.currentUser.getIdToken();
+              fetch("/api/send-email", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({
+                  bcc: targetEmails,
+                  subject: `New YMCC Update: ${payload.title}`,
+                  html: htmlMessage
+                })
+              });
+            } catch (e) { console.error("Failed to notify subscribers", e); }
+          }
+        }
       }
       resetForm();
       toast.success("News successfully saved.");
@@ -3574,7 +3596,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     <div className="flex gap-4 items-center">
                       <input type="file" accept="image/*" onChange={(e) => setUploadFile(e.target.files[0])} className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
                       <span className="font-bold text-gray-400">OR</span>
-                      <input type="url" placeholder="https://imgur.com/your-image.jpg" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={newsForm.imageUrl} onChange={e => setNewsForm({...newsForm, imageUrl: e.target.value})} />
+                      <input type="url" placeholder="https://imgur.com/your-image.jpg" className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl" value={newsForm.imageUrl || ""} onChange={e => setNewsForm({...newsForm, imageUrl: e.target.value})} />
                     </div>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     {newsForm.imageUrl && !uploadFile && <img src={newsForm.imageUrl} className="h-20 mt-3 object-cover rounded" alt="Preview" />}
