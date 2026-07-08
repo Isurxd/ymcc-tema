@@ -3648,7 +3648,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                         <th className="p-4">Institusi</th>
                         <th className="p-4">Kompetisi</th>
                         <th className="p-4">Status</th>
-                        <th className="p-4">Presensi</th>
+                        
                         <th className="text-right p-4">Aksi</th>
                       </tr>
                     </thead>
@@ -3713,13 +3713,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                   {p.registrationStatus || "UNVERIFIED"}
                                 </span>
                               </td>
-                              <td className="p-4">
-                                {p.attendance ? (
-                                  <span className="text-green-600 font-bold bg-green-50 border border-green-200 px-2.5 py-0.5 rounded text-xs uppercase">Hadir</span>
-                                ) : (
-                                  <span className="text-gray-400 font-medium bg-gray-50 border border-gray-200 px-2.5 py-0.5 rounded text-xs uppercase">Absen</span>
-                                )}
-                              </td>
+                              
                               <td className="p-4 text-right">
                                 <button 
                                   onClick={() => setSelectedQrParticipant(p)}
@@ -3806,7 +3800,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                 <th className="p-4 border-b border-gray-200">Participant</th>
                                 <th className="p-4 border-b border-gray-200">Documents</th>
                                 <th className="p-4 border-b border-gray-200">Status</th>
-                                <th className="p-4 border-b border-gray-200">Attendance</th>
+                                
                                 <th className="text-right p-4 border-b border-gray-200">Action</th>
                             </tr>
                         </thead>
@@ -3838,27 +3832,11 @@ export default function StaffDashboard({ portalType = "operator" }) {
                                         {p.registrationStatus || "UNVERIFIED"}
                                     </span>
                                 </td>
-                                <td className="p-4 border-b border-gray-100 text-xs">
-                                    {p.attendance ? (
-                                        <span className="text-green-600 font-bold bg-green-50 px-2 py-1 rounded">Checked In</span>
-                                    ) : (
-                                        <span className="text-gray-400 font-medium bg-gray-50 px-2 py-1 rounded">Absent</span>
-                                    )}
-                                </td>
+                                
                                 <td className="p-4 border-b border-gray-100 text-right">
                                     <div className="flex justify-end gap-2">
-                                        {p.attendance ? (
-                                            <button onClick={() => toggleAttendance(p.id, false)} disabled={actionLoading} className="text-orange-500 hover:text-orange-700 bg-orange-50 p-2 rounded-lg" title="Undo Check-In">
-                                                <FaTimesCircle />
-                                            </button>
-                                        ) : (
-                                            <button onClick={() => toggleAttendance(p.id, true)} disabled={actionLoading} className="text-green-500 hover:text-green-700 bg-green-50 p-2 rounded-lg" title="Manual Check-In">
-                                                <FaCheck />
-                                            </button>
-                                        )}
-                                        <button onClick={() => setParticipantModal({ isOpen: true, data: p })} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-lg">
-                                            <FaEdit />
-                                        </button>
+                                        
+                                        <button onClick={() => setParticipantModal({ isOpen: true, data: p })} className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-lg flex items-center gap-1 text-xs font-bold uppercase"><FaEye size={14}/> Detail</button>
                                         <button onClick={() => handleDeleteUser(p.id)} disabled={actionLoading} className="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-lg">
                                             <FaTrash />
                                         </button>
