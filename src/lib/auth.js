@@ -5,12 +5,23 @@ import {
   signOut, 
   GoogleAuthProvider, 
   signInWithPopup, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  sendPasswordResetEmail
 } from "firebase/auth";
 import app from "./firebase";
 
 export const auth = app ? getAuth(app) : null;
 const googleProvider = new GoogleAuthProvider();
+
+export const resetUserPassword = async (email) => {
+  if (!auth) return { success: false, error: "Firebase is not configured yet." };
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return { success: true, error: null };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
 
 export const registerUser = async (email, password) => {
   if (!auth) return { user: null, error: "Firebase is not configured yet. Please add your API keys to .env.local" };

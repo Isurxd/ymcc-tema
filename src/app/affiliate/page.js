@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { auth, db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "firebase/auth";
-import { FaSignOutAlt, FaWallet, FaSnowflake, FaCopy, FaCheck, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaSignOutAlt, FaWallet, FaSnowflake, FaCopy, FaCheck, FaLock, FaEye, FaEyeSlash, FaTimes } from "react-icons/fa";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { resetUserPassword, getFriendlyErrorMessage } from "@/lib/auth";
 
 export default function AffiliateDashboard() {
   const [user, setUser] = useState(null);
@@ -21,6 +22,9 @@ export default function AffiliateDashboard() {
   const [showPassword, setShowPassword] = useState(false);
   const [changePwdOpen, setChangePwdOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -88,6 +92,26 @@ export default function AffiliateDashboard() {
     };
   }, [user]);
 
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      toast.error("Silakan masukkan email Anda.");
+      return;
+    }
+    setIsResetting(true);
+    try {
+      const { success, error } = await resetUserPassword(resetEmail.trim());
+      if (!success) throw new Error(error);
+      toast.success("Link reset password berhasil dikirim ke email Anda! Silakan cek folder inbox atau spam.");
+      setShowResetModal(false);
+      setResetEmail("");
+    } catch (err) {
+      toast.error(getFriendlyErrorMessage(err));
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -134,7 +158,16 @@ export default function AffiliateDashboard() {
             <input type="email" required className="w-full border-2 border-black rounded-xl px-4 py-3 outline-none focus:bg-gray-50" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" />
           </div>
           <div>
-            <label className="block text-sm font-bold uppercase mb-2">Password</label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="block text-sm font-bold uppercase">Password</label>
+              <button 
+                type="button" 
+                onClick={() => setShowResetModal(true)}
+                className="text-xs font-bold text-gray-500 hover:text-black underline transition-colors focus:outline-none"
+              >
+                Lupa Password?
+              </button>
+            </div>
             <div className="relative">
               <input type={showPassword ? "text" : "password"} required className="w-full border-2 border-black rounded-xl px-4 py-3 outline-none focus:bg-gray-50" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" />
               <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-4 text-gray-500 hover:text-black">
@@ -146,6 +179,43 @@ export default function AffiliateDashboard() {
             Secure Login
           </button>
         </form>
+
+        {/* RESET PASSWORD MODAL */}
+        {showResetModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm animate-fade-in text-left">
+            <div className="bg-white border-4 border-black p-8 rounded-[2rem] max-w-md w-full shadow-[8px_8px_0_0_#000] relative">
+              <button 
+                onClick={() => setShowResetModal(false)}
+                className="absolute right-6 top-6 text-gray-500 hover:text-black transition-colors focus:outline-none"
+              >
+                <FaTimes className="text-xl" />
+              </button>
+              <h3 className="font-anton text-3xl uppercase mb-2">Reset Password</h3>
+              <p className="font-poppins text-gray-600 mb-6 font-semibold text-sm leading-relaxed">
+                Masukkan alamat email afiliasi Anda yang terdaftar. Kami akan mengirimkan tautan reset kata sandi.
+              </p>
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="block font-bold text-xs uppercase tracking-widest text-[#111] mb-2">Email Address</label>
+                  <input 
+                    type="email" 
+                    value={resetEmail} 
+                    onChange={(e) => setResetEmail(e.target.value)} 
+                    required 
+                    className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#c1ff00] transition-all lowercase"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  disabled={isResetting}
+                  className="w-full bg-[#c1ff00] text-[#111] font-anton text-xl uppercase tracking-widest py-3.5 rounded-xl border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50"
+                >
+                  {isResetting ? "SENDING LINK..." : "Kirim Tautan Reset"}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

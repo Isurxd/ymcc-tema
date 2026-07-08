@@ -16,6 +16,31 @@ import { toast } from "sonner";
 import { useConfirm } from "@/context/ConfirmContext";
 
 export default function StaffDashboard({ portalType = "operator" }) {
+  const isInitialLoad = useRef(true);
+
+  const playNotificationSound = () => {
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+      
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.45);
+    } catch (e) {
+      console.warn("Audio playback not allowed or supported yet:", e);
+    }
+  };
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeMenuGroup, setActiveMenuGroup] = useState(null);
@@ -376,6 +401,11 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
   useEffect(() => {
     if (!isAuthenticated) return;
+    isInitialLoad.current = true;
+    const initialLoadTimer = setTimeout(() => {
+      isInitialLoad.current = false;
+    }, 3000);
+
     setTimeout(() => {
       setLoadingData(true);
     }, 0);
@@ -397,9 +427,29 @@ export default function StaffDashboard({ portalType = "operator" }) {
         const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setUsers(list);
         setParticipants(list.filter(u => u.role === "participant"));
+        if (!isInitialLoad.current) {
+          snap.docChanges().forEach(change => {
+            if (change.type === "added") {
+              const data = change.doc.data();
+              if (data.role === "participant") {
+                playNotificationSound();
+                toast.success(`👤 Peserta Baru Mendaftar: ${data.fullName || data.email}`);
+              }
+            }
+          });
+        }
       });
       unsubTicketOrders = onSnapshot(collection(db, "Orders"), (snap) => {
         setTicketOrders(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        if (!isInitialLoad.current) {
+          snap.docChanges().forEach(change => {
+            if (change.type === "added") {
+              const data = change.doc.data();
+              playNotificationSound();
+              toast.info(`🎟️ Order Tiket Baru [${change.doc.id}]: Rp ${(data.totalAmount || 0).toLocaleString("id-ID")}`);
+            }
+          });
+        }
       });
       unsubBroadcasts = onSnapshot(query(collection(db, "broadcasts"), orderBy("sentAt", "desc")), (snap) => {
         setBroadcasts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
@@ -424,6 +474,15 @@ export default function StaffDashboard({ portalType = "operator" }) {
         const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setMerchOrders(list);
         setOrders(list);
+        if (!isInitialLoad.current) {
+          snap.docChanges().forEach(change => {
+            if (change.type === "added") {
+              const data = change.doc.data();
+              playNotificationSound();
+              toast.info(`📦 Order Merch Baru [${change.doc.id}]: Rp ${(data.totalAmount || 0).toLocaleString("id-ID")}`);
+            }
+          });
+        }
       });
 
       unsubBanners = onSnapshot(collection(db, "merch_banners"), (snap) => {
@@ -477,12 +536,22 @@ export default function StaffDashboard({ portalType = "operator" }) {
     });
     unsubTickets = onSnapshot(query(collection(db, "tickets"), orderBy("createdAt", "desc")), (snap) => {
       setTickets(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      if (!isInitialLoad.current) {
+        snap.docChanges().forEach(change => {
+          if (change.type === "added") {
+            const data = change.doc.data();
+            playNotificationSound();
+            toast.warning(`✉️ Tiket Support Baru dari ${data.email || 'User'}: "${data.subject || 'No Subject'}"`);
+          }
+        });
+      }
     });
 
     // Simulate loading finish
     setTimeout(() => setLoadingData(false), 800);
 
     return () => {
+      clearTimeout(initialLoadTimer);
       unsubUsers(); unsubMerch(); unsubOrders(); unsubBanners();
       unsubStaffApps(); unsubSubscribers(); unsubFeedback(); unsubClicks();
       unsubNews(); unsubFaqs(); unsubSponsors(); unsubActivities(); unsubBroadcasts();
