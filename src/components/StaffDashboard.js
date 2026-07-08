@@ -1396,16 +1396,20 @@ export default function StaffDashboard({ portalType = "operator" }) {
             try {
               const token = await auth.currentUser.getIdToken();
               console.log("Sending email to subscribers:", targetEmails.length);
-              await fetch("/api/send-email", {
+              const response = await fetch("/api/send-email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify({
-                  bcc: targetEmails,
+                  bcc: targetEmails.join(","),
                   subject: `New YMCC Update: ${payload.title}`,
                   html: htmlMessage
                 })
               });
-              console.log("Email sent to subscribers successfully.");
+              if (!response.ok) {
+                console.error("API error:", await response.text());
+              } else {
+                console.log("Email sent to subscribers successfully.");
+              }
             } catch (e) { console.error("Failed to notify subscribers", e); }
           }
         }
