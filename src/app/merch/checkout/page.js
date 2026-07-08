@@ -326,7 +326,7 @@ export default function CheckoutPage() {
                   View on Google Maps →
                 </a>
                 <p className="text-sm mt-4 font-bold text-gray-700">For pickup timing, please contact our Admin via WhatsApp after completing your payment.</p>
-                <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" className="inline-block mt-4 bg-black text-[#c1ff00] font-bold uppercase tracking-widest px-6 py-3 rounded-full border-2 border-black hover:scale-105 transition-transform shadow-brutal-sm">
+                <a href="https://wa.me/6285817222427" target="_blank" rel="noreferrer" className="inline-block mt-4 bg-black text-[#c1ff00] font-bold uppercase tracking-widest px-6 py-3 rounded-full border-2 border-black hover:scale-105 transition-transform shadow-brutal-sm">
                   💬 Chat Admin
                 </a>
               </div>

@@ -63,7 +63,7 @@ export default function Footer() {
             <h4 className="font-poppins font-bold text-white mb-6 text-sm uppercase tracking-widest">CONTACT & COORDINATION CENTER</h4>
             <div className="flex flex-col gap-4 text-sm font-poppins text-gray-300 mb-8">
               <a href="mailto:contact@ymccvii.com" className="hover:text-white transition-colors">contact@ymccvii.com</a>
-              <p>+62 882-0050-08443</p>
+              <p>0858 1722 2427</p>
             </div>
 
             <div className="flex gap-3">
