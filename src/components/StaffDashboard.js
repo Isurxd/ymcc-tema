@@ -1695,7 +1695,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     return comps;
   };
 
-  const getFilteredDatabasePeserta = () => {
+  const getFilteredDatabaseParticipants = () => {
     return participants.filter(p => {
       if (dbSearchQuery) {
         const queryVal = dbSearchQuery.toLowerCase();
@@ -1721,27 +1721,48 @@ export default function StaffDashboard({ portalType = "operator" }) {
   };
 
   const exportDatabaseToCSV = () => {
-    const filtered = getFilteredDatabasePeserta();
-    const headers = ["UID,Nama Lengkap,Email,WhatsApp,Asal Negara,Asal Provinsi,Institusi,NPM/NIM/NISN,Status Verifikasi,Status Presensi,Aktivitas Terdaftar"];
+    const filtered = getFilteredDatabaseParticipants();
+    const headers = ["UID,Full Name,Email,WhatsApp,Gender,Date of Birth,Country,Province,City,District,Village,Full Address,Institution,Student ID,Education Level,T-Shirt Size,Dietary Restrictions,Medical History,Emergency Contact,Verification Status,Attendance Status,Registered Activities"];
+    
     const csvData = filtered.map(p => {
       const paidComps = getUserPaidCompetitions(p.email);
       const compsStr = paidComps.map(c => c.name).join("; ");
-      const fullName = p.fullName || "";
-      const email = p.email || "";
-      const whatsapp = p.whatsapp || p.phone || "";
-      const country = p.country || "";
-      const province = p.province || "";
-      const institution = p.institution || "";
-      const studentId = p.studentId || "";
-      const status = p.registrationStatus || "UNVERIFIED";
-      const attendance = p.attendance ? "HADIR" : "ABSEN";
-      return `"${p.id}","${fullName}","${email}","${whatsapp}","${country}","${province}","${institution}","${studentId}","${status}","${attendance}","${compsStr}"`;
+      
+      const escapeCsv = (str) => {
+        if (!str) return "";
+        return '"' + String(str).replace(/"/g, '""') + '"';
+      };
+
+      const fullName = escapeCsv(p.fullName);
+      const email = escapeCsv(p.email);
+      const whatsapp = escapeCsv(p.whatsapp || p.phone);
+      const gender = escapeCsv(p.gender);
+      const dob = escapeCsv(p.birthDate);
+      const country = escapeCsv(p.country);
+      const province = escapeCsv(p.province);
+      const city = escapeCsv(p.city);
+      const district = escapeCsv(p.district);
+      const village = escapeCsv(p.village);
+      const address = escapeCsv(p.address);
+      const institution = escapeCsv(p.institution);
+      const studentId = escapeCsv(p.studentId);
+      const eduLevel = escapeCsv(p.educationLevel);
+      const tshirt = escapeCsv(p.tshirtSize);
+      const dietary = escapeCsv(p.dietary);
+      const medical = escapeCsv(p.medicalHistory);
+      const emergency = escapeCsv(p.emergencyContact);
+      const status = escapeCsv(p.registrationStatus || "UNVERIFIED");
+      const attendance = escapeCsv(p.attendance ? "PRESENT" : "ABSENT");
+      const activities = escapeCsv(compsStr);
+
+      return `"${p.id}",${fullName},${email},${whatsapp},${gender},${dob},${country},${province},${city},${district},${village},${address},${institution},${studentId},${eduLevel},${tshirt},${dietary},${medical},${emergency},${status},${attendance},${activities}`;
     });
+    
     const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `database_peserta_export_${new Date().getTime()}.csv`;
+    a.download = `database_export_${new Date().getTime()}.csv`;
     a.click();
   };
 
@@ -3654,7 +3675,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                     </thead>
                     <tbody className="text-sm font-medium">
                       {(() => {
-                        const filtered = getFilteredDatabasePeserta();
+                        const filtered = getFilteredDatabaseParticipants();
                         const ITEMS_PER_PAGE = 15;
                         const startIndex = (dbCurrentPage - 1) * ITEMS_PER_PAGE;
                         const paginated = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -3716,6 +3737,12 @@ export default function StaffDashboard({ portalType = "operator" }) {
                               
                               <td className="p-4 text-right">
                                 <button 
+          onClick={() => setParticipantModal({ isOpen: true, data: p })}
+          className="bg-[#c1ff00] hover:bg-black hover:text-[#c1ff00] border-2 border-black text-black font-anton text-xs uppercase px-3 py-1.5 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px mr-2"
+        >
+          <FaEye /> View Details
+        </button>
+        <button 
                                   onClick={() => setSelectedQrParticipant(p)}
                                   className="bg-white hover:bg-gray-100 border-2 border-black text-black font-anton text-xs uppercase px-3 py-1.5 rounded-xl transition-colors inline-flex items-center gap-1.5 shadow-[2px_2px_0_0_#000] hover:shadow-none active:translate-y-px"
                                 >
@@ -3732,7 +3759,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
                 {/* Pagination Controls */}
                 {(() => {
-                  const filtered = getFilteredDatabasePeserta();
+                  const filtered = getFilteredDatabaseParticipants();
                   const ITEMS_PER_PAGE = 15;
                   const totalItems = filtered.length;
                   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
@@ -4547,7 +4574,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                 <h3 className="font-anton text-2xl uppercase mb-2">Staff Recruitment Database</h3>
                 <p className="font-poppins text-sm font-medium">Review new staff applications and export their data for further processing.</p>
                 <div className="mt-4 flex flex-wrap gap-4 items-center bg-white/50 p-4 rounded-xl border border-black/10">
-                  <span className="font-bold text-sm uppercase">Pendaftaran Terbuka:</span>
+                  <span className="font-bold text-sm uppercase">Registration Status:</span>
                   <div className="flex gap-2">
                     {["UPCOMING", "OPEN", "CLOSED"].map(s => (
                       <button key={s} onClick={() => updateRecruitmentSettings(s)} className={`px-4 py-2 rounded-lg font-bold text-xs uppercase border-2 transition-all ${recruitmentSettings === s ? 'bg-black text-[#c1ff00] border-black shadow-[2px_2px_0_0_#000]' : 'bg-white text-gray-500 border-gray-300 hover:border-black'}`}>

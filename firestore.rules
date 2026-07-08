@@ -165,7 +165,12 @@ service cloud.firestore {
     }
 
     // Default deny
-    match /site_settings/{document=**} {\n      allow read: if true;\n      allow write: if isStaff();\n    }\n\n    match /{document=**} {
+    match /site_settings/{document=**} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /{document=**} {
       allow read, write: if false;
     }
   }

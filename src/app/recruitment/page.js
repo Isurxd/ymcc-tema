@@ -125,7 +125,7 @@ export default function Recruitment() {
         return;
       }
       if (formData.division1 === formData.division2) {
-        setError("Pilihan Divisi 1 dan Divisi 2 tidak boleh sama.");
+        setError("Division Choice 1 dan Divisi 2 tidak boleh sama.");
         return;
       }
     }
@@ -155,7 +155,7 @@ export default function Recruitment() {
       const data = await res.json();
       
       if (!res.ok) {
-        throw new Error(data.error || "Gagal mengirim data");
+        throw new Error(data.error || "Gagal Submitting...ta");
       }
       
       setSuccess(true);
@@ -176,7 +176,7 @@ export default function Recruitment() {
           <h1 className="font-anton text-4xl uppercase tracking-wide text-[#111] mb-4">APPLICATION SUBMITTED</h1>
           <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Terima kasih telah mendaftar sebagai Staf YMCC VII. Berkas Anda telah berhasil kami terima dan akan segera direview. The Green Compass Starts With You!</p>
           <Link href="/" className="inline-block bg-black text-[#c1ff00] px-8 py-3 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00]">
-            Kembali ke Beranda
+            Back ke Beranda
           </Link>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function Recruitment() {
           <h2 className="font-poppins font-bold text-gray-500 text-sm mb-6">Staff Recruitment Batch 2 - YMCC VII</h2>
           <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Pendaftaran Panitia Batch 2 YMCC VII akan segera dibuka. Siapkan berkas Anda dan nantikan informasi resminya di Instagram kami @ymcc_upnvyk!</p>
           <Link href="/" className="inline-block bg-black text-[#c1ff00] px-8 py-3 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00]">
-            Kembali ke Beranda
+            Back ke Beranda
           </Link>
         </div>
       </div>
@@ -216,7 +216,7 @@ export default function Recruitment() {
           <h2 className="font-poppins font-bold text-gray-500 text-sm mb-6">Staff Recruitment Batch 2 - YMCC VII</h2>
           <p className="font-poppins text-sm text-gray-600 mb-8 font-medium">Terima kasih atas antusiasme Anda. Masa pendaftaran untuk Panitia Batch 2 YMCC VII telah ditutup. Pengumuman selanjutnya akan diinformasikan melalui Email atau Grup WhatsApp.</p>
           <Link href="/" className="inline-block bg-black text-[#c1ff00] px-8 py-3 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00]">
-            Kembali ke Beranda
+            Back ke Beranda
           </Link>
         </div>
       </div>
@@ -259,7 +259,7 @@ export default function Recruitment() {
                   <ul className="list-disc pl-5 text-sm space-y-1 text-yellow-900">
                     <li><strong>Standardisasi Nama:</strong> Gunakan HURUF KAPITAL sesuai identitas resmi (Tanpa Gelar).</li>
                     <li><strong>Standardisasi Email:</strong> Gunakan huruf kecil semua (lowercase).</li>
-                    <li><strong>Format File:</strong> Seluruh dokumen pendukung digabung dalam 1 file PDF (Maks. 5MB) dengan nama: <em>[PILIHAN 1] _ [NAMA LENGKAP] _ [NIM]</em>.</li>
+                    <li><strong>Format File:</strong> Seluruh dokumen pendukung digabung dalam 1 file PDF (Maks. 5MB) dengan nama: <em>[PILIHAN 1] _ [Full Name] _ [NIM]</em>.</li>
                     <li><strong>Validitas Data:</strong> Data yang Anda masukkan akan digunakan secara otomatis oleh sistem. Kesalahan input sepenuhnya menjadi tanggung jawab pendaftar.</li>
                   </ul>
                 </div>
@@ -288,7 +288,7 @@ export default function Recruitment() {
               <h3 className="font-anton text-2xl uppercase mb-4 bg-black text-[#c1ff00] inline-block px-3 py-1">A. Personal Branding & Core Data</h3>
               
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">1. Nama Lengkap <span className="text-red-500">*</span></label>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">1. Full Name <span className="text-red-500">*</span></label>
                 <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Gunakan HURUF KAPITAL sesuai KTP/KTM" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00] uppercase" />
               </div>
 
@@ -311,7 +311,7 @@ export default function Recruitment() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">4. Nomor WhatsApp <span className="text-red-500">*</span></label>
+                  <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">4. WhatsApp Number <span className="text-red-500">*</span></label>
                   <input type="text" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="Format: 628xxxxxxxxxx (tanpa +)" required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm focus:ring-[#c1ff00]" />
                 </div>
                 <div>
@@ -358,7 +358,7 @@ export default function Recruitment() {
               <h3 className="font-anton text-2xl uppercase mb-4 bg-black text-[#c1ff00] inline-block px-3 py-1">C. Strategic Alignment</h3>
               
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">9. Pilihan Divisi 1 (Prioritas) <span className="text-red-500">*</span></label>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">9. Division Choice 1 (Prioritas) <span className="text-red-500">*</span></label>
                 <select name="division1" value={formData.division1} onChange={handleChange} required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm font-semibold focus:ring-[#c1ff00] cursor-pointer">
                   <option value="">-- Pilih Prioritas Utama --</option>
                   {divisions.map(d => <option key={d} value={d}>{d}</option>)}
@@ -366,7 +366,7 @@ export default function Recruitment() {
               </div>
 
               <div>
-                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">10. Pilihan Divisi 2 (Alternatif) <span className="text-red-500">*</span></label>
+                <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">10. Division Choice 2 (Alternatif) <span className="text-red-500">*</span></label>
                 <select name="division2" value={formData.division2} onChange={handleChange} required className="w-full bg-gray-50 border-2 border-black rounded-xl px-4 py-3 text-sm font-semibold focus:ring-[#c1ff00] cursor-pointer">
                   <option value="">-- Pilih Prioritas Kedua --</option>
                   {divisions.map(d => <option key={d} value={d}>{d}</option>)}
@@ -388,7 +388,7 @@ export default function Recruitment() {
               <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 text-center">
                 <FaFileUpload className="text-5xl text-gray-300 mx-auto mb-4" />
                 <p className="text-sm font-medium text-gray-700 mb-2">Seluruh dokumen wajib digabungkan dalam <strong>1 file PDF (Maks. 5MB)</strong>.</p>
-                <p className="text-xs text-gray-500 mb-6">Format nama file: <strong className="text-black">[PILIHAN 1] _ [NAMA LENGKAP] _ [NIM]</strong></p>
+                <p className="text-xs text-gray-500 mb-6">Format nama file: <strong className="text-black">[PILIHAN 1] _ [Full Name] _ [NIM]</strong></p>
                 
                 <div className="text-left">
                   <label className="block font-poppins font-bold text-xs uppercase tracking-widest text-[#111] mb-2">12. Dokumen Pendukung Pilihan 1 [OPSIONAL]</label>
