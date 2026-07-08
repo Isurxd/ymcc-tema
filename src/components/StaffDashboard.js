@@ -1,5 +1,6 @@
 "use client";
 
+import * as XLSX from 'xlsx';
 import { useState, useEffect, useMemo, useRef } from "react";
 import imageCompression from 'browser-image-compression';
 import { auth, db, storage, secondaryAuth } from "@/lib/firebase";
@@ -1661,7 +1662,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     setActionLoading(false);
   };
 
-  const exportParticipantsToCSV = () => {
+  const exportParticipantsToExcel = () => {
     const headers = ["ID,Full Name,Email,Phone,Institution,Registration Status,Role,Attendance,Created At"];
     const csvData = participants.filter(p => p.role === "participant").map(p => {
       let tVal = p.createdAt || p.timestamp || p.created_at;
@@ -1720,7 +1721,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     });
   };
 
-  const exportDatabaseToCSV = () => {
+  const exportDatabaseToExcel = () => {
     const filtered = getFilteredDatabaseParticipants();
     const headers = ["UID,Full Name,Email,WhatsApp,Gender,Date of Birth,Country,Province,City,District,Village,Full Address,Institution,Student ID,Education Level,T-Shirt Size,Dietary Restrictions,Medical History,Emergency Contact,Verification Status,Attendance Status,Registered Activities"];
     
@@ -1758,12 +1759,9 @@ export default function StaffDashboard({ portalType = "operator" }) {
       return `"${p.id}",${fullName},${email},${whatsapp},${gender},${dob},${country},${province},${city},${district},${village},${address},${institution},${studentId},${eduLevel},${tshirt},${dietary},${medical},${emergency},${status},${attendance},${activities}`;
     });
     
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `database_export_${new Date().getTime()}.csv`;
-    a.click();
+    const csvString = headers.join("\n") + "\n" + csvData.join("\n");
+    const workbook = XLSX.read(csvString, { type: "string" });
+    XLSX.writeFile(workbook, `database_export_${new Date().getTime()}.xlsx`);
   };
 
   const downloadQR = (participantId, participantName) => {
@@ -1794,7 +1792,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     image.src = blobURL;
   };
 
-  const exportAffiliatesToCSV = () => {
+  const exportAffiliatesToExcel = () => {
     const headers = ["ID,Full Name,Email,Institution,Bank Name,Account Number,Account Name,Status,Created At"];
     const csvData = affiliateApps.map(p => {
       let tVal = p.createdAt;
@@ -1810,7 +1808,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportPayoutsToCSV = () => {
+  const exportPayoutsToExcel = () => {
     const headers = ["ID,Email,Amount,Status,Created At"];
     const csvData = payoutRequests.map(p => {
       let tVal = p.createdAt;
@@ -1826,7 +1824,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportMerchOrdersToCSV = () => {
+  const exportMerchOrdersToExcel = () => {
     const headers = ["Order ID,User Email,Total,Payment Status,Order Status,Resi,Created At"];
     const csvData = merchOrders.map(m => {
       let tVal = m.createdAt || m.created_at;
@@ -1842,7 +1840,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportSubmissionsToCSV = () => {
+  const exportSubmissionsToExcel = () => {
     const headers = ["ID,Full Name,Email,Student ID,Submitted At,Score,Status"];
     const csvData = submissions.map(s => {
       const date = s.submittedAt ? new Date(s.submittedAt).toLocaleString() : "";
@@ -1857,7 +1855,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportOrdersToCSV = () => {
+  const exportOrdersToExcel = () => {
     const headers = ["Order ID,Customer Name,Customer Email,Customer WhatsApp,Referral Code,Items,Delivery Method,Waybill (Resi),Total Amount,Payment Status,Order Status,Created At"];
     const csvData = orders.map(o => {
       let tVal = o.createdAt || o.timestamp || o.created_at;
@@ -1881,18 +1879,15 @@ export default function StaffDashboard({ portalType = "operator" }) {
     a.click();
   };
 
-  const exportRecruitmentToCSV = () => {
+  const exportRecruitmentToExcel = () => {
     const headers = ["ID,Full Name,NIM,Email,WhatsApp,Domicile,Division 1,Division 2,Submitted At,Status"];
     const csvData = recruitmentSubmissions.map(r => {
       const date = r.submittedAt ? new Date(r.submittedAt.seconds * 1000).toLocaleString() : "";
       return `"${r.id}","${r.fullName || ""}","${r.nim || ""}","${r.email || ""}","${r.whatsapp || ""}","${r.domicile || ""}","${r.division1 || ""}","${r.division2 || ""}","${date}","${r.status || ""}"`;
     });
-    const blob = new Blob([headers.join("\n") + "\n" + csvData.join("\n")], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `recruitment_export_${new Date().getTime()}.csv`;
-    a.click();
+    const csvString = headers.join("\n") + "\n" + csvData.join("\n");
+    const workbook = XLSX.read(csvString, { type: "string" });
+    XLSX.writeFile(workbook, `recruitment_export_${new Date().getTime()}.xlsx`);
   };
 
   // Helper for safe timestamp extraction for sorting
@@ -2795,8 +2790,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <option value="NEWEST">Newest First</option>
                       <option value="OLDEST">Oldest First</option>
                     </select>
-                    <button onClick={exportSubmissionsToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
-                      Export CSV
+                    <button onClick={exportSubmissionsToExcel} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
+                      Export Excel
                     </button>
                   </div>
                 </div>
@@ -3652,7 +3647,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
 
                     {/* Export Button */}
                     <button 
-                      onClick={exportDatabaseToCSV} 
+                      onClick={exportDatabaseToExcel} 
                       className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-anton uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm flex items-center gap-2"
                     >
                       <FaDownload /> Export Database
@@ -3815,7 +3810,7 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <option value="NEWEST">Newest First</option>
                       <option value="OLDEST">Oldest First</option>
                     </select>
-                    <button onClick={exportParticipantsToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
+                    <button onClick={exportParticipantsToExcel} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
                       Export Full Data (CSV)
                     </button>
                   </div>
@@ -4108,8 +4103,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
                       <option value="NEWEST">Newest First</option>
                       <option value="OLDEST">Oldest First</option>
                     </select>
-                    <button onClick={exportOrdersToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm whitespace-nowrap">
-                      Export CSV
+                    <button onClick={exportOrdersToExcel} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm whitespace-nowrap">
+                      Export Excel
                     </button>
                     {selectedOrders.length > 0 && (
                       <button onClick={() => {
@@ -4589,8 +4584,8 @@ export default function StaffDashboard({ portalType = "operator" }) {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4">
                   <h2 className="font-anton text-2xl uppercase">Applicants</h2>
                   <div className="flex gap-3 w-full sm:w-auto">
-                    <button onClick={exportRecruitmentToCSV} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
-                      Export CSV
+                    <button onClick={exportRecruitmentToExcel} className="bg-black text-[#c1ff00] px-4 py-2 rounded-xl font-bold uppercase hover:bg-gray-800 transition-colors shadow-[2px_2px_0_0_#c1ff00] text-sm">
+                      Export Excel
                     </button>
                   </div>
                 </div>
