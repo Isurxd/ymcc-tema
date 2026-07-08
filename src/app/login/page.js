@@ -75,6 +75,8 @@ export default function Login() {
       }
 
       // Check participant user document
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
         router.push("/portal");

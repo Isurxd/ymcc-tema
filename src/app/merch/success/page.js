@@ -60,10 +60,9 @@ function SuccessContent() {
           Thank you for securing your official YMCC VII gear! A confirmation email and purchase receipt are being prepared. Your inventory allocation has been finalized.
         </div>
 
-        {/* Action Buttons */}
         <div className="flex flex-col gap-4">
           {orderId && (
-            <Link href={`/merch/track?orderId=${orderId}`}>
+            <Link href={`/order-status?id=${orderId}`}>
               <button className="w-full bg-[#c1ff00] text-black font-anton text-xl tracking-wider py-4 rounded-xl border-2 border-black shadow-[4px_4px_0_0_#000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-3">
                 <FaTruck /> TRACK SHIPMENT <FaArrowRight className="text-sm" />
               </button>
