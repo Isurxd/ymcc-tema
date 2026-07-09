@@ -14,19 +14,9 @@ export const auth = app ? getAuth(app) : null;
 const googleProvider = new GoogleAuthProvider();
 
 export const resetUserPassword = async (email) => {
+  if (!auth) return { success: false, error: "Firebase is not configured yet." };
   try {
-    const response = await fetch('/api/reset-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
-    });
-    
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to send password reset email');
-    }
-    
+    await sendPasswordResetEmail(auth, email);
     return { success: true, error: null };
   } catch (error) {
     return { success: false, error: error.message };
