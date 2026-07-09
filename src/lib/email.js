@@ -1,4 +1,6 @@
 import nodemailer from "nodemailer";
+import fs from "fs";
+import path from "path";
 
 export const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -162,3 +164,66 @@ export const sendPaymentReceivedEmail = async (toEmail, orderData) => {
 };
 
 // Force Next.js Turbopack to recompile
+
+export const sendPasswordResetEmailTemplate = async (toEmail, resetLink) => {
+  const subject = "Reset Your YMCC VII Password";
+  const emailContent = `
+    <h2 style="text-transform: uppercase; font-size: 20px; font-weight: bold; border-bottom: 2px solid #eeeeee; padding-bottom: 10px; margin-top: 0;">PASSWORD RESET REQUEST</h2>
+    <p>Hello,</p>
+    <p>We received a request to reset the password for your YMCC VII account associated with <strong>${toEmail}</strong>.</p>
+    
+    <div style="background-color: #f9f9f9; padding: 15px; margin: 25px 0; border-radius: 8px; border: 1px solid #eeeeee; text-align: center;">
+      <p style="margin: 0; font-size: 14px;">Click the button below to set a new password:</p>
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${resetLink}" style="display: inline-block; background-color: #000000; color: #c1ff00; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px;">
+        RESET PASSWORD
+      </a>
+    </div>
+
+    <p style="font-size: 14px; color: #555;">If the button above does not work, copy and paste this link into your web browser:</p>
+    <p style="font-size: 12px; word-break: break-all; color: #888;">${resetLink}</p>
+    
+    <p style="margin-top: 30px; font-size: 14px;">If you didn't request a password reset, please ignore this email or contact our support if you have questions.</p>
+  `;
+
+  const htmlContent = generateEmailTemplate(subject, emailContent);
+  const textContent = `Halo,\n\nKami menerima permintaan untuk mereset kata sandi akun YMCC VII Anda.\n\nSilakan klik tautan berikut untuk membuat kata sandi baru:\n${resetLink}\n\nJika Anda tidak meminta reset kata sandi, abaikan email ini.\n\nSalam hangat,\nTim YMCC VII`;
+
+  if (!process.env.SMTP_HOST || !process.env.EMAIL_USER) {
+    console.warn("WARNING: SMTP credentials missing. Writing reset email template to public/reset-email-preview.html instead of sending.");
+    try {
+      const previewPath = path.join(process.cwd(), 'public', 'reset-email-preview.html');
+      fs.writeFileSync(previewPath, htmlContent, 'utf8');
+      console.log(`Email template preview successfully written to: ${previewPath}`);
+    } catch (e) {
+      console.error("Failed to write preview file:", e);
+    }
+    return true;
+  }
+
+  const mailOptions = {
+    from: `"YMCC VII Official" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    replyTo: process.env.EMAIL_USER,
+    subject: subject,
+    html: htmlContent,
+    text: textContent,
+    headers: {
+      "X-Priority": "3",
+      "X-MSMail-Priority": "Normal",
+      "X-Mailer": "Nodemailer (YMCC-VII)",
+      "Importance": "Normal"
+    }
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent: %s", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("Error sending password reset email: ", error);
+    return false;
+  }
+};

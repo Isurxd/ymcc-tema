@@ -2561,31 +2561,34 @@ export default function StaffDashboard({ portalType = "operator" }) {
             <FaChartBar /> Dashboard
           </button>
           {/* Operator CMS Tabs */}
-          {(portalType === "operator" || portalType === "master") && (userRole === "Operator" || userRole === "Superadmin") && (
-            <div className="mt-4">
-              <button 
-                onClick={() => setActiveMenuGroup(activeMenuGroup === 'operator' ? null : 'operator')}
-                className="w-full flex items-center justify-between text-gray-500 font-bold text-xs uppercase tracking-widest px-4 py-2 hover:text-white transition-colors"
-              >
-                <span>Operator CMS</span>
-                {activeMenuGroup === 'operator' ? <FaChevronDown /> : <FaChevronRight />}
-              </button>
-              {activeMenuGroup === 'operator' && (
-                <div className="pl-2 space-y-1 mt-1">
-                  <button onClick={() => { setActiveTab("activities"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "activities" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+          {/* Operator CMS Tabs */}
+          {(portalType === "operator" || portalType === "master") && (
+            <div className={portalType === "master" ? "mt-4" : ""}>
+              {portalType === "master" && (
+                <button 
+                  onClick={() => setActiveMenuGroup(activeMenuGroup === 'operator' ? null : 'operator')}
+                  className="w-full flex items-center justify-between text-gray-500 font-bold text-xs uppercase tracking-widest px-4 py-2 hover:text-white transition-colors"
+                >
+                  <span>Operator CMS</span>
+                  {activeMenuGroup === 'operator' ? <FaChevronDown /> : <FaChevronRight />}
+                </button>
+              )}
+              {(activeMenuGroup === 'operator' || portalType !== "master") && (
+                <div className={portalType === "master" ? "pl-2 space-y-1 mt-1" : "space-y-1"}>
+                  <button onClick={() => { setActiveTab("activities"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "activities" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaTasks /> Activities
                   </button>
-                  <button onClick={() => { setActiveTab("tickets"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "tickets" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("tickets"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "tickets" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaEnvelope /> Helpdesk Tickets
                     {tickets.filter(t => t.status === "OPEN").length > 0 && <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{tickets.filter(t => t.status === "OPEN").length}</span>}
                   </button>
-                  <button onClick={() => { setActiveTab("news"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "news" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("news"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "news" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaNewspaper /> News & Articles
                   </button>
-                  <button onClick={() => { setActiveTab("faqs"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "faqs" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("faqs"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "faqs" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaQuestionCircle /> FAQs
                   </button>
-                  <button onClick={() => { setActiveTab("sponsors"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "sponsors" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("sponsors"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "sponsors" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaHandshake /> Sponsors
                   </button>
                 </div>
@@ -2594,29 +2597,31 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* E-Commerce Tabs */}
-          {(portalType === "fundraising" || portalType === "master") && (userRole === "Fundraising" || userRole === "Superadmin") && (
-            <div className="mt-4">
-              <button 
-                onClick={() => setActiveMenuGroup(activeMenuGroup === 'ecommerce' ? null : 'ecommerce')}
-                className="w-full flex items-center justify-between text-gray-500 font-bold text-xs uppercase tracking-widest px-4 py-2 hover:text-white transition-colors"
-              >
-                <span>E-Commerce</span>
-                {activeMenuGroup === 'ecommerce' ? <FaChevronDown /> : <FaChevronRight />}
-              </button>
-              {activeMenuGroup === 'ecommerce' && (
-                <div className="pl-2 space-y-1 mt-1">
-                  <button onClick={() => { setActiveTab("payouts"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "payouts" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+          {(portalType === "fundraising" || portalType === "master") && (
+            <div className={portalType === "master" ? "mt-4" : ""}>
+              {portalType === "master" && (
+                <button 
+                  onClick={() => setActiveMenuGroup(activeMenuGroup === 'ecommerce' ? null : 'ecommerce')}
+                  className="w-full flex items-center justify-between text-gray-500 font-bold text-xs uppercase tracking-widest px-4 py-2 hover:text-white transition-colors"
+                >
+                  <span>E-Commerce</span>
+                  {activeMenuGroup === 'ecommerce' ? <FaChevronDown /> : <FaChevronRight />}
+                </button>
+              )}
+              {(activeMenuGroup === 'ecommerce' || portalType !== "master") && (
+                <div className={portalType === "master" ? "pl-2 space-y-1 mt-1" : "space-y-1"}>
+                  <button onClick={() => { setActiveTab("payouts"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "payouts" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaWallet /> Payout Requests
                     {payoutRequests.filter(p => p.status === "PENDING").length > 0 && <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{payoutRequests.filter(p => p.status === "PENDING").length}</span>}
                   </button>
-                  <button onClick={() => { setActiveTab("promos"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "promos" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("promos"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "promos" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaTags /> Promo & Affiliate
                     {affiliateApps.filter(a => a.status === "PENDING").length > 0 && <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{affiliateApps.filter(a => a.status === "PENDING").length}</span>}
                   </button>
-                  <button onClick={() => { setActiveTab("merchandise"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "merchandise" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("merchandise"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "merchandise" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaStore /> Merchandise
                   </button>
-                  <button onClick={() => { setActiveTab("merch_orders"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "merch_orders" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("merch_orders"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "merch_orders" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaShoppingBag /> Merch Orders
                     {merchOrders.filter(m => m.status === "PENDING").length > 0 && <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{merchOrders.filter(m => m.status === "PENDING").length}</span>}
                   </button>
@@ -2626,40 +2631,42 @@ export default function StaffDashboard({ portalType = "operator" }) {
           )}
 
           {/* Admin Hub Tabs */}
-          {(portalType === "admin" || portalType === "master") && (userRole === "Admin" || userRole === "Superadmin") && (
-            <div className="mt-4">
-              <button 
-                onClick={() => setActiveMenuGroup(activeMenuGroup === 'admin' ? null : 'admin')}
-                className="w-full flex items-center justify-between text-gray-500 font-bold text-xs uppercase tracking-widest px-4 py-2 hover:text-white transition-colors"
-              >
-                <span>Admin Hub</span>
-                {activeMenuGroup === 'admin' ? <FaChevronDown /> : <FaChevronRight />}
-              </button>
-              {activeMenuGroup === 'admin' && (
-                <div className="pl-2 space-y-1 mt-1">
-                  <button onClick={() => { setActiveTab("participants"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "participants" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+          {(portalType === "admin" || portalType === "master") && (
+            <div className={portalType === "master" ? "mt-4" : ""}>
+              {portalType === "master" && (
+                <button 
+                  onClick={() => setActiveMenuGroup(activeMenuGroup === 'admin' ? null : 'admin')}
+                  className="w-full flex items-center justify-between text-gray-500 font-bold text-xs uppercase tracking-widest px-4 py-2 hover:text-white transition-colors"
+                >
+                  <span>Admin Hub</span>
+                  {activeMenuGroup === 'admin' ? <FaChevronDown /> : <FaChevronRight />}
+                </button>
+              )}
+              {(activeMenuGroup === 'admin' || portalType !== "master") && (
+                <div className={portalType === "master" ? "pl-2 space-y-1 mt-1" : "space-y-1"}>
+                  <button onClick={() => { setActiveTab("participants"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "participants" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaUsers /> Verification Hub
                   </button>
-                  <button onClick={() => { setActiveTab("database"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "database" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("database"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "database" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaDatabase /> Participant Database
                   </button>
-                  <button onClick={() => { setActiveTab("submissions"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "submissions" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("submissions"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "submissions" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaFileAlt /> Submission Locker
                   </button>
-                  <button onClick={() => { setActiveTab("attendance"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "attendance" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("attendance"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "attendance" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaCalendarCheck /> Attendance
                   </button>
-                  <button onClick={() => { setActiveTab("qr_scanner"); resetForm(); setScannerActive(true); setScannedUser(null); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "qr_scanner" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("qr_scanner"); resetForm(); setScannerActive(true); setScannedUser(null); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "qr_scanner" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaQrcode /> QR Scanner
                   </button>
-                  <button onClick={() => { setActiveTab("broadcast"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "broadcast" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("broadcast"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "broadcast" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaEnvelope /> Broadcast Center
                   </button>
-                  <button onClick={() => { setActiveTab("users"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("users"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "users" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaUserShield /> Staff Management
                     {staffApps.filter(s => s.status === "PENDING").length > 0 && <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{staffApps.filter(s => s.status === "PENDING").length}</span>}
                   </button>
-                  <button onClick={() => { setActiveTab("recruitment"); resetForm(); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "recruitment" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
+                  <button onClick={() => { setActiveTab("recruitment"); resetForm(); setIsSidebarOpen(false); }} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === "recruitment" ? "bg-[#c1ff00] text-black font-bold" : "text-gray-300 hover:bg-gray-900"}`}>
                     <FaFileAlt /> Recruitment Database
                   </button>
                 </div>
